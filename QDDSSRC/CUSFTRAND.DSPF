@@ -1,0 +1,128 @@
+     A*%%TS  SD  20070302  204103  ROYMAN      REL-V5R4M0  5722-WDS
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2004
+     A*‚---------------------------------------------------------------
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      CA03(03 'Exit')
+     A                                      CA12(12 'Cancel')
+     A                                      CF08(08 'Contacts')
+     A                                      CF09(09 'Distributor')
+     A                                      CF10(10 'Delivery Areas')
+     A                                      PAGEDOWN(18)
+     A                                      PAGEUP(17)
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Maintenance Format 1
+     A*‚---------------------------------------------------------------
+     A          R ZZFT01
+     A*%%TS  SD  20070302  204103  ROYMAN      REL-V5R4M0  5722-WDS
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 21'Customer Site Maintenance'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE        11A  O  3 69
+     A                                  5 10'Customer No . . . . . . .'
+     A            ZCUSNO         5Y 0B  5 36DSPATR(HI)
+     A  31                                  DSPATR(PR)
+     A                                  7 10'Customer Name . . . . . .'
+     A            ZCNAME        34A  B  7 36
+     A  32                                  DSPATR(RI)
+     A                                  9 10'Address . . . . . . . . .'
+     A            ZADD1         34A  B  9 36
+     A            ZADD2         34A  B 10 36
+     A            ZADD3         34A  B 11 36
+     A            ZADD4         34A  B 12 36
+     A                                 14 10'Country . . . . . . . . .'
+     A            ZCNTRY        25A  B 14 36
+     A                                 16 10'Postcode  . . . . . . . .'
+     A            ZPSCD          8A  B 16 36
+     A  33                                  DSPATR(RI)
+     A                                 18 10'Telephone No  . . . . . .'
+     A            ZTELNO        17A  B 18 36
+     A  34                                  DSPATR(RI)
+     A                                 20 10'Fax. No . . . . . . . . .'
+     A            ZFAXNO        15A  B 20 36
+     A  35                                  DSPATR(RI)
+     A                                 22 73'More...'
+     A                                      DSPATR(HI)
+     A                                 23  2'F8=Contacts'
+     A                                      COLOR(BLU)
+     A                                 23 18'F9=Distributor'
+     A                                      COLOR(BLU)
+     A                                 23 37'F10=Del.Areas'
+     A                                      COLOR(BLU)
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Maintenance Format 2
+     A*‚---------------------------------------------------------------
+     A          R ZZFT02
+     A*%%TS  SD  20070130  130427  ROYMAN      REL-V5R3M0  5722-WDS
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 21'Customer Site Maintenance'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE        11A  O  3 69
+     A                                  5 10'Customer No . . . . . . .'
+     A            ZCUSNO         5Y 0B  5 36DSPATR(HI)
+     A  31                                  DSPATR(PR)
+     A                                  7 10'Email Address . . . . . .'
+     A            ZEMAIL        40A  B  7 36
+     A  36                                  DSPATR(RI)
+     A                                  8 10'Website . . . . . . . . .'
+     A            ZWEBST        40A  B  8 36
+     A  37                                  DSPATR(RI)
+     A                                 10 10'Distributor, Salesperson '
+     A            ZDSCDE         2A  B 10 36
+     A  38                                  DSPATR(RI)
+     A            ZSINIT         3A  B 10 40
+     A  44                                  DSPATR(RI)
+     A                                 12 10'Status  . . . . . . . . .'
+     A            ZSTTUS         1A  B 12 36
+     A  39                                  DSPATR(RI)
+     A                                 14 10'Contact . . . . . . . . .'
+     A            ZUSRNM        34A  B 14 36
+     A  40                                  DSPATR(RI)
+     A                                 16 10'Title . . . . . . . . . .'
+     A            ZSALUT        34A  B 16 36
+     A  41                                  DSPATR(RI)
+     A                                 18 10'Job Title . . . . . . . .'
+     A            ZJTTLE        34A  B 18 36
+     A  42                                  DSPATR(RI)
+     A                                 20 10'Last Contact Date . . . .'
+     A            ZLCTDT         8Y 0B 20 36
+     A  43                                  DSPATR(RI)
+     A                                      EDTWRD('    -  -  ')
+     A                                 21 10'Next Contact Date . . . .'
+     A            ZAPDAT         8Y 0B 21 36
+     A  43                                  DSPATR(RI)
+     A                                      EDTWRD('    -  -  ')
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A                                 22 73'Bottom'
+     A                                      DSPATR(HI)
+     A                                 23  2'F8=Contacts'
+     A                                      COLOR(BLU)
+     A                                 23 18'F9=Distributor'
+     A                                      COLOR(BLU)
+     A                                 23 37'F10=Del.Areas'
+     A                                      COLOR(BLU)
+     A*‚---------------------------------------------------------------
+     A          R DUMMY
+     A*%%TS  SD  20070126  201426  ROYMAN      REL-V5R3M0  5722-WDS
+     A                                      KEEP
+     A*                                     ASSUME
+     A                                      OVERLAY
+     A                                  1  3' '

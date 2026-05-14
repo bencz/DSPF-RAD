@@ -1,0 +1,109 @@
+     A*%%TS  SD  20070718  163949  JORGE       REL-V5R4M0  5722-WDS
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2005
+     A*ˆWork with Rep. Delivery Areas
+     A*‚---------------------------------------------------------------
+     A*‚
+     A*‚---------------------------------------------------------------
+     A*‚File level definitions
+     A*‚---------------------------------------------------------------
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      HELP
+     A                                      CA03(03 'Exit')
+     A                                      CA12(12 'Cancel')
+     A                                      VLDCMDKEY(28 'Valid Command Key')
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZSF01                    SFL
+     A*%%TS  SD  20070718  140524  JORGE       REL-V5R4M0  5722-WDS
+     A            SCCODE         3A  O 10  5TEXT('Customer')
+     A            SCDESC        40A  O 10 12TEXT('Cust Ref')
+     A            SCDAYS         3Y 0O 10 58EDTCDE(Z)
+     A            SCRATE         4Y 2O 10 69EDTWRD(' 0.  ')
+     A                                 10 75'%'
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZCT01                    SFLCTL(ZZSF01)
+     A*%%TS  SD  20070718  163949  JORGE       REL-V5R4M0  5722-WDS
+     A                                      TEXT('Sub-file control format')
+     A                                      CA06(06 'Add')
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A  71                                  SFLDSP
+     A  72                                  SFLDSPCTL
+     A  74                                  SFLCLR
+     A  81                                  SFLEND(*MORE)
+     A                                      SFLSIZ(0013)
+     A                                      SFLPAG(0012)
+     A*-                                    PUTOVR
+     A            SHWREC         4S 0H      SFLRCDNBR(CURSOR)
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 32'Sales Conditions'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE         8Y 0O  3 70EDTWRD('    /  /  ')
+     A                                  5  2'Enter options, press Enter.'
+     A                                      COLOR(BLU)
+     A                                  8  4'Code'
+     A                                      DSPATR(UL)
+     A                                  8 12'               Description        -
+     A                                            '
+     A                                      DSPATR(UL)
+     A                                  8 56' Days '
+     A                                      DSPATR(UL)
+     A                                  8 65' Discount Rate '
+     A                                      DSPATR(UL)
+     A                                  9  2'                                  -
+     A                                                                         -
+     A                                               '
+     A*‚---------------------------------------------------------------
+     A*‚Trailer Format
+     A*‚---------------------------------------------------------------
+     A*-                                    PUTOVR
+     A          R ZZTR01
+     A*%%TS  SD  20070717  184215  JORGE       REL-V5R4M0  5722-WDS
+     A                                      OVERLAY
+     A                                      BLINK
+     A                                      KEEP
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A                                 23  2'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 12'F12=Cancel'
+     A                                      COLOR(BLU)
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMS01                    SFL
+     A                                      TEXT('Message sub-file')
+     A                                      SFLMSGRCD(24)
+     A            ZZMSKY                    SFLMSGKEY
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMC01                    SFLCTL(ZZMS01)
+     A                                      TEXT('Message control')
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A                                      SFLPAG(1)
+     A                                      SFLSIZ(2)
+     A  82                                  SFLINZ
+     A  82                                  SFLDSP
+     A  82                                  SFLDSPCTL
+     A  82                                  SFLEND
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------
+     A          R DUMMY
+     A*%%TS  SD  20070126  201426  ROYMAN      REL-V5R3M0  5722-WDS
+     A                                      KEEP
+     A*                                     ASSUME
+     A                                      OVERLAY
+     A                                  1  3' '

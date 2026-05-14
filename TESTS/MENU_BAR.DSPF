@@ -1,0 +1,62 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *  A display screen for a Menu Bar                             *
+      *                                                              *
+      *   4/2014                                 booth@martinvt.com  *
+      ****************************************************************
+                                            DSPSIZ(24 80 *DS3)
+                                            ERRSFL
+                                            CA03
+                                            MNUCNL(CA12)
+      ****************************************************************
+                R MB                        MNUBAR
+                  MNUFLD         2Y 0B  1  2
+                                            MNUBARCHC(1 PULLFILE +
+                                            ' Display (DSP*) ')
+                                            MNUBARCHC(2 PULLEDIT +
+                                            ' Work w/ (WRK*) ')
+      ****************************************************************
+                R PULLFILE                  PULLDOWN(*NOSLTIND)
+                  PULL1          2Y 0B  1 02SNGCHCFLD(*AUTOENT)
+                                            CHOICE(1 'Display messages')
+                                            CHCCTL(1 &C1;)
+                                            CHOICE(2 'Display job log')
+                                            CHCCTL(2 &C2;)
+                                            CHOICE(3 'Display job')
+                                            CHCCTL(3 &C3;)
+                  C1             1Y 0H
+                  C2             1Y 0H
+                  C3             1Y 0H
+      ****************************************************************
+                R PULLEDIT                  PULLDOWN(*NOSLTIND)
+                  PULL1          2Y 0B  1 02SNGCHCFLD(*AUTOENT)
+                                            CHOICE(21 'Work w/ spool file')
+                                            CHCCTL(21 &C21;)
+                                            CHOICE(23 'Work w/ object links')
+                                            CHCCTL(23 &C23;)
+                                            CHOICE(24 'Work w/ user job')
+                                            CHCCTL(24 &C24;)
+                  C21            1Y 0H
+                  C23            1Y 0H
+                  C24            1Y 0H
+      ****************************************************************
+                R FMT01                     MNUBARDSP(MB &MNUCHC; &PULL;)
+                                            OVERLAY
+                  FIGLET       360   B  3  3CNTFLD(60) CHGINPDFT
+                                            DSPATR(PR) COLOR(RED)
+                  DATEUSA        8      4 70
+                  TIMEUSA        8      5 70
+                                        6 70'system i'
+                                        7 70USER
+                  MNUCHC         2Y 0H
+                  PULL           2S 0H
+      *****************************************************************
+                R S1CMD
+                  LINE77        77     23  2DSPATR(UL)
+                                            COLOR(BLU)
+                                       24  3'F3=Exit'
+                                            COLOR(BLU) 

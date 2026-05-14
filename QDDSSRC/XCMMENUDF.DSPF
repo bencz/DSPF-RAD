@@ -1,0 +1,39 @@
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2005
+     A*‚---------------------------------------------------------------
+     A                                      CA03(03 'Exit')
+     A                                      CA12(12 'Cancel')
+     A                                      CA21(21 'Command line')
+     A                                      VLDCMDKEY(28 'Valid Command Key')
+     A*‚---------------------------------------------------------------
+     A*‚Menu Display Format
+     A*‚---------------------------------------------------------------
+     A          R ZZFT01
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 25'M A I N   M E N U'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  2 72TIME
+     A            ZZDATE        10A  O  3 70OVRDTA
+     A                                  5  2'Select one of the following:'
+     A                                  7 11' 1.  Customer Site Maintenance'
+     A                                  8 11' 2.  Organisation Maintenance'
+     A                                  9 11' 3.  Account Maintenance'
+     A                                 10 11' 4.  Work with Customer Contacts'
+     A                                 11 11' 5.  Work with Customer Sites'
+     A                                 12 11' 6.  Work with Rep. Delivery Areas'
+     A                                 21  2'Option:'
+     A            OPTION         2A  B 21 10DSPATR(PC)
+     A                                      OVRDTA
+     A            ZMESSAGE      78A  O 23  2
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A*‚---------------------------------------------------------------

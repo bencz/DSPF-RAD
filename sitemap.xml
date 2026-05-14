@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <url>
+    <loc>https://dspf-rad.bencz.cc/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://github.com/user-attachments/assets/dd74b9a5-8e36-4b34-bac5-51d18e6a8ffa</image:loc>
+      <image:title>DSPF·RAD designer overview</image:title>
+      <image:caption>Drag-and-drop RAD designer for IBM i (AS/400) display files.</image:caption>
+    </image:image>
+  </url>
+
+</urlset>

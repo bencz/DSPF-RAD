@@ -1,0 +1,58 @@
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      PRINT
+     A                                      HELP(01 'User Help Requested')
+     A                                      CA01(01)
+     A                                      CA03(03 'Exit requested')
+     A                                      CF06(06 'Display Messages')
+     A                                      CF09(09 'Start Office')
+     A                                      CF14(14 'Dspsbmjob')
+     A                                      CF18(18 'Strprtwtr Prt02')
+     A                                      CF19(19 'Dspmsg Qsysopr')
+     A                                      CF20(20 'Wrkwtr Prt02')
+     A                                      CF21(21 'Dspoutq Prt02')
+     A                                      CF22(22 'Utilities')
+     A                                      CF24(24 'More Keys')
+     A          R MENUFMT
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                  1  3'X-analysis'
+     A                                      COLOR(BLU)
+     A                                  1 33'Customer Menu'
+     A                                      DSPATR(HI)
+     A                                  1 62'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            @@PGM         10A  O  2  3TEXT('Program Name')
+     A                                  2 62TIME
+     A                                  2 72DATE
+     A                                      EDTCDE(Y)
+     A                                  4  2'Select one of the following:'
+     A                                  6 10'Customer Functions'
+     A                                      DSPATR(UL)
+     A                                  7 16'1. Companies'
+     A                                  9 16'2. Prospects'
+     A                                 10 16'3. Customers by Name'
+     A                                 11 16'4. Customers by Status'
+     A                                 12 16'5. Worldwide Maintenance'
+     A                                 13 16'6. Immediate Faxshot'
+     A                                 14 16'7. Delayed Faxshot'
+     A                                 16 16'8. Faxstar Error Report'
+     A                                 18 10'Further Menus'
+     A                                      DSPATR(UL)
+     A                                 20 16'10.Products/Distributors'
+     A                                 22  4'Option:'
+     A            OPTION         3A  I 22 13DSPATR(PC)
+     A                                 22 19'(90-Sign off)'
+     A            $CMDF         78A  O 23  2COLOR(BLU)
+     A                                      TEXT('Function Key Usage')
+     A          R MENUSFL                   SFL
+     A                                      SFLMSGRCD(24)
+     A            MSGKEY                    SFLMSGKEY
+     A            MENUPGMQ                  SFLPGMQ
+     A          R MENUSFLC                  SFLCTL(MENUSFL)
+     A                                      LOCK
+     A                                      SFLSIZ(50) SFLPAG(1)
+     A  02                                  SFLEND
+     A  02                                  SFLDSP
+     A  02                                  SFLDSPCTL
+     A  02                                  SFLINZ
+     A            MENUPGMQ                  SFLPGMQ

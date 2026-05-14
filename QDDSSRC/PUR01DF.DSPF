@@ -1,0 +1,80 @@
+     A                                      CA03(03 'Exit')
+     A                                      PRINT
+     A*
+     A* Subfile Record
+     A          R OESFL                     SFL
+     A            OLLNNO         5S 0O 12  2
+     A                                      DSPATR(HI)
+     A            OLPROD         5S 0B 12  9
+     A                                      DSPATR(HI)
+     A  35                                  DSPATR(PR)
+     A            PRDESC        30A  O 12 20
+     A                                      DSPATR(HI)
+     A            OLQTY          5S 0B 12 55
+     A                                      DSPATR(HI)
+     A  35                                  DSPATR(PR)
+     A*
+     A* Subfile Control Record
+     A          R OESFLC                    SFLCTL(OESFL)
+     A                                      SFLSIZ(10)
+     A                                      SFLPAG(10)
+     A N33                                  SFLDSP
+     A N30                                  SFLDSPCTL
+     A  30                                  SFLDLT
+     A                                      BLINK
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            @@PGM         10A  O  1  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  1 27'O R D E R   E N T R Y'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  1 62TIME
+     A                                      OVRATR
+     A                                  1 72OVRATR
+     A                                      DATE
+     A                                      EDTCDE(Y)
+     A                                  3  2'Order No:'
+     A            DSORDN         6S 0B  3 13
+     A                                      OVRDTA OVRATR
+     A  34                                  DSPATR(PR)
+     A                                  3 25'Customer'
+     A            CSNAME        34A  O  3 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A                                  4  2'No:'
+     A            DSCSNO        11   B  4  8
+     A                                      OVRDTA OVRATR
+     A  34                                  DSPATR(PR)
+     A                                  4 25'Address'
+     A            CSADD1        34A  O  4 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            CSADD2        34A  O  5 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            CSADD3        34A  O  6 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            CSPSCD         8A  O  7 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A*
+     A                                  8  2'Order Lines:'
+     A                                 10  2'Line'
+     A                                 10  9'Product'
+     A                                 10 20'Description'
+     A                                 10 55'Quantity'
+     A*
+     A* Trailer Record
+     A          R OETRL
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            CMDDTA        78A  O 24  2
+     A                                      OVRDTA
+     A*
+     A* Clear Screen Record
+     A          R OECLR
+     A                                 12  9' '

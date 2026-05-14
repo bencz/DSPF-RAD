@@ -1,0 +1,134 @@
+
+     A*%%TS  SD  20000525  213546  BOOTH       REL-V4R4M0  5769-PW1  
+     A*                                                              
+     A*%%EC                                                          
+     A                                      DSPSIZ(27 132 *DS4)      
+     A                                      REF(*LIBL/GCKFL1 RGCKF)  
+     A                                      CHGINPDFT(HI UL)         
+     A                                      ERRSFL                   
+     A                                      CF03(03 'Exit')          
+     A                                      CF12(12 'Exit')          
+     A                                      MOUBTN(*ULD ENTER)       
+     A          R SFLA                      SFL                      
+     A*%%TS  SD  19991213  152103  BOOTH       REL-V4R4M0  5769-PW1  
+     A            GNNAME    R        O  6  3                         
+     A  41                                  COLOR(PNK)               
+     A            GCKKEY#   R        O  6 34                         
+     A            GCKHOOK#  R        O  6 45                         
+     A            GCKBLDG   R        O  6 56                         
+     A            GCKDOOR#  R        O  6 77                         
+     A            RECNBR         5S 0O  6 89                         
+     A**          PNNO          40A  O  6 89                                    
+     A            PNNO          30A  O  6 99                                    
+     A N42                                  DSPATR(ND)                          
+     A            GCKNOTE   R        H                                          
+     A**          RECNBR         5S 0H                                          
+     A          R FMT01                     SFLCTL(SFLA)                        
+     A*%%TS  SD  19991215  110627  BOOTH       REL-V4R4M0  5769-PW1             
+     A                                      SFLPAG(0015)                        
+     A                                      RTNCSRLOC(&CURREC; &CURFLD;)          
+     A                                      SFLSIZ(&NBRREC;)                     
+     A                                      OVERLAY                             
+     A                                      SFLCSRRRN(&RRNA;)                    
+     A  90                                  SFLDSP                              
+     A  90                                  SFLDSPCTL                           
+     A N90                                  SFLCLR                              
+     A  91                                  SFLEND(*SCRBAR *MORE)               
+     A                                  1  3DATE                                
+     A                                      EDTCDE(Y)                           
+     A                                  2  3TIME                                
+     A                                  1 79'   Selection Criteria for this scr-
+     A                                      een:         '                       
+     A                                      DSPATR(UL)                           
+     A                                      COLOR(BLU)                           
+     A                                  1 34'               Key Cabinets'       
+     A                                      COLOR(WHT)                           
+     A            PB1            2Y 0B  2 80MLTCHCFLD                            
+     A                                      CHOICE(1 'Show partial >note')       
+     A                                      CHCCTL(1 &CTL1;)                      
+     A                                      CHOICE(2 'Show ! as >pink')          
+     A                                      CHCCTL(2 &CTL2;)                      
+     A            CTL1           1Y 0H                                           
+     A            CTL2           1Y 0H                                           
+     A            PB2            2Y 0B  2105SNGCHCFLD                            
+     A                                      CHOICE(1 'Maintain Note   ')         
+     A                                      CHOICE(2 'Maintain Record')          
+     A                                      CHOICE(3 'Issue Key      ')          
+     A            COL1          30A  B  5  3DFTVAL('Name                       - 
+     A                                        ')                                 
+     A                                      DSPATR(UL)                           
+     A                                      DSPATR(PR)                           
+     A N31                                  COLOR(BLU)                          
+     A  31                                  COLOR(GRN)                          
+     A            COL2          10A  B  5 34DFTVAL('Key #     ')                
+     A                                      DSPATR(UL)                          
+     A                                      DSPATR(PR)                          
+     A N32                                  COLOR(BLU)                          
+     A  32                                  COLOR(GRN)                          
+     A            COL3          10A  B  5 45DFTVAL('Hook #    ')                
+     A                                      DSPATR(UL)                          
+     A                                      DSPATR(PR)                          
+     A N33                                  COLOR(BLU)                          
+     A  33                                  COLOR(GRN)                          
+     A            COL4          31A  B  5 56DFTVAL('Door #    ')                
+     A                                      DSPATR(UL)                          
+     A                                      DSPATR(PR)                          
+     A N34                                  COLOR(BLU)                          
+     A  34                                  COLOR(GRN)                          
+     A                                  5 88'Comment... (First characters only)-
+     A                                          '                               
+     A                                      COLOR(BLU)                          
+     A                                      DSPATR(UL)                          
+     A N42                                  DSPATR(ND)                          
+     A            RRNA           5S 0H                                          
+     A            NBRREC         5S 0P                                          
+     A            CURREC        10A  H                                          
+     A            CURFLD        10A  H                                          
+     A          R FOOTR                                                         
+     A*%%TS  SD  19991030  132706  BOOTH       REL-V4R4M0  5769-PW1             
+     A                                 24  3'                                  -
+     A                                                                         -
+     A                                                                         -
+     A                                                             '            
+     A                                      DSPATR(UL)                          
+     A                                      COLOR(BLU)                          
+     A            F1             2Y 0B 26 10PSHBTNFLD                           
+     A                                      DSPATR(PC)                          
+     A                                      PSHBTNCHC(1 '>Enter' ENTER)         
+     A                                      PSHBTNCHC(2 '>Settings' ENTER)      
+     A                                      PSHBTNCHC(3 '>Add Key' ENTER)       
+     A                                      PSHBTNCHC(4 'E>xit' CF03)           
+     A          R FMT02                                                          
+     A*%%TS  SD  19991206  112347  BOOTH       REL-V4R4M0  5769-PW1              
+     A                                      WINDOW(*DFT 12 45 *NOMSGLIN)         
+     A                                      TEXT('Key Cabinet')                  
+     A                                      BLINK                                
+     A                                      OVERLAY                              
+     A                                      WDWTITLE((*TEXT ' Maintain Key Reco- 
+     A                                      rd '))                               
+     A            GCKKEY#   R        B  1  1                                     
+     A            GCKHOOK#  R        B  2  1CHECK(LC)                            
+     A            GCKBLDG   R        B  3  1CHECK(LC)                            
+     A            GCKDOOR#  R        B  3 21CHECK(LC)                            
+     A            GCKNOTE   R        B  5  1CHECK(LC)                            
+     A                                      CNTFLD(043)                          
+     A            F2             2Y 0B 12  3PSHBTNFLD                            
+     A                                      PSHBTNCHC(1 'Cancel' CF12)           
+     A                                      PSHBTNCHC(2 'Accept')                
+     A                                  1 13'Key Number'                         
+     A                                  2 13'Hook Number'                        
+     A**                                3 13'Door Number'                        
+     A          R FMT03                                                         
+     A*%%TS  SD  19991101  102059  BOOTH       REL-V4R4M0  5769-PW1             
+     A                                      WINDOW(*DFT 8 45 *NOMSGLIN)         
+     A                                      TEXT('Maintain Notes ')             
+     A                                      BLINK                               
+     A                                      OVERLAY                             
+     A*                                     WDWTITLE((*TEXT ' Sample ') *BOTTOM)
+     A*                                     WDWTITLE((*TEXT ' Top ') *TOP)      
+     A                                      WDWTITLE((*TEXT ' Maintain Notes '))
+     A            GCKNOTE   R        B  1  1CNTFLD(043)                         
+     A                                      CHECK(LC)                           
+     A            F3             2Y 0B  8  3PSHBTNFLD                           
+     A                                      PSHBTNCHC(1 'Cancel' CF12)          
+     A                                      PSHBTNCHC(2 'Accept')               

@@ -1,0 +1,51 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *  A demo program of various date math techniques.             *
+      *                                                              *
+      *   12/2010                                booth@martinvt.com  *
+      ****************************************************************
+                                            DSPSIZ(24 80 *DS3)
+                                            CHGINPDFT(HI UL)
+                                            ERRSFL
+                                            CA03 CF04
+                                            MOUBTN(*ULD ENTER)
+                R FMT01
+                                            RTNCSRLOC(&REC; &FLD;)
+                  REC           10   H
+                  FLD           10   H
+                  FIGLET       360   B  2  3CNTFLD(60) CHGINPDFT
+                                            DSPATR(PR) COLOR(RED)
+                  DATEUSA        8      2 70
+                  TIMEUSA        8      3 70
+                                        4 70'system i'
+                                        5 70USER
+                                        8 14'      Date Math Demo      '
+                                            COLOR(TRQ)
+                                            DSPATR(UL)
+                                       10 14'Date:         '
+                  DAT             L  B   + 1COLOR(WHT) DATFMT(*JOB)
+                  DATEF4         4   B   + 1DSPATR(PR) COLOR(BLU)
+                                            DFTVAL('(F4)')
+                                       11 14'Day of week:  '
+                  DOWEEK         9       + 1COLOR(WHT)
+                                       12 14'Day of Year:  '
+                  JDAY            L      + 1COLOR(WHT) DATFMT(*JUL)
+                                       13 14'End-of-month: '
+                  EOM             L      + 1COLOR(WHT) DATFMT(*JOB)
+                                       14 14'Last Friday:  '
+                  LASTFRI         L      + 1COLOR(WHT) DATFMT(*JOB)
+                                       15 14'Next Tuesday: '
+                  NEXTTUE         L      + 1COLOR(WHT) DATFMT(*JOB)
+                  ADDDAYS        5Y 0B 16 19EDTCDE(N)
+                  ADDSUB          L      + 4COLOR(WHT) DATFMT(*JOB)
+                                         + 1'Add/Sub days:'
+                                       10 54'Century Date:'
+                  CDAY          10       + 1COLOR(WHT)
+                                       11 54'Regular Date:'
+                  REGDATE       10       + 1COLOR(WHT)
+                                       23  3'F3=Exit' COLOR(BLU)
+                                         + 3'F4=Pop-up Calendar' COLOR(BLU) 

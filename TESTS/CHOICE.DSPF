@@ -1,0 +1,148 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *  A display screen for a demo of checkboxes & radiobuttons    *
+      *                                                              *
+      *   1/2013                                 booth@martinvt.com  *
+      ****************************************************************
+                                            DSPSIZ(24 80 *DS3)
+                                            ERRSFL
+                                            MSGLOC(24)
+                                            CA03(03 'Exit')
+                R FMT01
+                                        2  2'   ___             _    _     __ _-
+                                            _             _    _       '
+                                            COLOR(RED)
+                                        3  2'  | . > ___  ___ _| |_ | |_  |  \ -
+                                             \ ___  _ _ _| |_ <_>._ _  '
+                                            COLOR(RED)
+                                        4  2'  | . \/ . \/ . \ | |  | . | |    -
+                                             |<_> || ''_> | |  | || '' | '
+                                            COLOR(RED)
+                                        5  2'  |___/\___/\___/ |_|  |_|_| |_|_|-
+                                             |<___||_|   |_|  |_||_|_| '
+                                            COLOR(RED)
+                                        7 53'& Friends   '
+                                            COLOR(WHT)
+                                        1 69DATE
+                                            EDTCDE(Y)
+                                        2 69TIME
+                                        3 69'System i'
+                                       10  5'Radio    -->' COLOR(YLW)
+                                       11  5'Buttons  -->' COLOR(YLW)
+                                       17  5'Check    -->' COLOR(TRQ)
+                                       18  5'Boxes    -->' COLOR(TRQ)
+                  F1             2Y 0B  9 20SNGCHCFLD((*NUMROW 6))
+                                            CHOICE(1 &CB01;)
+                                            CHOICE(2 &CB02;)
+                                            CHOICE(3 &CB03;)
+                                            CHOICE(4 &CB04;)
+                                            CHOICE(5 &CB05;)
+                                            CHOICE(6 &CB06;)
+                                            CHOICE(7 &CB07;)
+                                            CHOICE(8 &CB08;)
+                                            CHOICE(9 &CB09;)
+                                            CHOICE(10 &CB10;)
+                                            CHOICE(11 &CB11;)
+                                            CHOICE(12 &CB12;)
+                                            CHOICE(13 &CB13;)
+                                            CHOICE(14 &CB14;)
+                                            CHOICE(15 &CB15;)
+                                            CHOICE(16 &CB16;)
+                                            CHOICE(17 &CB17;)
+                                            CHOICE(18 &CB18;)
+                  CB01          10A  P
+                  CB02          10A  P
+                  CB03          10A  P
+                  CB04          10A  P
+                  CB05          10A  P
+                  CB06          10A  P
+                  CB07          10A  P
+                  CB08          10A  P
+                  CB09          10A  P
+                  CB10          10A  P
+                  CB11          10A  P
+                  CB12          10A  P
+                  CB13          10A  P
+                  CB14          10A  P
+                  CB15          10A  P
+                  CB16          10A  P
+                  CB17          10A  P
+                  CB18          10A  P
+                  F2             2Y 0B 16 20MLTCHCFLD((*NUMROW 6))
+                                            CHOICE(1 &RB01;)
+                                            CHOICE(2 &RB02;)
+                                            CHOICE(3 &RB03;)
+                                            CHOICE(4 &RB04;)
+                                            CHOICE(5 &RB05;)
+                                            CHOICE(6 &RB06;)
+                                            CHOICE(7 &RB07;)
+                                            CHOICE(8 &RB08;)
+                                            CHOICE(9 &RB09;)
+                                            CHOICE(10 &RB10;)
+                                            CHOICE(11 &RB11;)
+                                            CHOICE(12 &RB12;)
+                                            CHOICE(13 &RB13;)
+                                            CHOICE(14 &RB14;)
+                                            CHOICE(15 &RB15;)
+                                            CHOICE(16 &RB16;)
+                                            CHOICE(17 &RB17;)
+                                            CHOICE(18 &RB18;)
+                                            CHCCTL(1 &RB01CHC;)
+                                            CHCCTL(2 &RB02CHC;)
+                                            CHCCTL(3 &RB03CHC;)
+                                            CHCCTL(4 &RB04CHC;)
+                                            CHCCTL(5 &RB05CHC;)
+                                            CHCCTL(6 &RB06CHC;)
+                                            CHCCTL(7 &RB07CHC;)
+                                            CHCCTL(8 &RB08CHC;)
+                                            CHCCTL(9 &RB09CHC;)
+                                            CHCCTL(10 &RB10CHC;)
+                                            CHCCTL(11 &RB11CHC;)
+                                            CHCCTL(12 &RB12CHC;)
+                                            CHCCTL(13 &RB13CHC;)
+                                            CHCCTL(14 &RB14CHC;)
+                                            CHCCTL(15 &RB15CHC;)
+                                            CHCCTL(16 &RB16CHC;)
+                                            CHCCTL(17 &RB17CHC;)
+                                            CHCCTL(18 &RB18CHC;)
+                  RB01CHC        1Y 0H
+                  RB02CHC        1Y 0H
+                  RB03CHC        1Y 0H
+                  RB04CHC        1Y 0H
+                  RB05CHC        1Y 0H
+                  RB06CHC        1Y 0H
+                  RB07CHC        1Y 0H
+                  RB08CHC        1Y 0H
+                  RB09CHC        1Y 0H
+                  RB10CHC        1Y 0H
+                  RB11CHC        1Y 0H
+                  RB12CHC        1Y 0H
+                  RB13CHC        1Y 0H
+                  RB14CHC        1Y 0H
+                  RB15CHC        1Y 0H
+                  RB16CHC        1Y 0H
+                  RB17CHC        1Y 0H
+                  RB18CHC        1Y 0H
+                  RB01          10A  P
+                  RB02          10A  P
+                  RB03          10A  P
+                  RB04          10A  P
+                  RB05          10A  P
+                  RB06          10A  P
+                  RB07          10A  P
+                  RB08          10A  P
+                  RB09          10A  P
+                  RB10          10A  P
+                  RB11          10A  P
+                  RB12          10A  P
+                  RB13          10A  P
+                  RB14          10A  P
+                  RB15          10A  P
+                  RB16          10A  P
+                  RB17          10A  P
+                  RB18          10A  P
+                                       23  3'F3=Exit' COLOR(BLU)  

@@ -1,0 +1,89 @@
+     A*%%TS  SD  20031015  073137  US          REL-V4R4M0  5769-PW1
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      REF(*LIBL/CONHDR)
+     A                                      CA03(03 'Exit')
+     A                                      PRINT
+     A*
+     A* Subfile Record
+     A          R OESFL                     SFL
+     A            OLPROD         5S 0B 16  2
+     A                                      DSPATR(HI)
+     A  35                                  DSPATR(PR)
+     A            XWAACS        11   O 16 11
+     A                                      DSPATR(HI)
+     A            XWT8TX        15   O 16 23
+     A                                      DSPATR(HI)
+     A            XWRICD         3   O 16 40
+     A                                      DSPATR(HI)
+     A            OLQTY          5S 0B 16 50
+     A                                      DSPATR(HI)
+     A  35                                  DSPATR(PR)
+     A            XWA2CD         3   O 16 60
+     A                                      DSPATR(HI)
+     A            XWPRIC         6  2O 16 70
+     A                                      DSPATR(HI)
+     A*
+     A* Subfile Control Record
+     A          R OESFLC                    SFLCTL(OESFL)
+     A*%%TS  SD  20031015  073137  US          REL-V4R4M0  5769-PW1
+     A                                      SFLSIZ(0005)
+     A                                      SFLPAG(0005)
+     A N33                                  SFLDSP
+     A N30                                  SFLDSPCTL
+     A  30                                  SFLDLT
+     A                                      BLINK
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            @@PGM         10A  O  1  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  1 27'CONTRACT ENTRY'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  1 62TIME
+     A                                      OVRATR
+     A                                  1 72OVRATR
+     A                                      DATE
+     A                                      EDTCDE(Y)
+     A                                  3  2'Contract:'
+     A            DSORDN         6S 0B  3 13OVRDTA
+     A                                      OVRATR
+     A  34                                  DSPATR(PR)
+     A                                  3 25'Debtor'
+     A            XWCREF        20A  O  3 35OVRDTA
+     A                                      DSPATR(HI)
+     A                                  4  2'No:'
+     A            DSCSNO        11A  B  4  8OVRDTA
+     A                                      OVRATR
+     A  34                                  DSPATR(PR)
+     A  82                                  DSPATR(RI)
+     A                                  4 25'Address'
+     A            XWADD1    R        O  4 35OVRDTA
+     A                                      DSPATR(HI)
+     A            XWADD2    R        O  5 35OVRDTA
+     A                                      DSPATR(HI)
+     A            XWADD3    R        O  6 35OVRDTA
+     A*                                     DSPATR(HI)
+     A*           XWPCDE    R        O  7 35OVRDTA
+     A                                      DSPATR(HI)
+     A                                 13  2'Contract Lines:'
+     A*                                15  2'Product'
+     A                                 15 49'Quantity'
+     A                                 15 11'Store'
+     A                                 15 24'Ref.No.'
+     A                                 15 39'Type'
+     A                                 15 60'U/M'
+     A                                 15 70'Price'
+     A*
+     A* Trailer Record
+     A          R OETRL
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            CMDDTA        78A  O 24  2
+     A                                      OVRDTA
+     A*
+     A* Clear Screen Record
+     A          R OECLR
+     A                                 12  9' '

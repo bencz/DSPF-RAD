@@ -1,0 +1,69 @@
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2005
+     A*‚---------------------------------------------------------------
+     A                                      CA03(03 'Exit')
+     A                                      CA12(12 'Cancel')
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Maintenance Format
+     A*‚---------------------------------------------------------------
+     A          R ZZFT01
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 24'Contacts Maintenance'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  2 72TIME
+     A            ZZDATE        11A  O  3 69OVRDTA
+     A                                  4  2'Customer No . . . . . . .'
+     A            ZCUSNO         5Y 0B  4 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A  31                                  DSPATR(PR)
+     A                                  5  2'Product Code  . . . . . .'
+     A            ZPRPCDE        2A  B  5 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A  32                                  DSPATR(PR)
+     A                                  6  2'Contact Name  . . . . . .'
+     A            ZUSERNM       34A  B  6 28
+     A                                      OVRDTA OVRATR
+     A  33                                  DSPATR(RI)
+     A                                  7  2'Telephone No  . . . . . .'
+     A            ZTELNO        17A  B  7 28
+     A                                      OVRDTA OVRATR
+     A  34                                  DSPATR(RI)
+     A                                  8  2'Fax. No . . . . . . . . .'
+     A            ZFAXNO        15A  B  8 28
+     A                                      OVRDTA OVRATR
+     A  35                                  DSPATR(RI)
+     A                                  9  2'Email Address . . . . . .'
+     A            ZEMAIL        50A  B  9 28
+     A                                      OVRDTA OVRATR
+     A  36                                  DSPATR(RI)
+     A                                 10  2'Last Contact Date . . . .'
+     A            ZLCTDAT         L  B 10 28DATFMT(*ISO)
+     A                                      OVRDTA OVRATR
+     A  43                                  DSPATR(RI)
+     A                                 11  2'Next Contact Date . . . .'
+     A            ZAPDATE         L  B 11 28DATFMT(*ISO)
+     A                                      OVRDTA OVRATR
+     A  43                                  DSPATR(RI)
+     A                                 12  2'Salesperson . . . . . . .'
+     A            ZSINIT         3A  B 12 28
+     A                                      OVRDTA OVRATR
+     A  37                                  DSPATR(RI)
+     A                                 13  2'Status  . . . . . . . . .'
+     A            ZSTATUS        1A  B 13 28
+     A                                      OVRDTA OVRATR
+     A  38                                  DSPATR(RI)
+     A            ZMESSAGE      78A  O 23  2
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A*‚---------------------------------------------------------------

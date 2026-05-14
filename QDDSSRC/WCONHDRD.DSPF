@@ -1,0 +1,297 @@
+     A*%%TS  SD  20070302  150338  ROYMAN      REL-V5R4M0  5722-WDS
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2005
+     A*ˆWork with Rep. Delivery Areas
+     A*‚---------------------------------------------------------------
+     A*‚
+     A*‚---------------------------------------------------------------
+     A*‚File level definitions
+     A*‚---------------------------------------------------------------
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      HELP
+     A                                      CA03(03 'Exit')
+     A                                      CA12(12 'Cancel')
+     A                                      VLDCMDKEY(28 'Valid Command Key')
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZSF01                    SFL
+     A*%%TS  SD  20070214  133905  ROYMAN      REL-V5R3M0  5722-WDS
+     A            DSSEL          1A  B 13  2
+     A            XWORDN         6S 0O 13  5TEXT('Contract')
+     A            XWCREF        20A  O 13 13TEXT('Cust Ref')
+     A            XWDLDT          L  O 13 35TEXT('Contract Date')
+     A            XWSTAT         2A  O 13 47TEXT('Status')
+     A            XWTAMT        13Y 2O 13 56TEXT('Contract Value')
+     A                                      EDTWRD('  ,   ,   , 0 .  ')
+     A            PERSON         3A  O 13 51TEXT('Rep')
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZCT01                    SFLCTL(ZZSF01)
+     A*%%TS  SD  20070214  153949  ROYMAN      REL-V5R3M0  5722-WDS
+     A                                      SFLSIZ(0013)
+     A                                      SFLPAG(0009)
+     A                                      TEXT('Sub-file control format')
+     A                                      CA06(06 'Add')
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A  71                                  SFLDSP
+     A  72                                  SFLDSPCTL
+     A  74                                  SFLCLR
+     A  31                                  SFLEND(*MORE)
+     A*-                                    PUTOVR
+     A            SHWREC         4S 0H      SFLRCDNBR(CURSOR)
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 33'Work with Orders'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE         8Y 0O  3 70EDTWRD('    /  /  ')
+     A                                  4  2'Customer..............:'
+     A            XWBCCD        11A  O  4 26TEXT('Customer')
+     A            XWG4TX    R        O  4 38REFFLD(XWG4TX XAN4CDEM/CUSTS)
+     A                                      DSPATR(HI)
+     A                                  5  2'Representative........:'
+     A            PERCUS         3A  O  5 26TEXT('Rep')
+     A            SNAME     R        O  5 30REFFLD(PNAME XAN4CDEM/SLMEN)
+     A                                      DSPATR(HI)
+     A                                  6  2'Telephone Number......:'
+     A            TELNO         17A  O  6 26
+     A                                  7  2'Current balance.......:'
+     A            XWIDV0    R        O  7 26REFFLD(XWIDV0 XAN4CDEM/CUSTS)
+     A                                  7 44'Credit Limit......:'
+     A            XWGIVA    R        O  7 64REFFLD(XWGIVA XAN4CDEM/CUSTS)
+     A                                  9 42'Enter options, press Enter.'
+     A                                      COLOR(BLU)
+     A                                 10 42'2=Change, 4=Delete, 5=Display, 7=L-
+     A                                      ines'
+     A                                      COLOR(BLU)
+     A                                 11  5'Cntrac'
+     A                                      DSPATR(UL)
+     A                                 11 13' Customer Reference '
+     A                                      DSPATR(UL)
+     A                                 11 35'   Date   '
+     A                                      DSPATR(UL)
+     A                                 11 47'St'
+     A                                      DSPATR(UL)
+     A                                 11 56'     Value       '
+     A                                      DSPATR(UL)
+     A            LOCATE         6Y 0B  9 15EDTCDE(Z)
+     A                                      DSPATR(PC)
+     A                                 12  2'                                  -
+     A                                                                         -
+     A                                               '
+     A                                  9  2'Position to:'
+     A                                 11 51'Rep'
+     A                                      DSPATR(UL)
+     A*‚---------------------------------------------------------------
+     A*‚Trailer Format
+     A*‚---------------------------------------------------------------
+     A*-                                    PUTOVR
+     A          R ZZTR01
+     A*%%TS  SD  20070302  150338  ROYMAN      REL-V5R4M0  5722-WDS
+     A                                      OVERLAY
+     A                                      BLINK
+     A                                      KEEP
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A                                 23  2'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 11'F6=Add'
+     A                                      COLOR(BLU)
+     A                                 23 19'F12=Cancel'
+     A                                      COLOR(BLU)
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Enquiry Format
+     A*‚---------------------------------------------------------------
+     A          R ZZFT01
+     A*%%TS  SD  20070302  150338  ROYMAN      REL-V5R4M0  5722-WDS
+     A                                      TEXT('Enquiry format')
+     A N34                                  CA04(04 'PROMPT')
+     A                                      CA07(07 'DETAIL LINES')
+     A  37                                  CA23(23 'DELETE')
+     A                                      KEEP
+     A                                      RTNCSRLOC(&RECNAM &SFIELD)
+     A                                      BLINK
+     A                                      OVERLAY
+     A            SFIELD        10A  H
+     A            RECNAM        10A  H
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 33'Work with Orders'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE         8Y 0O  3 70EDTWRD('    /  /  ')
+     A                                  6  4'Contract..............:'
+     A            XWORDN         6Y 0B  6 28TEXT('Contract')
+     A                                      DSPATR(UL)
+     A N36                                  DSPATR(PR)
+     A  40                                  DSPATR(RI)
+     A  40                                  DSPATR(PC)
+     A                                  7  4'Customer..............>'
+     A            XWBCCD        11A  B  7 28TEXT('Customer')
+     A                                      DSPATR(UL)
+     A  34
+     AO 97                                  DSPATR(PR)
+     A  41                                  DSPATR(RI)
+     A  41                                  DSPATR(PC)
+     A                                  8  4'Customer Reference....:'
+     A            XWCREF        20A  B  8 28TEXT('Cust Ref')
+     A  34                                  DSPATR(PR)
+     A                                  9  4'Contract Date.........:'
+     A            XWDLDT          L  B  9 28TEXT('Contract Date')
+     A  34                                  DSPATR(PR)
+     A                                 10  4'Status................>'
+     A            XWSTAT         2A  B 10 28TEXT('Status')
+     A  34                                  DSPATR(PR)
+     A  42                                  DSPATR(RI)
+     A  42                                  DSPATR(PC)
+     A                                 11  4'Representative........>'
+     A            PERSON         3A  B 11 28TEXT('Rep')
+     A  34                                  DSPATR(PR)
+     A  43                                  DSPATR(PC)
+     A  43                                  DSPATR(RI)
+     A                                 12  4'Contract Value........:'
+     A            XWTAMT        13Y 2B 12 28TEXT('Contract Value')
+     A  34                                  DSPATR(PR)
+     A                                      EDTWRD('  ,   ,   , 0 .  ')
+     A                                 13  4'Address...............:'
+     A            XWADD1        40A  B 13 28TEXT('Address')
+     A  34                                  DSPATR(PR)
+     A                                      CHECK(LC)
+     A            XWADD2        40A  B 14 28TEXT('Address 2')
+     A  34                                  DSPATR(PR)
+     A                                      CHECK(LC)
+     A            XWADD3        40A  B 15 28TEXT('Address 3')
+     A  34                                  DSPATR(PR)
+     A                                      CHECK(LC)
+     A            XWADD4        40A  B 16 28TEXT('Address 4')
+     A  34                                  DSPATR(PR)
+     A                                      CHECK(LC)
+     A                                 17  4'Post Code.............:'
+     A            XWPCDE        10A  B 17 28TEXT('Post Code')
+     A  34                                  DSPATR(PR)
+     A                                 18  4'Country...............:'
+     A            XWCNTR         3A  B 18 28TEXT('Country')
+     A  34                                  DSPATR(PR)
+     A            XWG4TX    R        O  7 40REFFLD(XWG4TX XAN4CDEM/CUSTS)
+     A                                      DSPATR(HI)
+     A            ACTDSP        10A  O  4  2DSPATR(RI)
+     A                                  9 39'(yyyymmdd)'
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A            PNAME     R        O 11 32REFFLD(PNAME XAN4CDEM/SLMEN)
+     A                                      DSPATR(HI)
+     A            XWSDSC        20A  O 10 32DSPATR(HI)
+     A                                 23  2'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 11'F4=Prompt'
+     A                                      COLOR(BLU)
+     A  34                                  DSPATR(ND)
+     A                                 23 22'F7=Detail lines'
+     A                                      COLOR(BLU)
+     A                                 23 39'F12=Cancel'
+     A                                      COLOR(BLU)
+     A                                 23 51'F23=Confirm'
+     A                                      COLOR(BLU)
+     A N37                                  DSPATR(ND)
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMS01                    SFL
+     A                                      TEXT('Message sub-file')
+     A                                      SFLMSGRCD(24)
+     A            ZZMSKY                    SFLMSGKEY
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMC01                    SFLCTL(ZZMS01)
+     A                                      TEXT('Message control')
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A                                      SFLPAG(1)
+     A                                      SFLSIZ(2)
+     A  32                                  SFLINZ
+     A  32                                  SFLDSP
+     A  32                                  SFLDSPCTL
+     A  32                                  SFLEND
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------
+     A          R DUMMY
+     A*%%TS  SD  20070126  201426  ROYMAN      REL-V5R3M0  5722-WDS
+     A                                      KEEP
+     A*                                     ASSUME
+     A                                      OVERLAY
+     A                                  1  3' '
+     A*‚---------------------------------------------------------------
+     A          R ZZCNF1
+     A*%%TS  SD  20070302  150338  ROYMAN      REL-V5R4M0  5722-WDS
+     A                                      CA07(07 'DETAIL LINES')
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 33'Work with Orders'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE         8Y 0O  3 70EDTWRD('    /  /  ')
+     A                                  4  2'  CONFIRMATION  '
+     A                                      DSPATR(RI)
+     A                                  6  4'Contract..............:'
+     A            XWORDN         6Y 0O  6 28TEXT('Contract')
+     A                                      DSPATR(UL)
+     A                                  7  4'Customer..............>'
+     A            XWBCCD        11A  O  7 28TEXT('Customer')
+     A                                      DSPATR(UL)
+     A                                  8  4'Customer Reference....:'
+     A            XWCREF        20A  O  8 28TEXT('Cust Ref')
+     A                                      DSPATR(UL)
+     A                                  9  4'Contract Date.........:'
+     A            XWDLDT          L  O  9 28TEXT('Contract Date')
+     A                                      DSPATR(UL)
+     A                                 10  4'Status................>'
+     A            XWSTAT         2A  O 10 28TEXT('Status')
+     A                                      DSPATR(UL)
+     A                                 11  4'Representative........>'
+     A            PERSON         3A  O 11 28TEXT('Rep')
+     A                                      DSPATR(UL)
+     A                                 12  4'Contract Value........:'
+     A            XWTAMT        13Y 2O 12 28TEXT('Contract Value')
+     A                                      DSPATR(UL)
+     A                                      EDTWRD('  ,   ,   , 0 .  ')
+     A                                 13  4'Address...............:'
+     A            XWADD1        40A  O 13 28TEXT('Address')
+     A                                      DSPATR(UL)
+     A            XWADD2        40A  O 14 28TEXT('Address 2')
+     A                                      DSPATR(UL)
+     A            XWADD3        40A  O 15 28TEXT('Address 3')
+     A                                      DSPATR(UL)
+     A            XWADD4        40A  O 16 28TEXT('Address 4')
+     A                                      DSPATR(UL)
+     A                                 17  4'Post Code.............:'
+     A            XWPCDE        10A  O 17 28TEXT('Post Code')
+     A                                      DSPATR(UL)
+     A                                 18  4'Country...............:'
+     A            XWCNTR         3A  O 18 28TEXT('Country')
+     A                                      DSPATR(UL)
+     A            XWG4TX    R        O  7 40REFFLD(XWG4TX XAN4CDEM/CUSTS)
+     A                                      DSPATR(HI)
+     A                                  9 39'(yyyymmdd)'
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A            PNAME     R        O 11 32REFFLD(PNAME XAN4CDEM/SLMEN)
+     A                                      DSPATR(HI)
+     A            XWSDSC        20A  O 10 32DSPATR(HI)
+     A                                 22 30'Press ENTER to confirm'
+     A                                      DSPATR(RI)

@@ -1,0 +1,230 @@
+     A*%%TS  SD  20111004  161658  SIMON       REL-V6R1M0  5761-WDS
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2005
+     A*ˆWork with Customer Sites
+     A*‚---------------------------------------------------------------
+     A*‚
+     A*‚---------------------------------------------------------------
+     A*‚File level definitions
+     A*‚---------------------------------------------------------------
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      ALTHELP(CA01)
+     A                                      HELP
+     A                                      CA03(03 'Exit')
+     A                                      CF06(06 'Add')
+     A                                      CA12(12 'Cancel')
+     A                                      VLDCMDKEY(28 'Valid Command Key')
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZSF01                    SFL
+     A*%%TS  SD  20111004  161658  SIMON       REL-V6R1M0  5761-WDS
+     A            DSSEL          2A  B 10  2
+     A            DSCUSNO        5Y 0O 10  7
+     A            DSCNAME       34A  O 10 13
+     A            DSTELNO       17A  O 10 48
+     A                                 10 66'=============='
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZCT01                    SFLCTL(ZZSF01)
+     A*%%TS  SD  20070305  153134  ROYMAN      REL-V5R4M0  5722-WDS
+     A                                      SFLSIZ(0013)
+     A                                      SFLPAG(0012)
+     A                                      TEXT('Sub-file control format')
+     A  31                                  SFLDSP
+     A                                      SFLDSPCTL
+     A  30                                  SFLDLT
+     A  31                                  SFLEND
+     A                                      BLINK
+     A                                      KEEP
+     A                                      OVERLAY
+     A*                                     PUTOVR
+     A            DSPREC         4S 0H      SFLRCDNBR(CURSOR)
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 24'Work with Customer Sites'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE        10A  O  3 70
+     A                                  5  2'Enter options, press Enter.'
+     A                                      COLOR(BLU)
+     A                                  6  2'2=Change'
+     A                                      COLOR(BLU)
+     A                                  6 14'4=Delete'
+     A                                      COLOR(BLU)
+     A                                  6 26'5=Display'
+     A                                      COLOR(BLU)
+     A                                  8  7'No.'
+     A                                  8 13'Name'
+     A                                  8 48'Tel. No.'
+     A                                  9  2'                                  -
+     A                                                                         -
+     A                                                '
+     A*‚---------------------------------------------------------------
+     A*‚Trailer Format
+     A*‚---------------------------------------------------------------
+     A          R ZZTR01
+     A*%%TS  SD  20070305  154334  ROYMAN      REL-V5R4M0  5722-WDS
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                 23  2'F1=Help'
+     A                                      COLOR(BLU)
+     A                                 23 11'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 20'F6=Add'
+     A                                      COLOR(BLU)
+     A                                 23 28'F12=Cancel'
+     A                                      COLOR(BLU)
+     A                                 22  2'                                  -
+     A                                                                         -
+     A                                                '
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Enquiry Format
+     A*‚---------------------------------------------------------------
+     A          R ZZFT01
+     A*%%TS  SD  20111004  161658  SIMON       REL-V6R1M0  5761-WDS
+     A                                      TEXT('Enquiry format')
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A*                                     PUTOVR
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 24'Work with Customer Sites'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE        10A  O  3 70
+     A                                  4  3'Customer No  . . . . . .'
+     A            DSCUSNO        5Y 0O  4 29
+     A                                  5  3'Customer Name  . . . .'
+     A            DSCNAME       34A  O  5 29
+     A                                  6  3'Address  . . . . . . . .'
+     A            DSADD1        34A  O  6 29
+     A            DSADD2        34A  O  7 29
+     A            DSADD3        34A  O  8 29
+     A            DSADD4        34A  O  9 29
+     A                                 10  3'Country  . . . . . . . .'
+     A            DSCNTRY       25A  O 10 29
+     A                                 11  3'Postcode . . . . . . . .'
+     A            DSPSCD         8A  O 11 29
+     A                                 12  3'Telephone No . . . . . .'
+     A            DSTELNO       17A  O 12 29
+     A                                 13  3'Fax. No  . . . . . . . .'
+     A            DSFAXNO       15A  O 13 29
+     A                                 14  3'Email Address  . . . . .'
+     A            DSEMAIL       40A  O 14 29
+     A                                 15  3'Website  . . . . . . . .'
+     A            DSWEBSIT      40A  O 15 29
+     A                                 16  3'Distributor. . . . . . .'
+     A            DSDSDCDE       2A  O 16 29
+     A                                 17  3'Status . . . . . . . . .'
+     A            DSSTATUS       1A  O 17 29
+     A                                 18  3'Contact  . . . . . . . .'
+     A            DSUSERNM      34A  O 18 29
+     A                                 23  2'F1=Help'
+     A                                      COLOR(BLU)
+     A                                 23 11'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 20'F12=Cancel'
+     A                                      COLOR(BLU)
+     A                                 23 32'ENTER=Confirm delete'
+     A                                      COLOR(BLU)
+     A N23                                  DSPATR(ND)
+     A                                  4 35'                                  -
+     A                                                 '
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Update Format
+     A*‚---------------------------------------------------------------
+     A          R ZZFT02
+     A                                      TEXT('Update format')
+     A                                      OVERLAY
+     A                                      KEEP
+     A*                                     PUTOVR
+     A                                      BLINK
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 24'Work with Customer Sites'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10      2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE        10A  O  3 70
+     A                                  4  3'Customer No  . . . . .'
+     A            DSCUSNO        5Y 0B  4 29
+     A  50                                  DSPATR(PR)
+     A  51                                  DSPATR(RI)
+     A                                  5  3'Customer Name  . . . .'
+     A            DSCNAME       34A  B  5 29
+     A  52                                  DSPATR(RI)
+     A                                  6  3'Address  . . . . . . . .'
+     A            DSADD1        34A  B  6 29
+     A            DSADD2        34A  B  7 29
+     A            DSADD3        34A  B  8 29
+     A            DSADD4        34A  B  9 29
+     A                                 10  3'Country  . . . . . . . .'
+     A            DSCNTRY       25A  B 10 29
+     A                                 11  3'Postcode . . . . . . . .'
+     A            DSPSCD         8A  B 11 29
+     A  53                                  DSPATR(RI)
+     A                                 12  3'Telephone No . . . . . .'
+     A            DSTELNO       17A  B 12 29
+     A  54                                  DSPATR(RI)
+     A                                 13  3'Fax. No  . . . . . . . .'
+     A            DSFAXNO       15A  B 13 29
+     A  55                                  DSPATR(RI)
+     A                                 14  3'Email Address  . . . . .'
+     A            DSEMAIL       40A  B 14 29
+     A  56                                  DSPATR(RI)
+     A                                 15  3'Website  . . . . . . . .'
+     A            DSWEBSIT      40A  B 15 29
+     A  57                                  DSPATR(RI)
+     A                                 16  3'Distributor. . . . . . .'
+     A            DSDSDCDE       2A  B 16 29
+     A  58                                  DSPATR(RI)
+     A                                 17  3'Status . . . . . . . . .'
+     A            DSSTATUS       1A  B 17 29
+     A  59                                  DSPATR(RI)
+     A                                 18  3'Contact  . . . . . . . .'
+     A            DSUSERNM      34A  B 18 29
+     A  60                                  DSPATR(RI)
+     A                                 23  2'F1=Help'
+     A                                      COLOR(BLU)
+     A                                 23 11'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 20'F12=Cancel'
+     A                                      COLOR(BLU)
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMS01                    SFL
+     A                                      TEXT('Message sub-file')
+     A                                      SFLMSGRCD(24)
+     A            ZZMSKY                    SFLMSGKEY
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMC01                    SFLCTL(ZZMS01)
+     A                                      TEXT('Message control')
+     A                                      OVERLAY
+     A*                                     PUTOVR
+     A                                      SFLPAG(1)
+     A                                      SFLSIZ(2)
+     A  32                                  SFLINZ
+     A  32                                  SFLDSP
+     A  32                                  SFLDSPCTL
+     A  32                                  SFLEND
+     A            ZZPGM                     SFLPGMQ
+     A*========================================================
+     A          R DUMMY
+     A                                  1  3' '

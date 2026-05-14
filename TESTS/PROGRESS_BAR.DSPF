@@ -1,0 +1,15 @@
+                R FMT01
+                                            TEXT('A displayable Progress bar')
+                                            FRCDTA
+                                            OVERLAY
+                                            WINDOW(22 2 1 61 *NOMSGLIN)
+                  PRGBAR        58   O  1  1DSPATR(RI)
+                                            COLOR(GRN)
+                  FLASH          1   I   + 1DSPATR(ND)
+      *   - Move the distracting flash from the first column of the progress bar.
+      *****************************************************************
+                R DUMMY
+                                            TEXT('Prevents Previous +
+                                            screen from being cleared')
+                                            ASSUME
+                                        5  9' ' 

@@ -1,0 +1,149 @@
+     A                                      CA03(03 'Exit')
+     A                                      PRINT
+     A                                      HELP
+     A                                      ALTHELP(CA01)
+     A                                      HLPPNLGRP(XABRWD X@BRWD)
+     A                                      HLPTITLE('XA Browser')
+     A*
+     A* Subfile Record
+     A          R OESFL                     SFL
+     A            OLPROD         5S 0O 12  9
+     A                                      DSPATR(HI)
+     A            PRDESC        30A  O 12 20
+     A                                      DSPATR(HI)
+     A            OLQTY          5S 0O 12 55
+     A                                      DSPATR(HI)
+     A*
+     A* Subfile Control Record
+     A          R OESFLC                    SFLCTL(OESFL)
+     A                                      SFLSIZ(10)
+     A                                      SFLPAG(10)
+     A N33                                  SFLDSP
+     A N30                                  SFLDSPCTL
+     A  30                                  SFLDLT
+     A                                      BLINK
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            @@PGM         10A  O  1  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  1 25'O R D E R   E N Q U I R Y'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  1 62TIME
+     A                                  1 72DATE
+     A                                      EDTCDE(Y)
+     A                                  3  2'Order No:'
+     A            DSORDN         5S 0B  3 13
+     A                                      OVRDTA OVRATR
+     A  34                                  DSPATR(PR)
+     A                                  3 25'Customer'
+     A            CSNAME        34A  O  3 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A                                  4 25'Address'
+     A            CSADD1        34A  O  4 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A                                  5  2'Order Status:'
+     A            OHSTAT         1A  O  5 18
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            CSADD2        34A  O  5 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            CSADD3        34A  O  6 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            CSPSCD         8A  O  7 35
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A*
+     A                                  8  2'Order Lines:'
+     A                                 10  9'Product'
+     A                                 10 20'Description'
+     A                                 10 55'Quantity'
+     A*
+     A* Trailer Record
+     A          R OETRL
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            CMDDTA        78A  O 24  2
+     A                                      OVRDTA
+     A*
+     A* Clear Screen Record
+     A          R OECLR
+     A                                 12  9' '
+     A*X@BRWD SOURCE.
+      *
+     A          R @@SF01                    SFL
+     A*%%TS  SD  19980910  175639              REL-V3R1M0  5763-PW1
+     A                                      SETOF(34)
+     A N34        @SEQ           7A  B  3  2CHGINPDFT
+     A                                      CHANGE(37)
+     A            @OSEQ          7A  H
+     A            SDATA         71A  O  3 10
+     A  35                                  DSPATR(HI)
+     A            HDATA         80A  H
+     A          R @@CT01                    SFLCTL(@@SF01)
+     A                                      CF04(04)
+     A                                      CF05(05)
+     A                                      CF06(06)
+     A                                      CF09(09)
+     A                                      CF10(10)
+     A                                      CF12(12)
+     A                                      CF16(16)
+     A                                      CF17(17)
+     A                                      CF18(18)
+     A                                      CF19(19)
+     A                                      CF20(20)
+     A                                      CF21(21)
+     A                                      VLDCMDKEY(28 'Valid Command Key')
+     A                                      SFLSIZ(21)
+     A                                      SFLPAG(21)
+     A N30                                  SFLDSP
+     A N30                                  SFLDSPCTL
+     A  30                                  SFLDLT
+     A  81                                  SFLEND
+     A N81                                  ROLLUP(26 'Roll up')
+     A                                      ROLLDOWN(27 'Roll down')
+     A                                      CSRLOC(CLIN CCOL)
+     A                                      SFLCSRRRN(&D#CRN)
+     A                                      BLINK
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      SETOF(01)
+     A                                      HLPCLR
+     A          H                           HLPARA( 3  2 23 10)
+     A                                      HLPPNLGRP(ASEQ X@BRWD)
+     A          H                           HLPARA( 2  9  2 79)
+     A                                      HLPPNLGRP(SCAN X@BRWD)
+     A            CLIN           3S 0H
+     A            CCOL           3S 0H
+     A            D#CRN          5S 0H
+     A                                  1  2'Display to Level:'
+     A            @LEV           1S 0   1 20
+     A                                  1 38'X-analysis'
+     A                                      DSPATR(HI)
+     A            @FILE         21      1 59
+     A                                  2  2'SEU==>'
+     A            SEULIN        60   B  2  9DSPATR(UL)
+     A                                      CHECK(LC)
+     A            D@MBR         10      2 70
+     A          R @@MS01                    SFL
+     A                                      TEXT('Message sub-file')
+     A                                      SFLMSGRCD(24)
+     A            @@MSKY                    SFLMSGKEY
+     A            @@PGM                     SFLPGMQ
+     A          R @@MC01                    SFLCTL(@@MS01)
+     A                                      TEXT('Message control')
+     A                                      OVERLAY
+     A                                      KEEP
+     A                                      SFLPAG(1)
+     A                                      SFLSIZ(2)
+     A                                      SFLINZ
+     A                                      SFLDSP
+     A                                      SFLDSPCTL
+     A N01                                  SFLEND
+     A            @@PGM                     SFLPGMQ

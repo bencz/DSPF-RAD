@@ -1,0 +1,47 @@
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2005
+     A*‚---------------------------------------------------------------
+     A                                      CA03(03 'Exit')
+     A                                      CA12(12 'Cancel')
+     A                                      VLDCMDKEY(28 'Valid Command Key')
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Display Format
+     A*‚---------------------------------------------------------------
+     A          R ZZFT01
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 26'Product Display'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  2 72TIME
+     A            ZZDATE        10A  O  3 70OVRDTA
+     A                                  6  2'Product code  . . . . . .'
+     A            ZPRPCDE        2A  O  6 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA
+     A                                  8  2'Product description . . .'
+     A            ZPDESF        34A  O  8 28
+     A                                      OVRDTA
+     A                                  9  2'Quantity  . . . . . . . .'
+     A            ZPQTY          7Y 2O  9 28EDTCDE(3)
+     A                                      OVRDTA
+     A                                 10  2'Unit  . . . . . . . . . .'
+     A            ZPUNT         20A  O 10 28
+     A                                      OVRDTA
+     A                                 11  2'Price . . . . . . . . . .'
+     A            ZPPRC          7Y 2O 11 28EDTCDE(3)
+     A                                      OVRDTA
+     A                                 13  2'Current product . . . . .'
+     A            ZCURPROD       3A  O 13 28
+     A                                      OVRDTA
+     A            ZMESSAGE      78A  O 23  2
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A*‚---------------------------------------------------------------

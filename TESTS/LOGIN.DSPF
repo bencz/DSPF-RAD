@@ -1,0 +1,53 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *                                                              *
+      *   New Sign-on screen                     booth@martinvt.com  *
+      ****************************************************************
+      * WRITTEN BY    : Booth Martin                                 *
+      * DATE WRITTEN  :  6-2016                                      *
+      * COMMENTS      : Discussion of the process:                   *
+      *  http://www-01.ibm.com/support/docview.wss?uid=nas8N1010110  *
+      *                                                              *
+      * When creating the sign-on display file with the Create       *
+      * Display File (CRTDSPF) command, you must always specify 256  *
+      * on the MAXDEV parameter.                                     *
+      *                                                              *
+      *                                                              *
+      ****************************************************************
+                                            DSPSIZ(*DS3)
+                R SIGNON
+                  MSG21         50      1 15COLOR(WHT)
+                  MSG22         40      2 27
+                  SYSNAME        8        +1
+                  MSG23         40      3 27
+                  SBSNAME       10        +1
+                  MSG24         40      4 27
+                  DEVNAME       10        +1
+                  MSG01         40      6 10
+                  USERID        10   B   + 3
+        01        MSG02         40      7 10
+        01        PASSWRD       10   I    +3DSPATR(ND)
+                  MSG03         40      8 10
+                  PROGRAM       10   B    +3
+                  MSG04         40      9 10
+                  MENU          10   B    +3
+                  MSG05         40     10 10
+                  CURLIB        10   B    +3
+        02        QSNERROR      80     24  1DSPATR(HI)
+                  COPYRIGHT     40     24 40DSPATR(HI)
+                  UBUFFER      128   H
+                  SC1            2Y 0B 13 17SNGCHCFLD(*AUTOENT)
+                                            CHOICE(1 &CB01;)
+                                            CHOICE(2 &CB02;)
+                                       18  2'       ,,,        '
+                                            COLOR(RED)
+                                       19  2'      (o-o)       '
+                                            COLOR(YLW)
+                                       20  2'---ooO-(_)-Ooo----'
+                                            COLOR(YLW)
+                  CB01          10   P
+                  CB02          10   P 

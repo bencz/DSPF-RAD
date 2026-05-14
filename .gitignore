@@ -1,0 +1,55 @@
+# macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.sublime-workspace
+*.sublime-project
+.history/
+
+# Node (in case anything ever pulls deps locally)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs and runtime junk
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Local Claude / agent tooling
+.claude/
+
+# Build / temp output (no build system today, but here in case)
+dist/
+build/
+.tmp/
+.cache/

@@ -1,0 +1,120 @@
+     A                                      CA03(03 'Exit')
+     A                                      PRINT
+     A*
+     A* Subfile Record
+     A          R OESFL                     SFL
+     A            SELECT         1A  B  8  2
+     A                                      DSPATR(HI)
+     A            CSNO           5Y 0O  8  4
+     A                                      DSPATR(HI)
+     A            CSNAME        34A  O  8 11
+     A                                      DSPATR(HI)
+     A            CSADD1        34A  O  8 46
+     A                                      DSPATR(HI)
+     A*
+     A* Subfile Control Record
+     A          R OESFLC                    SFLCTL(OESFL)
+     A                                      SFLSIZ(10)
+     A                                      SFLPAG(10)
+     A N33                                  SFLDSP
+     A N30                                  SFLDSPCTL
+     A  30                                  SFLDLT
+     A                                      BLINK
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            @@PGM         10A  O  1  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  1 18'C U S T O M E R   M A I N T E N A -
+     A                                      N C E'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  1 62TIME
+     A                                      OVRATR
+     A                                  1 72OVRATR
+     A                                      DATE
+     A                                      EDTCDE(Y)
+     A                                  3  2'Customer No:'
+     A            DSCSNO         5S 0B  3 16
+     A                                      OVRDTA OVRATR
+     A  34                                  DSPATR(PR)
+     A*
+     A                                  6  4'No.'
+     A                                  6 11'Name'
+     A                                  6 46'Address Line 1'
+     A*
+     A* Detail Record
+     A          R OEDTL
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            @@PGM         10A  O  1  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  1 18'C U S T O M E R   M A I N T E N A -
+     A                                      N C E'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  1 62TIME
+     A                                      OVRATR
+     A                                  1 72OVRATR
+     A                                      DATE
+     A                                      EDTCDE(Y)
+     A                                  4  2'Customer No . . . . . . .'
+     A            CSNO           5Y 0B  4 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A  36                                  DSPATR(PR)
+     A                                  6  2'Name  . . . . . . . . . .'
+     A            CSNAME        34A  B  6 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A                                      CHECK(LC)
+     A  35                                  DSPATR(PR)
+     A                                  7  2'Address . . . . . . . . .'
+     A            CSADD1        34A  B  7 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A                                      CHECK(LC)
+     A  35                                  DSPATR(PR)
+     A            CSADD2        34A  B  8 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A                                      CHECK(LC)
+     A  35                                  DSPATR(PR)
+     A            CSADD3        34A  B  9 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A                                      CHECK(LC)
+     A  35                                  DSPATR(PR)
+     A                                 10  2'Postcode  . . . . . . . .'
+     A            CSPSCD         8A  B 10 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A  35                                  DSPATR(PR)
+     A                                 12  2'Telephone No  . . . . . .'
+     A            CSTELN        17A  B 12 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A  35                                  DSPATR(PR)
+     A                                 13  2'Facsimile No  . . . . . .'
+     A            CSFAXN        12A  B 13 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A  35                                  DSPATR(PR)
+     A                                 15  2'Terms Code  . . . . . . .'
+     A            CSTERM         3A  B 15 28
+     A                                      DSPATR(HI)
+     A                                      OVRDTA OVRATR
+     A  35                                  DSPATR(PR)
+     A*
+     A* Trailer Record
+     A          R OETRL
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            CMDDTA        78A  O 24  2
+     A                                      OVRDTA
+     A*
+     A* Clear Screen Record
+     A          R OECLR
+     A                                  8  9' '

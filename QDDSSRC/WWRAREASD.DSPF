@@ -1,0 +1,112 @@
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2005
+     A*ˆWork with Rep. Delivery Areas
+     A*‚---------------------------------------------------------------
+     A*‚
+     A*‚---------------------------------------------------------------
+     A*‚File level definitions
+     A*‚---------------------------------------------------------------
+     A                                      HELP
+     A                                      ALTHELP(CA01)
+     A                                      CA03(03 'Exit')
+     A                                      CA12(12 'Cancel')
+     A                                      VLDCMDKEY(28 'Valid Command Key')
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZSF01                    SFL
+     A            DSSEL          2A  B 10  2
+     A            DSXWBDCD       3A  O 10  7
+     A            DSXWGXTX      40A  O 10 13
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZCT01                    SFLCTL(ZZSF01)
+     A                                      TEXT('Sub-file control format')
+     A                                      SFLSIZ(13)
+     A                                      SFLPAG(12)
+     A  31                                  SFLDSP
+     A                                      SFLDSPCTL
+     A  30                                  SFLDLT
+     A  31                                  SFLEND
+     A                                      BLINK
+     A                                      KEEP
+     A                                      OVERLAY
+     A            DSPREC         4S 0H      SFLRCDNBR(CURSOR)
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 22'Work with Rep. Delivery Areas'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10      2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE        10A  O  3 70
+     A                                  4  2'Rep:'
+     A                                      DSPATR(HI)
+     A            DSPERSON       3A  O  4  7
+     A                                  5  2'Enter options, press Enter.'
+     A                                      COLOR(BLU)
+     A                                  6  2'5=Display'
+     A                                      COLOR(BLU)
+     A                                  8  7'Code'
+     A                                  8 13'Description'
+     A*‚---------------------------------------------------------------
+     A*‚Trailer Format
+     A*‚---------------------------------------------------------------
+     A          R ZZTR01
+     A                                      OVERLAY
+     A                                      BLINK
+     A                                      KEEP
+     A                                 23  2'F1=Help'
+     A                                      COLOR(BLU)
+     A                                 23 11'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 20'F12=Cancel'
+     A                                      COLOR(BLU)
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Enquiry Format
+     A*‚---------------------------------------------------------------
+     A          R ZZFT01
+     A                                      TEXT('Enquiry format')
+     A                                      OVERLAY
+     A                                      KEEP
+     A                                      BLINK
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 22'Work with Rep. Delivery Areas'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10      2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE        10A  O  3 70
+     A                                  4  3'Rep. Code  . . . . . .'
+     A            DSPERSON       3A  O  4 29
+     A                                  5  3'Area Code  . . . . . .'
+     A            DSXWBDCD       3A  O  5 29
+     A                                  6  3'Area Description . . . .'
+     A            DSXWGXTX      40A  O  6 29
+     A                                 12  3' '
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMS01                    SFL
+     A                                      TEXT('Message sub-file')
+     A                                      SFLMSGRCD(24)
+     A            ZZMSKY                    SFLMSGKEY
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMC01                    SFLCTL(ZZMS01)
+     A                                      TEXT('Message control')
+     A                                      OVERLAY
+     A                                      SFLPAG(1)
+     A                                      SFLSIZ(2)
+     A  32                                  SFLINZ
+     A  32                                  SFLDSP
+     A  32                                  SFLDSPCTL
+     A  32                                  SFLEND
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------

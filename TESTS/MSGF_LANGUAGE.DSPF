@@ -1,0 +1,48 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *  A program to center text in a field.                        *
+      *        - featuring the use of MSGIDs for                     *
+      *          changing languages.                                 *
+      *                                                              *
+      *   1/2013                                 booth@martinvt.com  *
+      ****************************************************************
+                                            DSPSIZ(24 80 *DS3)
+                                            CHGINPDFT(HI UL LC)
+                                            CA03(03 'EXIT')
+                R FMT01
+                                        2  2'   ___             _    _     __ _-
+                                            _             _    _       '
+                                            COLOR(RED)
+                                        3  2'  | . > ___  ___ _| |_ | |_  |  \ -
+                                             \ ___  _ _ _| |_ <_>._ _  '
+                                            COLOR(RED)
+                                        4  2'  | . \/ . \/ . \ | |  | . | |    -
+                                             |<_> || ''_> | |  | || '' | '
+                                            COLOR(RED)
+                                        5  2'  |___/\___/\___/ |_|  |_|_| |_|_|-
+                                             |<___||_|   |_|  |_||_|_| '
+                                            COLOR(RED)
+                  MSG03         20      7 53MSGID(UT12003 &MSGFILENM;)
+                                            COLOR(WHT)
+                                        1 69DATE
+                                            EDTCDE(Y)
+                                        2 69TIME
+                                        3 69'Hermes'
+                                        4 69USER
+                  MSG01         30     10 23MSGID(UT12001 &MSGFILENM;)
+                  MSG02         30     12  4MSGID(UT12002 &MSGFILENM;)
+                  FIELD         40   B   + 1
+                  RB01           2Y 0B 14 35SNGCHCFLD
+                                            CHOICE(1 &MSG04;)
+                                            CHOICE(2 &MSG05;)
+                                            CHOICE(3 &MSG06;)
+                  MSGFILENM     10   H
+                  MSG04         30   P
+                  MSG05         30   P
+                  MSG06         30   P
+                  MSGF3         15     23  3MSGID(UTLCF03 &MSGFILENM;)
+                                            COLOR(BLU) 

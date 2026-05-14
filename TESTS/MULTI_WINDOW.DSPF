@@ -1,0 +1,63 @@
+     ******************************************************************    
+     ** WRITTEN BY    : Booth Martin                                  *
+     ** DATE WRITTEN  : 11-2007                                       *
+     ** COMMENTS      : demonstrate   multi-windows                   *
+     **                                                               *
+     ******************************************************************
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      PRINT
+     A  90                                  MSGALARM
+     A                                      ERRSFL
+     A                                      CA03
+     A                                      CF23
+     A*****************************************************************
+     A          R S1CMD2
+     A                                      OVERLAY
+     A                                 23  2'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                   + 3'F23=Multi-Windows'
+     A                                      COLOR(BLU)
+     A                                 22 70' Page Up & '
+     A                                      DSPATR(RI) COLOR(BLU)
+     A                                 23 70' Page Down '
+     A                                      DSPATR(RI) COLOR(BLU)
+     A*****************************************************************
+     A          R WIN1
+     A                                      WINDOW(&W1LINE; &W1POS; -
+     A                                      5 32 -
+     A                                      *NOMSGLIN *NORSTCSR)
+     A                                      WDWBORDER((*COLOR BLU))
+     A                                      WDWTITLE((*TEXT &W1TITLE;) +
+     A                                      (*COLOR YLW) +
+     A                                      *LEFT *BOTTOM)
+     A                                      USRRSTDSP
+     A                                      OVERLAY
+     A                                      PAGEUP(21)
+     A                                      PAGEDOWN(22)
+     A            W1LINE         2S 0P
+     A            W1POS          3S 0P
+     A            W1TITLE       20   P
+     A            W1FIELD1      30      1  2
+     A                                      COLOR(WHT)
+     A            W1RADIO1       2Y 0B  2  1SNGCHCFLD
+     A                                      CHOICE(1 'High Flyer')
+     A                                      CHOICE(2 'Guest')
+     A                                      CHOICE(3 'Tourist')
+     A                                      CHCCTL(1 &W1RADIOF1;)
+     A                                      CHCCTL(2 &W1RADIOF2;)
+     A                                      CHCCTL(3 &W1RADIOF3;)
+     A                                      CHCAVAIL((*COLOR TRQ))
+     A            W1RADIOF1      1Y 0H
+     A            W1RADIOF2      1Y 0H
+     A            W1RADIOF3      1Y 0H
+     A            W1CHECK1       2Y 0B  2 18MLTCHCFLD
+     A                                      CHOICE(1 'No-Call List')
+     A                                      CHOICE(2 'Special Diet')
+     A                                      CHOICE(3 'VIP Account')
+     A                                      CHCCTL(1 &W1CHECKF1;)
+     A                                      CHCCTL(2 &W1CHECKF2;)
+     A                                      CHCCTL(3 &W1CHECKF3;)
+     A                                      CHCAVAIL((*COLOR PNK))
+     A            W1CHECKF1      1Y 0H
+     A            W1CHECKF2      1Y 0H
+     A            W1CHECKF3      1Y 0H  

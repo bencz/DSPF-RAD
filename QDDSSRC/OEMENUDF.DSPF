@@ -1,0 +1,29 @@
+     A                                      PRINT
+     A                                      CA03(03 'Exit requested')
+     A                                      CF06(06 'Display Messages')
+     A          R MENUFMT
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            @@PGM         10A  O  1  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  1 33'Order Entry Menu'
+     A                                      DSPATR(HI)
+     A                                  1 62TIME
+     A                                      OVRATR
+     A                                  1 72OVRATR
+     A                                      DATE
+     A                                      EDTCDE(Y)
+     A                                  4  2'Select one of the following:'
+     A                                  7 16'1. Order Entry'
+     A                                  9 16'2. Order Enquiry'
+     A                                 11 16'3. Product Enquiry'
+     A                                 13 16'4. Customer Enquiry/Maintenance'
+     A                                 15 16'5. Terms of Trade Enquiry'
+     A                                 17 16'6. Print Invoices'
+     A                                 20  2'Option:'
+     A            OPTION         1A  B 20 11DSPATR(PC)
+     A                                      OVRDTA
+     A                                 20 15'(90-Sign off)'
+     A            $CMDF         78A  O 23  2OVRDTA
+     A                                      COLOR(BLU)

@@ -1,0 +1,56 @@
+     A                                      CA03(03 'Exit')
+     A                                      PRINT
+     A*
+     A* Subfile Record
+     A          R OESFL                     SFL
+     A            PRPRNO         5Y 0O  8  2
+     A                                      DSPATR(HI)
+     A            PRDESC        30A  O  8  9
+     A                                      DSPATR(HI)
+     A            PRCOST         7Y 2O  8 41EDTCDE(1)
+     A                                      DSPATR(HI)
+     A            PRSQTY         5Y 0O  8 53EDTCDE(1)
+     A                                      DSPATR(HI)
+     A*
+     A* Subfile Control Record
+     A          R OESFLC                    SFLCTL(OESFL)
+     A                                      SFLSIZ(10)
+     A                                      SFLPAG(10)
+     A N33                                  SFLDSP
+     A N30                                  SFLDSPCTL
+     A  30                                  SFLDLT
+     A                                      BLINK
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            @@PGM         10A  O  1  2TEXT('Program Name')
+     A                                      OVRDTA
+     A                                  1 23'P R O D U C T   E N Q U I R Y'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  1 62TIME
+     A                                      OVRATR
+     A                                  1 72OVRATR
+     A                                      DATE
+     A                                      EDTCDE(Y)
+     A                                  3  2'Product Code:'
+     A            DSPRNO         5S 0B  3 17
+     A                                      OVRDTA OVRATR
+     A  34                                  DSPATR(PR)
+     A*
+     A                                  6  2'Code'
+     A                                  6  9'Description'
+     A                                  6 46'Cost'
+     A                                  6 54'Stock'
+     A*
+     A* Trailer Record
+     A          R OETRL
+     A                                      KEEP
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A            CMDDTA        78A  O 24  2
+     A                                      OVRDTA
+     A*
+     A* Clear Screen Record
+     A          R OECLR
+     A                                  8  9' '

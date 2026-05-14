@@ -1,0 +1,43 @@
+      ****************************************************************
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *                                                              *
+      *    3/2017                           booth@martinvt.com       *
+      * ____________________________________________________________ *
+      *                                                              *
+      *   Date math with timestamps                                  *
+      *                                                              *
+      ****************************************************************
+                R FMT01
+                                        2 72DATE EDTCDE(Y)
+                                        3 72TIME
+                                        4 72'System i'
+                  HDG4X65      280   B  1  2CNTFLD(65) CHGINPDFT
+                                            DSPATR(PR) COLOR(PNK)
+                                        9 15'Timestamp example                 -
+                                             '
+                                             COLOR(BLU) DSPATR(UL)
+                                       10 15' Date in'
+                  S1DATE1       26   B   + 1COLOR(WHT)
+                                       11 15'Date Out'
+                  S1DATE2       26   B   + 1COLOR(WHT)
+                                       12 15'Duration'
+                  S1DATE3       26   B   + 1COLOR(WHT)
+                                       14 15'   Years'
+                  S1YEARS        4  0    + 1COLOR(WHT) EDTCDE(X)
+                                       15 15'  Months'
+                  S1MONTHS       2  0    + 3COLOR(WHT) EDTCDE(X)
+                                       16 15'    Days'
+                  S1DAYS         2  0    + 3COLOR(WHT) EDTCDE(X)
+                                       17 15'   Hours'
+                  S1HOURS        2  0    + 3COLOR(WHT) EDTCDE(X)
+                                       18 15' Minutes'
+                  S1MINUTES      2  0    + 3COLOR(WHT) EDTCDE(X)
+                                       19 15' Seconds'
+                  S1SECONDS      2  0    + 3COLOR(WHT) EDTCDE(X)
+                  PB1            2Y 0B 23  4PSHBTNFLD((*GUTTER 2))
+                                            PSHBTNCHC(1 'FAQ   F1' CF01)
+                                            PSHBTNCHC(2 'Exit  F3' CF03)
+                                            CHCAVAIL((*COLOR PNK)) 

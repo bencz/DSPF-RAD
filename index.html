@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DSPF·RAD · Browser-based IBM i (AS/400) display file designer</title>
+    <meta name="description"
+          content="DSPF·RAD is a browser-based RAD designer for IBM i (AS/400) display files. Drag widgets onto a 5250 grid (24x80 or 27x132) and watch DSPF source regenerate live. Supports subfiles (SFL/SFLCTL), ENPTUI controls, and RPGLE / COBOL skeleton generation.">
+    <meta name="keywords"
+          content="DSPF, DDS, IBM i, AS/400, AS400, iSeries, System i, 5250, 5251, RPG, RPGLE, COBOL, display file, subfile, SFL, SFLCTL, ENPTUI, terminal designer, RAD, green screen, SDA">
+    <meta name="author" content="Alexandre Bencz">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <meta name="theme-color" content="#050a05">
+
+    <link rel="canonical" href="https://dspf-rad.bencz.cc/">
+
+    <!-- Open Graph (Facebook, LinkedIn, Discord, Slack, ...) -->
+    <meta property="og:type"          content="website">
+    <meta property="og:site_name"     content="DSPF·RAD">
+    <meta property="og:title"         content="DSPF·RAD · Browser-based IBM i display file designer">
+    <meta property="og:description"   content="Drag-and-drop RAD designer for DSPF (display files) on IBM i / AS/400. Live two-way sync between canvas and source, with RPGLE and COBOL skeleton generation.">
+    <meta property="og:url"           content="https://dspf-rad.bencz.cc/">
+    <meta property="og:image"         content="https://github.com/user-attachments/assets/dd74b9a5-8e36-4b34-bac5-51d18e6a8ffa">
+    <meta property="og:image:width"   content="1510">
+    <meta property="og:image:height"  content="864">
+    <meta property="og:image:alt"     content="DSPF·RAD designer showing a 5250 sign-on screen with palette, canvas, inspector and live DSPF source.">
+    <meta property="og:locale"        content="en_US">
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="DSPF·RAD · Browser-based IBM i display file designer">
+    <meta name="twitter:description" content="Drag-and-drop RAD designer for DSPF on IBM i / AS/400. Two-way sync between canvas and source.">
+    <meta name="twitter:image"       content="https://github.com/user-attachments/assets/dd74b9a5-8e36-4b34-bac5-51d18e6a8ffa">
+    <meta name="twitter:image:alt"   content="DSPF·RAD designer showing a 5250 sign-on screen with palette, canvas, inspector and live DSPF source.">
+
+    <!-- Structured data for search engines (schema.org SoftwareApplication) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "DSPF·RAD",
+      "url": "https://dspf-rad.bencz.cc/",
+      "description": "Browser-based RAD designer for IBM i (AS/400) display files (DSPF). Drag widgets onto a 5250 grid with live two-way sync between the canvas and DSPF source. Includes RPGLE and COBOL skeleton generators with protected regions.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any (web browser)",
+      "browserRequirements": "Requires a modern browser with ES modules and import maps (Chrome, Firefox, Safari, Edge).",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "license": "https://www.gnu.org/licenses/gpl-3.0.en.html",
+      "codeRepository": "https://github.com/bencz/DSPF-RAD",
+      "sameAs": [
+        "https://github.com/bencz/DSPF-RAD"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Alexandre Bencz",
+        "url": "https://github.com/bencz"
+      }
+    }
+    </script>
+
+    <link rel="icon" type="image/svg+xml"
+          href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23050a05'/><text x='32' y='44' font-family='monospace' font-size='18' font-weight='bold' fill='%2333ff33' text-anchor='middle'>DSPF</text></svg>">
+
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Import map so CodeMirror 6 sub-packages share a single instance
+         of @codemirror/state / @codemirror/view across the dep graph.
+         Without this, esm.sh serves a fresh copy of @codemirror/state to
+         each sub-package and the EditorView's instanceof checks fail with
+         "Unrecognized extension value".  Every package is fetched with
+         ?external= for its sub-deps so esm.sh emits bare imports, which
+         the browser resolves through this map to ONE URL per package. -->
+    <script type="importmap">
+    {
+      "imports": {
+        "@codemirror/state":         "https://esm.sh/@codemirror/state@6.5.0",
+        "@codemirror/view":          "https://esm.sh/@codemirror/view@6.34.0?external=@codemirror/state",
+        "@codemirror/language":      "https://esm.sh/@codemirror/language@6.10.0?external=@codemirror/state,@codemirror/view,@lezer/common,@lezer/highlight",
+        "@codemirror/autocomplete":  "https://esm.sh/@codemirror/autocomplete@6.18.0?external=@codemirror/state,@codemirror/view,@codemirror/language",
+        "@codemirror/commands":      "https://esm.sh/@codemirror/commands@6.7.0?external=@codemirror/state,@codemirror/view,@codemirror/language",
+        "@codemirror/search":        "https://esm.sh/@codemirror/search@6.5.6?external=@codemirror/state,@codemirror/view",
+        "@codemirror/lint":          "https://esm.sh/@codemirror/lint@6.8.0?external=@codemirror/state,@codemirror/view",
+        "@lezer/common":             "https://esm.sh/@lezer/common@1.2.3",
+        "@lezer/highlight":          "https://esm.sh/@lezer/highlight@1.2.1?external=@lezer/common",
+        "@lezer/lr":                 "https://esm.sh/@lezer/lr@1.4.2?external=@lezer/common",
+        "codemirror":                "https://esm.sh/codemirror@6.0.1?external=@codemirror/state,@codemirror/view,@codemirror/language,@codemirror/autocomplete,@codemirror/commands,@codemirror/search,@codemirror/lint"
+      }
+    }
+    </script>
+</head>
+<body class="dspf-rad">
+
+<div id="toolbar">
+    <span class="brand">DSPF·RAD</span>
+
+    <button id="newDoc"  title="Discard the current design and start fresh">New</button>
+    <button id="openDoc" title="Open DSPF source">Open…</button>
+    <button id="saveDoc" title="Generate DSPF source">Save</button>
+    <input  id="fileInput" type="file" hidden>
+
+    <span class="sep"></span>
+
+    <label class="lbl">Model
+        <select id="modelSel" title="Display file geometry">
+            <option value="24x80"  selected>24×80 (5251-11)</option>
+            <option value="27x132">27×132 (3477-FC)</option>
+        </select>
+    </label>
+
+    <span class="sep"></span>
+
+    <label class="lbl">Record
+        <select id="recordSel" title="Active record format"></select>
+    </label>
+    <button id="addRecord"    title="Add a new record format">+R</button>
+    <button id="addSubfile"   title="Add a Subfile pair (SFL + SFLCTL) wired with defaults">+SFL</button>
+    <button id="renameRecord" title="Rename the active record format">⇄</button>
+    <button id="deleteRecord" title="Delete the active record format">−R</button>
+
+    <span class="sep"></span>
+
+    <button id="overlayToggle" class="toggle"
+            title="Render the other records faded behind the active one">Overlay</button>
+    <button id="hideCondToggle" class="toggle"
+            title="Hide items that only render when an indicator is on/off (cleans up screens like CLOCK)">Hide cond</button>
+
+    <span class="sep"></span>
+
+    <button id="genRpgle" title="Generate RPGLE skeleton with protected regions">↗ RPGLE</button>
+    <button id="genCobol" title="Generate COBOL skeleton with protected regions">↗ COBOL</button>
+
+    <button id="exportJson" title="Copy internal model as JSON (debug)">{·}</button>
+
+    <span class="hint" title="Drag from palette · Click to select · Arrow keys to nudge (Shift = ×5) · Del to remove">drag·click·arrows·Del</span>
+    <span id="status">ready</span>
+</div>
+
+<div class="workspace">
+
+    <aside class="panel palette" id="palette">
+        <header class="panel-head">Palette</header>
+        <div class="panel-body">
+            <div class="palette-group">
+                <h4>Widgets</h4>
+                <div class="palette-item" draggable="true" data-kind="constant" data-text="Sample">
+                    <span class="pi-icon">A</span><span class="pi-label">Constant</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="input" data-length="10">
+                    <span class="pi-icon">▭</span><span class="pi-label">Input field</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="output" data-length="10">
+                    <span class="pi-icon">▷</span><span class="pi-label">Output field</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="both" data-length="10">
+                    <span class="pi-icon">⇄</span><span class="pi-label">I/O field</span>
+                </div>
+            </div>
+
+            <div class="palette-group">
+                <h4>Presets</h4>
+                <div class="palette-item" draggable="true" data-kind="constant" data-text="================================================================================">
+                    <span class="pi-icon">─</span><span class="pi-label">Rule line</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="constant" data-text="Sign On" data-dspatr="HI" data-color="WHT">
+                    <span class="pi-icon">»</span><span class="pi-label">"Sign On" title</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="input"  data-length="10" data-name="USER" data-dspatr="UL">
+                    <span class="pi-icon">▭</span><span class="pi-label">USER (10A, UL)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="input"  data-length="10" data-name="PASSWD" data-dspatr="ND,UL">
+                    <span class="pi-icon">▭</span><span class="pi-label">Password (ND·UL)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="output" data-length="6"  data-name="MSG"    data-dspatr="HI" data-color="YLW">
+                    <span class="pi-icon">▷</span><span class="pi-label">Message (HI·YLW)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="constant" data-text="F3=Exit   F12=Cancel" data-color="BLU">
+                    <span class="pi-icon">⌨</span><span class="pi-label">Function-key legend</span>
+                </div>
+            </div>
+
+            <div class="palette-group">
+                <h4>ENPTUI controls</h4>
+                <div class="palette-item" draggable="true" data-kind="pushbtn">
+                    <span class="pi-icon">⊓</span><span class="pi-label">Push button</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="pushbtnGroup">
+                    <span class="pi-icon">⊓⊓</span><span class="pi-label">Push button group (3)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="radio">
+                    <span class="pi-icon">◉</span><span class="pi-label">Radio (single)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="radioGroup">
+                    <span class="pi-icon">◉</span><span class="pi-label">Radio group (3)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="checkbox">
+                    <span class="pi-icon">☑</span><span class="pi-label">Checkbox (single)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="checkGroup">
+                    <span class="pi-icon">☑</span><span class="pi-label">Check group (3)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="mnubar">
+                    <span class="pi-icon">≡</span><span class="pi-label">Menu bar (2 items)</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="cntfld">
+                    <span class="pi-icon">¶</span><span class="pi-label">Continued field</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="errmsg">
+                    <span class="pi-icon">!</span><span class="pi-label">Error msg field</span>
+                </div>
+            </div>
+
+            <div class="palette-group">
+                <h4>System values</h4>
+                <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="DATE">
+                    <span class="pi-icon">⌚</span><span class="pi-label">DATE</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="TIME">
+                    <span class="pi-icon">⌛</span><span class="pi-label">TIME</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="USER">
+                    <span class="pi-icon">☻</span><span class="pi-label">USER</span>
+                </div>
+                <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="SYSNAME">
+                    <span class="pi-icon">⌬</span><span class="pi-label">SYSNAME</span>
+                </div>
+            </div>
+
+            <p class="palette-hint">
+                Drag onto the grid <em>or</em> click an item then click the grid (click-to-place).
+            </p>
+        </div>
+    </aside>
+
+    <main class="canvas-wrap">
+        <div class="canvas-frame" id="canvasFrame">
+            <canvas id="grid" tabindex="0"></canvas>
+        </div>
+        <div class="canvas-help" id="canvasHelp">Drag a widget from the palette onto the grid.</div>
+    </main>
+
+    <aside class="panel inspector" id="inspector">
+        <header class="panel-head">Inspector</header>
+        <div class="panel-body" id="inspectorBody">
+            <p class="empty">Nothing selected.</p>
+        </div>
+    </aside>
+
+</div>
+
+<div class="resize-handle" id="resizeHandle" role="separator"
+     aria-label="Resize source panel" aria-orientation="horizontal"></div>
+
+<section class="source-panel" id="sourcePanel">
+    <header class="source-panel-head">
+        <span class="source-panel-title">Source · DSPF</span>
+        <button id="cursorColToggle" class="source-chip"
+                title="Vertical column marker at cursor position">┃ col</button>
+        <span class="source-status ok" id="sourceStatus" title="Sync state">sync</span>
+        <button id="sourceCollapse" class="source-collapse"
+                title="Hide source panel">▾</button>
+    </header>
+    <div class="source-editor" id="sourceEditor"></div>
+</section>
+
+<div id="statusbar" role="status" aria-live="polite">
+    <span class="sb-cell" id="sbModel"  title="Display model">24×80</span>
+    <span class="sb-sep"></span>
+    <span class="sb-cell" id="sbRecord" title="Active record">—</span>
+    <span class="sb-sep"></span>
+    <span class="sb-cell" id="sbItems"  title="Item count in active record">0 items</span>
+    <span class="sb-spacer"></span>
+    <span class="sb-cell" id="sbCursor" title="Grid cursor (row, col)">(–,–)</span>
+</div>
+
+<script type="module" src="src/main.js"></script>
+
+</body>
+</html>

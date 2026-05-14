@@ -1,0 +1,34 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *                                                              *
+      *    9/2016  SCAN10D                  booth@martinvt.com       *
+      ****************************************************************
+      *   Simple %scan to split path/file                            *
+      *                                                              *
+      ****************************************************************         
+                                            DSPSIZ(*DS3)
+                                            CF01 CF03
+                                            ERRSFL
+                                            CHGINPDFT(HI UL)
+                R FMT01
+                  HDG4X65      260   B  1  2CNTFLD(65) CHGINPDFT
+                                            DSPATR(PR) COLOR(PNK)
+                                        2 72DATE EDTCDE(Y)
+                                        3 72TIME
+                                        4 72'System i'
+                                        5 10'with:'
+                  S1USERNAME    50       + 1COLOR(TRQ)
+                                        8  3'Path/file'
+                  S1PATHFILE    75   B  9  3
+                                       11  3'Path'
+                  S1PATH        75     12  3COLOR(YLW)
+                                       14  3'File     '
+                  S1FILE        75     15  3COLOR(YLW)
+                  PB1            2Y 0B 23  3PSHBTNFLD((*GUTTER 2))
+                                            PSHBTNCHC(1 'FAQ   F1' CF01)
+                                            PSHBTNCHC(2 'Exit  F3' CF03)
+                                            CHCAVAIL((*COLOR PNK))

@@ -1,0 +1,20 @@
+.git
+.gitignore
+.gitattributes
+.DS_Store
+.claude
+.idea
+.vscode
+
+node_modules
+npm-debug.log*
+
+# Dev-only artefacts (sample DSPF sources and the test suite are not
+# needed inside the deployed image).
+TESTS
+QDDSSRC
+
+# Meta files that have no place in the runtime image.
+README.md
+Dockerfile
+.dockerignore

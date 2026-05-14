@@ -1,0 +1,265 @@
+A*%%TS  SD  20260513  144732  CLAUDE      REL-V7R5M0  5770-WDS
+     A***************************************************************
+     A*  PGMERP01 - Enterprise Resource Planning Suite              *
+     A*  Tela 24x80 com recursos ENPTUI completos                   *
+     A***************************************************************
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      INDARA
+     A                                      ERRSFL
+     A                                      MSGLOC(24)
+     A                                      CHGINPDFT(CS)
+     A                                      HLPPNLGRP(PGMERP01H QGPL)
+     A                                      HLPFULL
+     A                                      ALWGPH
+     A                                      CSRINPONLY
+     A                                      CA01(01 'Help')
+     A                                      CA03(03 'Exit')
+     A                                      CA05(05 'Refresh')
+     A                                      CF06(06 'Create')
+     A                                      CF09(09 'Retrieve')
+     A                                      CA12(12 'Cancel')
+     A                                      CF11(11 'New Order')
+     A                                      CF12(12 'Cust Inquiry')
+     A                                      CF13(13 'Stock Move')
+     A                                      CF14(14 'Invoice Print')
+     A***************************************************************
+     A*  Menu Bar (linha 1, col 2-41)                               *
+     A***************************************************************
+     A          R MENUBAR                   MNUBAR
+     A                                      MNUBARSEP((*COLOR BLU)-
+     A                                      (*CHAR '='))
+     A            MNUFLD         2Y 0B  1  2
+     A                                      MNUBARCHC(1 PFILE  ' File ')
+     A                                      MNUBARCHC(2 PEDIT  ' Edit ')
+     A                                      MNUBARCHC(3 PVIEW  ' View ')
+     A                                      MNUBARCHC(4 PTOOLS ' Tools ')
+     A                                      MNUBARCHC(5 PREPRT ' Reports ')
+     A                                      MNUBARCHC(6 PHELP  ' Help ')
+     A                                  1 73'QSECOFR'
+     A                                      COLOR(YLW)
+     A***************************************************************
+     A*  Pull-down File (acionado pela opcao 1 do MNUBAR)           *
+     A***************************************************************
+     A          R PFILE                     PULLDOWN
+     A            PF1            2Y 0B  1  2SNGCHCFLD((*NUMCOL 1))
+     A                                      CHOICE(1 'New          Ctrl+N')
+     A                                      CHCCTL(1 &C1)
+     A                                      CHOICE(2 'Open         Ctrl+O')
+     A                                      CHCCTL(2 &C2)
+     A                                      CHOICE(3 'Save         Ctrl+S')
+     A                                      CHCCTL(3 &C3)
+     A                                      CHOICE(4 '-')
+     A                                      CHOICE(5 'Print        Ctrl+P')
+     A                                      CHCCTL(5 &C5)
+     A                                      CHOICE(6 '-')
+     A                                      CHOICE(7 'Exit         F3')
+     A                                      CHCAVAIL((*COLOR BLU))
+     A                                      CHCSLT((*COLOR WHT)(*RVI))
+     A                                      CHCUNAVAIL((*COLOR PNK))
+     A            C1             1Y 0H
+     A            C2             1Y 0H
+     A            C3             1Y 0H
+     A            C5             1Y 0H
+     A***************************************************************
+     A*  Cabecalho com banner FIGlet e identificacao do sistema     *
+     A***************************************************************
+     A          R FMTHDR                    OVERLAY
+     A                                      MNUBARDSP(MENUBAR &MBCHC &PULL)
+     A                                  2  1'================================-
+     A                                      ================================'
+     A                                      COLOR(TRQ)
+     A            BANNER1       47A  O  3  1COLOR(RED)
+     A            BANNER2       47A  O  4  1COLOR(RED)
+     A            BANNER3       47A  O  5  1COLOR(RED)
+     A            BANNER4       47A  O  6  1COLOR(RED)
+     A            BANNER5       47A  O  7  1COLOR(RED)
+     A            SYSDATE         L  O  3 65DATFMT(*ISO)
+     A            SYSTIME         T  O  4 67TIMFMT(*HMS)
+     A                                  5 66'System i'
+     A                                      COLOR(BLU)
+     A                                  6 64'POWER10 v7.5'
+     A                                      COLOR(WHT) DSPATR(HI)
+     A                                  8  1'--------------------------------+
+     A                                      --------------------------------'
+     A                                      COLOR(TRQ)
+     A            MBCHC          2Y 0H
+     A            PULL           2S 0H
+     A***************************************************************
+     A*  Subfile (linhas 11-16, col 2-37) + scrollbar grafico       *
+     A*  na coluna 40 renderizado automaticamente por SFLEND        *
+     A***************************************************************
+     A          R SFLCUST                   SFL
+     A            OPT            1Y 0B 11  2VALUES(0 2 4 5 8 9)
+     A                                      DSPATR(CS)
+     A                                      CHECK(ER)
+     A            CODE           5Y 0O 11  6EDTCDE(4)
+     A            CNAME         20A  O 11 13
+     A            STCODE         1A  O 11 34
+     A  41                                  COLOR(GRN)
+     A  42                                  COLOR(YLW)
+     A  43                                  COLOR(RED)
+     A          R SFLCTL                    SFLCTL(SFLCUST)
+     A                                      OVERLAY
+     A                                      SFLSIZ(9999)
+     A                                      SFLPAG(0006)
+     A                                      SFLDSP
+     A                                      SFLDSPCTL
+     A                                      SFLEND(*SCRBAR)
+     A                                      SFLCSRRRN(&CSRRRN)
+     A                                      SFLMODE(&MODE)
+     A                                      ROLLUP(91)
+     A                                      ROLLDOWN(92)
+     A                                  9  1'Search:'
+     A                                      COLOR(BLU)
+     A            SRCHFLD       20A  B  9 10DSPATR(UL CS)
+     A                                      CHECK(LC)
+     A                                 10  1'Opt  Code   Customer Name        S+
+     A                                      t'
+     A                                      DSPATR(HI UL)
+     A                                 17  1'Page 1/12'
+     A                                      COLOR(WHT) DSPATR(HI)
+     A            CSRRRN         5S 0H
+     A            MODE           1A   H
+     A***************************************************************
+     A*  Janela KPI Dashboard (linhas 9-16, col 45-72)              *
+     A*  Bordas desenhadas com OVERLAY para coexistir com subfile   *
+     A***************************************************************
+     A          R FMTKPI                    OVERLAY
+     A                                  9 45'+- KPI Dashboard ----------+'
+     A                                      COLOR(YLW)
+     A                                 10 45'| Revenue MTD              |'
+     A                                      COLOR(YLW)
+     A                                 11 45'|'
+     A                                      COLOR(YLW)
+     A            REVMTD        18A  O 11 48COLOR(WHT) DSPATR(HI)
+     A                                 11 72'|'
+     A                                      COLOR(YLW)
+     A                                 12 45'|'
+     A                                      COLOR(YLW)
+     A            PROGBAR       18A  O 12 48COLOR(GRN)
+     A            PROGPCT        3Y 0O 12 67EDTCDE(Z)
+     A                                      COLOR(YLW)
+     A                                 12 72'|'
+     A                                      COLOR(YLW)
+     A                                 13 45'| Orders Today:'
+     A                                      COLOR(YLW)
+     A            ORDTOD         5Y 0O 13 60EDTCDE(1)
+     A                                      COLOR(WHT) DSPATR(HI)
+     A                                 13 72'|'
+     A                                      COLOR(YLW)
+     A                                 14 45'| Open Tickets:'
+     A                                      COLOR(YLW)
+     A            TICKETS        3Y 0O 14 60EDTCDE(Z)
+     A                                      COLOR(RED) DSPATR(HI BL)
+     A                                 14 72'|'
+     A                                      COLOR(YLW)
+     A                                 15 45'| Stock Alert:'
+     A                                      COLOR(YLW)
+     A            STKALT        10A  O 15 59COLOR(RED) DSPATR(HI)
+     A                                 15 72'|'
+     A                                      COLOR(YLW)
+     A                                 16 45'+--------------------------+'
+     A                                      COLOR(YLW)
+     A***************************************************************
+     A*  Janela Quick Actions (linhas 17-22, col 45-72)             *
+     A***************************************************************
+     A          R FMTACT                    OVERLAY
+     A                                 17 45'+- Quick Actions ----------+'
+     A                                      COLOR(PNK)
+     A            ACTBTN         2Y 0B 18 48PSHBTNFLD((*GUTTER 0)-
+     A                                      (*NUMROW 4))
+     A                                      PSHBTNCHC(1 'New Order      F11' -
+     A                                      CF11)
+     A                                      PSHBTNCHC(2 'Cust Inquiry   F12' -
+     A                                      CF12)
+     A                                      PSHBTNCHC(3 'Stock Move     F13' -
+     A                                      CF13)
+     A                                      PSHBTNCHC(4 'Invoice Print  F14' -
+     A                                      CF14)
+     A                                      CHCAVAIL((*COLOR PNK)(*DSPATR RI))
+     A                                      CHCSLT((*COLOR WHT)(*DSPATR HI RI))
+     A                                 18 45'|'
+     A                                      COLOR(PNK)
+     A                                 18 72'|'
+     A                                      COLOR(PNK)
+     A                                 19 45'|'
+     A                                      COLOR(PNK)
+     A                                 19 72'|'
+     A                                      COLOR(PNK)
+     A                                 20 45'|'
+     A                                      COLOR(PNK)
+     A                                 20 72'|'
+     A                                      COLOR(PNK)
+     A                                 21 45'|'
+     A                                      COLOR(PNK)
+     A                                 21 72'|'
+     A                                      COLOR(PNK)
+     A                                 22 45'+--------------------------+'
+     A                                      COLOR(PNK)
+     A***************************************************************
+     A*  Filtros, combo boxes e alerta (lado esquerdo, col 1-34)    *
+     A***************************************************************
+     A          R FMTFLT                    OVERLAY
+     A                                 18  1'Filter:'
+     A                                      COLOR(YLW)
+     A            FCB1           1Y 0B 18  9VALUES(0 1)
+     A                                      DSPATR(CS)
+     A                                 18  9'['
+     A                                 18 11']Active'
+     A            FCB2           1Y 0B 18 19VALUES(0 1)
+     A                                 18 19'['
+     A                                 18 21']Hold'
+     A            FCB3           1Y 0B 18 26VALUES(0 1)
+     A                                 18 26'['
+     A                                 18 28']Block'
+     A                                 19  1'Region:'
+     A                                      COLOR(YLW)
+     A            REGION         2Y 0B 19  9SNGCHCFLD((*NUMCOL 1))
+     A                                      CHOICE(1 'North')
+     A                                      CHOICE(2 'Northeast')
+     A                                      CHOICE(3 'Midwest')
+     A                                      CHOICE(4 'Southeast')
+     A                                      CHOICE(5 'South')
+     A                                      CHCAVAIL((*COLOR TRQ))
+     A                                 20  1'Curr  :'
+     A                                      COLOR(YLW)
+     A            CURR           2Y 0B 20  9SNGCHCFLD
+     A                                      CHOICE(1 'USD')
+     A                                      CHOICE(2 'EUR')
+     A                                      CHOICE(3 'BRL')
+     A                                      CHOICE(4 'JPY')
+     A                                      CHCAVAIL((*COLOR TRQ))
+     A            ALERT         20A  O 22  1COLOR(RED) DSPATR(HI BL)
+     A***************************************************************
+     A*  Rodape de function keys (linha 23 separador, 24 keys)      *
+     A***************************************************************
+     A          R FMTKEY                    OVERLAY
+     A                                 23  1'--------------------------------+
+     A                                      --------------------------------'
+     A                                      COLOR(TRQ)
+     A                                 24  1'F1=Help'
+     A                                      COLOR(BLU)
+     A                                 24 10'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 24 19'F5=Refresh'
+     A                                      COLOR(BLU)
+     A                                 24 31'F6=Create'
+     A                                      COLOR(PNK) DSPATR(HI)
+     A                                 24 42'F9=Retrieve'
+     A                                      COLOR(BLU)
+     A                                 24 55'F12=Cancel'
+     A                                      COLOR(RED)
+     A***************************************************************
+     A*  Message subfile na linha 24 (ativado quando ha mensagens)  *
+     A***************************************************************
+     A          R MSGSFL                    SFL
+     A                                      SFLMSGRCD(24)
+     A            MSGKEY                    SFLMSGKEY
+     A            PGMQ                      SFLPGMQ
+     A          R MSGCTL                    SFLCTL(MSGSFL)
+     A                                      OVERLAY
+     A                                      SFLDSP
+     A                                      SFLINZ
+     A                                      SFLPAG(0001)
+     A                                      SFLSIZ(0002)
+     A            PGMQ                      SFLPGMQ

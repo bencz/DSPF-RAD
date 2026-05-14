@@ -1,0 +1,68 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *  A display screen for a kiosk program                        *
+      *                                                              *
+      *  11/2010                                 booth@martinvt.com  *
+      ****************************************************************
+                                            DSPSIZ(24 80 *DS3)
+                                            ERRSFL
+        55                                  INVITE
+                R FMT01
+                                            WINDOW(5 6 9 65 *NOMSGLIN)
+                                            WDWBORDER((*COLOR RED))
+                                            WDWTITLE((*TEXT &TITLE;))
+                                            KEEP
+                                            MOUBTN(*ULD ENTER)
+                  COL1ROW1       8      2  2COLOR(WHT)
+                  COL2ROW1       8       + 1COLOR(WHT)
+                  COL3ROW1       3       + 1COLOR(WHT)
+                  COL4ROW1       8       + 1COLOR(WHT)
+                  COL5ROW1       8       + 1COLOR(WHT)
+                  COL1ROW2       8      3  2COLOR(WHT)
+                  COL2ROW2       8       + 1COLOR(WHT)
+                  COL3ROW2       3       + 1COLOR(WHT)
+                  COL4ROW2       8       + 1COLOR(WHT)
+                  COL5ROW2       8       + 1COLOR(WHT)
+                  COL1ROW3       8      4  2COLOR(WHT)
+                  COL2ROW3       8       + 1COLOR(WHT)
+                  COL3ROW3       3       + 1COLOR(WHT)
+                  COL4ROW3       8       + 1COLOR(WHT)
+                  COL5ROW3       8       + 1COLOR(WHT)
+                  COL1ROW4       8      5  2COLOR(WHT)
+                  COL2ROW4       8       + 1COLOR(WHT)
+                  COL3ROW4       3       + 1COLOR(WHT)
+                  COL4ROW4       8       + 1COLOR(WHT)
+                  COL5ROW4       8       + 1COLOR(WHT)
+                  COL1ROW5       8      6  2COLOR(WHT)
+                  COL2ROW5       8       + 1COLOR(WHT)
+                  COL3ROW5       3       + 1COLOR(TRQ)
+                  COL4ROW5       8       + 1COLOR(WHT)
+                  COL5ROW5       8       + 1COLOR(WHT)
+                  S1SECONDS      3       + 3COLOR(TRQ)
+                  TITLE         50   P
+                  PB2            2Y 0B  9  1PSHBTNFLD((*GUTTER 1))
+                                            PSHBTNCHC(1 'M>essages' CF06)
+                                            PSHBTNCHC(2 'E>xit' CA03)
+                                            PSHBTNCHC(3 'P>ause' CA11)
+                                        2 44'Date:       '
+                  DAT            8       + 1COLOR(WHT)
+                                        3 44'Day of week:'
+                  DOWEEK         9       + 1COLOR(WHT)
+                                        4 44'Day of Year:'
+                  JDAY           6       + 1COLOR(WHT)
+        35                              5 44'             '
+                                            DSPATR(RI)
+        35                              6 44'   Paused    '
+                                            DSPATR(RI)
+        35                              7 44'             '
+                                            DSPATR(RI)
+       N35                              7 52'Refresh every'
+       N35        S1MINUTES      5Y 2B  8 52EDTCDE(2) DSPATR(PC) CHECK(ER)
+       N35                               + 1'minutes'
+                R BLANK
+                                            TEXT('Clear Previous screen.')
+                                        5  9' ' 

@@ -1,0 +1,62 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *  Demo Google-type "next" navigation                          *
+      *                                                              *
+      *   2/2013                                 booth@martinvt.com  *
+      ****************************************************************
+                                            DSPSIZ(24 80 *DS3)
+                                            CHGINPDFT
+                                            ERRSFL
+                                            MSGLOC(24)
+                                            CA03(03 'Exit')
+                R WIN01
+                                            WINDOW(16 03 4 70 *NOMSGLIN -
+                                            *NORSTCSR)
+                                            WDWBORDER((*COLOR YLW))
+                                            OVERLAY
+                                            RTNCSRLOC(&CSRRCD; &CSRFLD; &CSRPOS;)
+                                            MOUBTN(*ULD ENTER)
+                  CSRRCD        10   H
+                  CSRFLD        10   H
+                  CSRPOS         4S 0H
+                  CSRREC         4Y 0O  2  2EDTCDE(X)
+                                         + 1'Record #'
+                  CSRAT          4Y 0O  3  2EDTCDE(X) DSPATR(ND)
+                                         + 1'Cursor @' DSPATR(ND)
+                  INDEX         64   B  4  3COLOR(TRQ) DSPATR(PR)
+                R WIN02
+                                            WINDOW(10 45 3 21 *NOMSGLIN -
+                                            *NORSTCSR)
+                                            WDWBORDER((*COLOR BLU))
+                                            OVERLAY
+      *                                      12345678901234567890
+                                        1  2' -= A Page Bar =-  ' DSPATR(RI)
+                                            COLOR(BLU)
+                                        2  2' Use like Google''s ' DSPATR(RI)
+                                            COLOR(BLU)
+                                        3  2' search bar.       ' DSPATR(RI)
+                                            COLOR(BLU)
+                R FMT01
+                                        2  2'   ___             _    _     __ _-
+                                            _             _    _       '
+                                            COLOR(RED)
+                                        3  2'  | . > ___  ___ _| |_ | |_  |  \ -
+                                             \ ___  _ _ _| |_ <_>._ _  '
+                                            COLOR(RED)
+                                        4  2'  | . \/ . \/ . \ | |  | . | |    -
+                                             |<_> || ''_> | |  | || '' | '
+                                            COLOR(RED)
+                                        5  2'  |___/\___/\___/ |_|  |_|_| |_|_|-
+                                             |<___||_|   |_|  |_||_|_| '
+                                            COLOR(RED)
+                                        7 53'& Friends   '
+                                            COLOR(WHT)
+                                        1 69DATE
+                                            EDTCDE(Y)
+                                        2 69TIME
+                                        3 69'System i'
+                                       23  3'F3=Exit' COLOR(BLU)

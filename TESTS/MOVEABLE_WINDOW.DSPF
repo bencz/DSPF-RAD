@@ -1,0 +1,78 @@
+      ****************************************************************
+      *   ___             _    _     __ __             _    _        *
+      *  | . > ___  ___ _| |_ | |_  |  \  \ ___  _ _ _| |_ <_>._ _   *
+      *  | . \/ . \/ . \ | |  | . | |     |<_> || '_> | |  | || ' |  *
+      *  |___/\___/\___/ |_|  |_|_| |_|_|_|<___||_|   |_|  |_||_|_|  *
+      *                                                              *
+      *  A display screen for a moveable Window.  MOVEWDWD           *
+      *                                                              *
+      *  11/2012                                 booth@martinvt.com  *
+      ****************************************************************
+      * Code originally written by:                                  *
+      *                                                              *
+      *       mit besten Grüssen/kind regards                        *
+      *                                                              *
+      *                Hans Bertol                                   *
+      *          ÖAF Gräf & Stift AG Wien                            *
+      *          Tel +43-1-86631-129                                 *
+      *          Fax +43-1-86631-109                                 *
+      *                               mailto:Hans_Bertol@mn.man.de   *
+      ****************************************************************
+                                            DSPSIZ(24 80 *DS3)
+                                            ERRSFL
+                                            MSGLOC(24)
+                                            CA03(03 'Exit')
+                R FMT01
+                                        2  2'   ___             _    _     __ _-
+                                            _             _    _       '
+                                            COLOR(RED)
+                                        3  2'  | . > ___  ___ _| |_ | |_  |  \ -
+                                             \ ___  _ _ _| |_ <_>._ _  '
+                                            COLOR(RED)
+                                        4  2'  | . \/ . \/ . \ | |  | . | |    -
+                                             |<_> || ''_> | |  | || '' | '
+                                            COLOR(RED)
+                                        5  2'  |___/\___/\___/ |_|  |_|_| |_|_|-
+                                             |<___||_|   |_|  |_||_|_| '
+                                            COLOR(RED)
+                                        7 53'& Friends   '
+                                            COLOR(WHT)
+                                       11  7'Original Code by:' COLOR(WHT)
+                                       13 10'    __ __                ___      -
+                                                __       __ '
+                                             COLOR(YLW)
+                                       14 10'   / // /__ ____  ___   / _ )___ _-
+                                            ___/ /____  / / '
+                                             COLOR(YLW)
+                                       15 10'  / _  / _ `/ _ \(_-<  / _  / -_) -
+                                            __/ __/ _ \/ /  '
+                                             COLOR(YLW)
+                                       16 10' /_//_/\_,_/_//_/___/ /____/\__/_/-
+                                              \__/\___/_/   '
+                                             COLOR(YLW)
+                                        1 69DATE
+                                            EDTCDE(Y)
+                                        2 69TIME
+                                        3 69'System i'
+                                       23  3'F3=Exit' COLOR(BLU)
+      *****************************************************************
+                R WIN1
+                                            RTNCSRLOC(*MOUSE &R1; &C1; &R2; &C2;)
+                                            WINDOW(&R0; &C0; 6 30 *NOMSGLIN -
+                                            *NORSTCSR)
+                                            WDWTITLE((*TEXT 'Double-click +
+                                            moves this window'))
+                                            MOUBTN(*ULP  CA24)
+                                            RMVWDW
+                  R0             2S 0P
+                  C0             3S 0P
+                  R1             3S 0H
+                  C1             3S 0H
+                  R2             3S 0H
+                  C2             3S 0H
+                  ROW1          30   O  1  1DSPATR(RI) COLOR(TRQ)
+                  ROW2          30   O  2  1DSPATR(RI) COLOR(TRQ)
+                  ROW3          30   O  3  1DSPATR(RI) COLOR(TRQ)
+                  ROW4          30   O  4  1DSPATR(RI) COLOR(TRQ)
+                  ROW5          30   O  5  1DSPATR(RI) COLOR(TRQ)
+                  ROW6          30   O  6  1DSPATR(RI) COLOR(TRQ) 

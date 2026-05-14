@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Static assets and source code are fine to crawl.
+# If you want to hide internals later, list them here with `Disallow:`.
+
+Sitemap: https://dspf-rad.bencz.cc/sitemap.xml

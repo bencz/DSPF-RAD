@@ -1,0 +1,201 @@
+      *================================================================
+     M* Maintenance   :
+      *================================================================
+     A                                      INDARA
+     A                                      ALTPAGEUP(CF07)
+     A                                      ALTPAGEDWN(CF08)
+     A                                      CHGINPDFT
+     A                                      HELP
+     A*Window borders definition
+     A                                      WDWBORDER((*COLOR BLU) +
+     A                                      )
+     A*=========================================================================
+     A          R ZSFLRCD                   TEXT('Subfile record.')
+     A                                      SFL
+     A                                      SETOF(98 'Force input format')
+     A                                      INDTXT(84 'Subfile next change')
+     A                                      INDTXT(87 'Enable key screen')
+     A                                      INDTXT(88 'Protect key fields')
+     A                                      INDTXT(89 '''ADD'' mode')
+     A                                      INDTXT(32 'Invalid: Z1SEL')
+     A                                      INDTXT(33 'Invalid: Z1ORG')
+     A                                      INDTXT(34 'Invalid: Z1NAME')
+     A                                      INDTXT(35 'Invalid: Z1CRTN')
+     A                                      INDTXT(36 'Invalid: Z1CRTD')
+     A                                      INDTXT(37 'Invalid: Z1UPDN')
+     A                                      INDTXT(38 'Invalid: Z1UPDD')
+     A  84                                  SFLNXTCHG
+     A            Z1DBRC        69   H      TEXT('Existing record fields')
+     A            Z1SEL          1   B 12  2
+     A                                      VALUES('4' +
+     A                                                 )
+     A                                      CHECK(AB)
+     A  78                                  DSPATR(PR)
+     A  32                                  DSPATR(RI)
+     A  78N32                               DSPATR(ND)
+     A N78N32                               DSPATR(CS HI)
+     A  32
+     AON32N98N99
+     AAN78                                  DSPATR(PC)
+     A            Z1ORG          5  0B 12  4TEXT('Organisation No.')
+     A                                      EDTCDE(3)
+     A  88                                  DSPATR(PR)
+     A  33                                  DSPATR(RI)
+     A N88N33                               DSPATR(CS HI)
+     A  33
+     AON33N98N99
+     AAN88                                  DSPATR(PC)
+     A            Z1NAME        30   B 12 10TEXT('Organisation Name')
+     A                                      CHECK(LC)
+     A  87                                  DSPATR(PR)
+     A  34                                  DSPATR(RI PC)
+     A N87N34                               DSPATR(CS HI)
+     A            Z1CRTN        10   B 12 41TEXT('Created by')
+     A  87                                  DSPATR(PR)
+     A  35                                  DSPATR(RI PC)
+     A N87N35                               DSPATR(CS HI)
+     A            Z1CRTD         6  0B 12 52TEXT('Creation Date')
+     A                                      EDTCDE(Y)
+     A  87                                  DSPATR(PR)
+     A  36                                  DSPATR(RI PC)
+     A N87N36                               DSPATR(CS HI)
+     A            Z1UPDN        10   B 12 61TEXT('Updated by')
+     A  87                                  DSPATR(PR)
+     A  37                                  DSPATR(RI PC)
+     A N87N37                               DSPATR(CS HI)
+     A            Z1UPDD         6  0B 12 72TEXT('Update Date')
+     A                                      EDTCDE(Y)
+     A  87                                  DSPATR(PR)
+     A  38                                  DSPATR(RI PC)
+     A N87N38                               DSPATR(CS HI)
+     A*=========================================================================
+     A          R ZSFLCTL                   TEXT('Subfile control.')
+     A                                      SFLCTL(ZSFLRCD)
+     A                                      SETOF(98 'Force input format')
+     A                                      SFLPAG(10) SFLSIZ(11)
+     A                                      BLINK OVERLAY
+     A  86                                  PUTOVR
+     A  04
+     AO 25                                  CSRLOC(ZZCSRW ZZCSCL)
+     A                                      INDTXT(80 'Clear subfile')
+     A                                      INDTXT(81 'Display subfile')
+     A                                      INDTXT(82 'End of subfile')
+     A                                      INDTXT(86 'Enable PUTOVR')
+     A                                      INDTXT(89 '89')
+     A  80                                  SFLCLR
+     A N80                                  SFLDSPCTL
+     A N25
+     AAN80
+     AA 81                                  SFLDSP
+     A N80 81 82                            SFLEND(*MORE)
+     A* Command keys............................................................
+     A                                      VLDCMDKEY(29 'Valid command key')
+     A                                      CA01(01 'Exit.')
+     A N82                                  ROLLUP(27 'Next page.')
+     A                                      CF05(05 'Reset.')
+     A                                      CF09(09 'Change mode.')
+     A                                      CF04(04 'Prompt.')
+     A* SETOFFS.................................................................
+     A                                      SETOF(99 'Global error flag')
+     A                                      SETOF(31 'Invalid: Z2ABNB')
+      * ........................................................................
+     A*.........................................................................
+     A            ZZSFRC         4  0H      SFLRCDNBR(CURSOR)
+      * Reposition cursor to where?
+     A            ZZCSRW         3  0H      TEXT('Cursor Row')
+     A            ZZCSCL         3  0H      TEXT('Cursor Column')
+     A            ZZJOB         10      1  2TEXT('*JOB')
+     A N25                                  OVRDTA
+     A            ZZPGM         10      1 13TEXT('*PROGRAM')
+     A N25                                  OVRDTA
+     A            ZZCMP         40      1 24TEXT('*COMPANY NAME')
+     A N25                                  OVRDTA
+     A                                  1 72DATE
+     A                                      EDTWRD('  /  /  ')
+     A  89                              2  2'ADD    '
+     A N89                              2  2'CHANGE '
+     A            ZZUSR         10      2 13TEXT('*USER')
+     A N25                                  OVRDTA
+     A                                  2 29'Maintain Organisations'
+     A            ZZTME          6  0   2 72TEXT('*TIME')
+     A                                      EDTWRD('0 :  :  ')
+     A N25                                  OVRDTA
+     A N89                              5  4'Org.'
+     A  79                                  DSPATR(ND)
+     A N79                                  COLOR(BLU)
+     A N25                                  OVRATR
+     A N89        Z2ORG          5  0B  5 18TEXT('Organisation No.')
+     A                                      EDTCDE(4)
+     A N25                                  OVRDTA
+     A  79                                  DSPATR(PR)
+     A  31                                  DSPATR(RI)
+     A  79N31                               DSPATR(ND)
+     A N79N31                               DSPATR(CS HI)
+     A  31
+     AON31N98N99
+     AAN79                                  DSPATR(PC)
+     A N25                                  OVRATR
+     A  89                              7  2' '
+     A                                      COLOR(BLU)
+     A N89                              7  2'Type options, press Enter.'
+     A                                      COLOR(BLU)
+     A  89                              8  2' '
+     A                                      COLOR(BLU)
+     A N89                              8  2'4=Delete'
+     A                                      COLOR(BLU)
+     A  81                             10  2'X'
+     A  78                                  DSPATR(ND)
+     A N78                                  COLOR(WHT)
+     A  81                             10  4'Org.'
+     A                                      COLOR(WHT)
+     A  81                             10 10'Name'
+     A                                      COLOR(WHT)
+     A  81                             10 41'Created'
+     A                                      COLOR(WHT)
+     A  81                             10 52'Create'
+     A                                      COLOR(WHT)
+     A  81                             10 61'Updated'
+     A                                      COLOR(WHT)
+     A  81                             10 72'Update'
+     A                                      COLOR(WHT)
+     A  81                             11 41'by'
+     A                                      COLOR(WHT)
+     A  81                             11 52'Date'
+     A                                      COLOR(WHT)
+     A  81                             11 61'by'
+     A                                      COLOR(WHT)
+     A  81                             11 72'Date'
+     A                                      COLOR(WHT)
+     A*=========================================================================
+     A          R ZCMDTXT1                  TEXT('Command keys')
+     A                                      OVERLAY PUTOVR
+     A  89                             23  2'F1=Exit   F9=Change'
+     A                                      COLOR(BLU)
+     A N89                             23  2'F1=Exit   F9=Add'
+     A                                      COLOR(BLU)
+     A*=========================================================================
+     A          R ZCONFIRM                  TEXT('Prompt confirm')
+     A                                      VLDCMDKEY(29)
+     A                                      OVERLAY PROTECT PUTOVR CLRL(*NO)
+     A                                 24 64'CONFIRM:'
+     A            ZZCFCD         1   H      TEXT('*CONFIRM')
+     A            VZCFCD         1   B 24 73TEXT('*CONFIRM : External Image')
+     A                                      CHECK(ER)
+     A                                      DSPATR(HI UL)
+     A                                      VALUES('Y' 'N')
+     A                                 24 75'(Y/N)'
+     A*=========================================================================
+     A          R ZMSGRCD                   TEXT('Program messages')
+     A                                      SFL SFLMSGRCD(24)
+     A            MSGKEY                    SFLMSGKEY
+     A            ZZPGM                     SFLPGMQ
+     A*=========================================================================
+     A          R ZMSGCTL                   TEXT('Program messages')
+     A                                      SFLCTL(ZMSGRCD)
+     A                                      SFLPAG(01) SFLSIZ(03)
+     A  86                                  OVERLAY PUTOVR
+     A                                      SFLINZ SFLDSP SFLDSPCTL
+     A  25
+     AON25                                  SFLEND
+     A            ZZPGM                     SFLPGMQ
+     A*=========================================================================

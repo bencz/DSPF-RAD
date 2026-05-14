@@ -1,0 +1,196 @@
+     A*%%TS  SD  20011023  172851  STUART      REL-V4R4M0  5769-PW1
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      CHGINPDFT(CS)
+     A                                      CA01(01 'Exit')
+     A                                      PRINT
+     A                                      HELP(29)
+     A          R CB906R1
+     A                                  2  3' O R D E R    E N T R Y '
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                  5  4'Order NO.'
+     A                                  9  4'L I N E S'
+     A            IORD           5S 0B  5 15TEXT('ORDER NO.')
+     A            I1             5S 0B 12  9TEXT('ITEM')
+     A            Q1             5S 0B 12 20TEXT('QUANTITY')
+     A            C1            10A  B 12 35TEXT('COLOUR')
+     A            P1            22S 0B 12 50TEXT('PRICE')
+     A            I2             5S 0B 14  9TEXT('ITEM')
+     A            Q2             5S 0B 14 20TEXT('QUANTITY')
+     A            C2            10A  B 14 35TEXT('COLOUR')
+     A            P2            22S 0B 14 50TEXT('PRICE')
+     A            I3             5S 0B 16  9TEXT('ITEM')
+     A            Q3             5S 0B 16 20TEXT('QUANTITY')
+     A            C3            10A  B 16 35TEXT('COLOUR')
+     A            P3            22S 0B 16 50TEXT('PRICE')
+     A            I4             5S 0B 18  9TEXT('ITEM')
+     A            Q4             5S 0B 18 20TEXT('QUANTITY')
+     A            C4            10A  B 18 35TEXT('COLOUR')
+     A            P4            22S 0B 18 50TEXT('PRICE')
+     A            I5             5S 0B 20  9TEXT('ITEM')
+     A            Q5             5S 0B 20 20TEXT('QUANTITY')
+     A            C5            10A  B 20 35TEXT('COLOUR')
+     A            P5            22S 0B 20 50TEXT('PRICE')
+     A                                 22 50'For'
+     A                                 22 54'more'
+     A                                 22 59'enter'
+     A                                 22 65'here:'
+     A            IMOR           1A  I 22 71TEXT('MORE')
+     A                                 10  3'      ITEM       QUANTITY       CO-
+     A                                      LOUR         PRICE TO INVOICE      '
+     A                                      DSPATR(UL)
+     A                                      DSPATR(HI)
+     A                                  1 64'Date'
+     A                                  1 70DATE
+     A                                      EDTCDE(Y)
+     A                                  2 64'Time'
+     A                                  2 70TIME
+     A                                  3 64'WSID'
+     A            WSID          10A  O  3 70TEXT('WORKSTATION ID')
+     A                                  5 25'CUSTOMER'
+     A                                  6 25'ADDRESS'
+     A                                  6 35'OOOOOOOOOOOOOOOOOOOOOOOOO'
+     A            CUSNAM        30   O  5 35TEXT('CUSTOMER NAME')
+     A                                  7 35'OOOOOOOOOOOOOOOOOOOOOOOOO'
+     A                                  8 35'OOOOOOOOOOOOOOOOOOOOOOOOO'
+     A            BRANCH        20   O  2 29TEXT('BRANCH NAME')
+     A          R SHD001
+     A                                      PUTOVR OVERLAY PROTECT
+     A                                      CHANGE(49)
+     A                                  1 34'ACCOUNT  ENTRY'
+     A                                      DSPATR(HI)
+     A                                      DSPATR(UL)
+     A                                 10  2'A/c Open  Term  Type  CYS'
+     A                                 10 30'Balance    Arrears     Limit'
+     A                                 10 73'Due'
+     A                                 10 62'Repayment'
+     A            @ACACF         1   O 11 18TEXT('TYPE')
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            @ACACO         6  0O 11  2TEXT('ACCOUNT NO.')
+     A                                      OVRDTA
+     A                                      EDTCDE(Y)
+     A                                      DSPATR(HI)
+     A            @ACACB         9S 0O 11 29TEXT('BALANCE')
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            @ACAAA         9S 0O 11 40TEXT('ARREARS')
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            @ACNTL         9S 0O 11 51TEXT('LIMIT')
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            @ACDUD         6S 0O 11 73TEXT('DUE')
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            @ACCSN         3   O 11 24TEXT('CYS')
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            @ACRPA         9S 0O 11 62TEXT('REPAYMENT')
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A            @ACLNT         1   O 11 12TEXT('TERM')
+     A                                      OVRDTA
+     A                                      DSPATR(HI)
+     A*
+     A          R SHD101
+     A                                      PUTOVR OVERLAY PROTECT
+     A                                      CHANGE(49)
+     A*
+     A*‚This subfile will format the grid display                      -----
+     A          R SFL100                    SFL
+     A            @CT101         1A  H      TEXT('SELECTION FIELD')
+     A            SCDEXD         6  0B 15 14TEXT('EXPIRY DATE')
+     A            SSRLNB         8A  B 15 24TEXT('SERIAL NO.')
+     A            SXAMD1         1A  B 15 37TEXT('MOD #1')
+     A            SXAMD2         1A  B 15 39TEXT('MOD #2')
+     A            SXAMD3         1A  B 15 41TEXT('MOD #3')
+     A            SXAMD4         1A  B 15 43TEXT('MOD #4')
+     A            SXAMD5         1A  B 15 45TEXT('MOD #5')
+     A            SXAMD6         1A  B 15 47TEXT('MOD #6')
+     A            SXAMD7         1A  B 15 49TEXT('MOD #7')
+     A            SXAMD8         1A  B 15 51TEXT('MOD #8')
+     A            SXAMD9         1A  B 15 53TEXT('MOD #9')
+     A            SXAMD0         1A  B 15 55TEXT('MOD #10')
+     A*
+     A          R SCT100                    SFLCTL(SFL100)
+     A                                      OVERLAY
+     A N31                                  SFLDSP
+     A N31                                  SFLDSPCTL
+     A  31                                  SFLCLR
+     A                                      SFLSIZ(000005)
+     A                                      SFLPAG(000002)
+     A N37                                  ROLLUP(28)
+     A  37                                  SFLEND
+     A                                      BLINK
+     A            STR100         4S 0H      SFLRCDNBR
+     A                                 14 14'SUBFILE ZERO'
+     A*
+     A          R SFL101                    SFL
+     A            @CT101         1A  H      TEXT('SELECTION FIELD')
+     A            @RPTAA         6  0O 15 14TEXT('REPAYMENT AMOUNT')
+     A            @RPPYT         3A  O 15 24TEXT('REPAYMENT TYPE')
+     A            @RPTAT         4A  O 15 37TEXT('REPAYMENT GRADE')
+     A*
+     A          R SCT101                    SFLCTL(SFL101)
+     A                                      OVERLAY
+     A N31                                  SFLDSP
+     A N31                                  SFLDSPCTL
+     A  31                                  SFLCLR
+     A                                      SFLSIZ(000005)
+     A                                      SFLPAG(000002)
+     A N37                                  ROLLUP(28)
+     A  37                                  SFLEND
+     A                                      BLINK
+     A            STR101         4S 0H      SFLRCDNBR
+     A                                 14 14'SUBFILE ONE'
+     A*
+     A          R SFL102                    SFL
+     A  50                                  SFLNXTCHG
+     A                                      CHANGE(49)
+     A            @DXAXT         5A  B 20 14TEXT('DIARY TYPE')
+     A  44                                  DSPATR(RI PC)
+     A N44                                  DSPATR(HI)
+     A            @DXUSA        20A  B 20 24TEXT('DIARY USER')
+     A  44                                  DSPATR(RI PC)
+     A N44                                  DSPATR(HI)
+     A*
+     A          R SCT102                    SFLCTL(SFL102)
+     A                                      OVERLAY
+     A N32                                  SFLDSP
+     A N32                                  SFLDSPCTL
+     A  32                                  SFLCLR
+     A                                      SFLSIZ(000003)
+     A                                      SFLPAG(000002)
+     A N38                                  ROLLUP(28)
+     A  38                                  SFLEND
+     A                                      BLINK
+     A            STR102         4S 0H      SFLRCDNBR
+     A                                 19 14'SUBFILE TWO'
+     A*‚This screen will format the flat screen display                -----
+     A          R XFLAT1
+     A                                  4  2'Expiry Date . . .'
+     A            SCDEXD         6  0B  4 20
+     A                                  5  2'Serial No.  . . .'
+     A            SSRLNB         8A  B  5 20
+     A                                  6  2'Mod. No. 1  . . .'
+     A            SXAMD1         1A  B  6 20
+     A                                  7  2'Mod. No. 2  . . .'
+     A            SXAMD2         1A  B  7 20
+     A                                  8  2'Mod. No. 3  . . .'
+     A            SXAMD3         1A  B  8 20
+     A                                  9  2'Mod. No. 4  . . .'
+     A            SXAMD4         1A  B  9 20
+     A                                 10  2'Mod. No. 5  . . .'
+     A            SXAMD5         1A  B 10 20
+     A                                 11  2'Mod. No. 6  . . .'
+     A            SXAMD6         1A  B 11 20
+     A                                 12  2'Mod. No. 7  . . .'
+     A            SXAMD7         1A  B 12 20
+     A                                 13  2'Mod. No. 8  . . .'
+     A            SXAMD8         1A  B 13 20
+     A                                 14  2'Mod. No. 9  . . .'
+     A            SXAMD9         1A  B 14 20
+     A                                 15  2'Mod. No. 10 . . .'
+     A            SXAMD0         1A  B 15 20

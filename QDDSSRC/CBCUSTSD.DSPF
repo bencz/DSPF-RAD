@@ -1,0 +1,389 @@
+     A*%%TS  SD  20100727  082616  MSHAHID     REL-V6R1M0  5761-WDS
+     A*‚---------------------------------------------------------------
+     A*ˆCOPYRIGHT DATABOROUGH LTD 2005
+     A*ˆWork with Rep. Delivery Areas
+     A*‚---------------------------------------------------------------
+     A*‚
+     A*‚---------------------------------------------------------------
+     A*‚File level definitions
+     A*‚---------------------------------------------------------------
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      HELP
+     A                                      INDARA
+     A                                      CA03(03 'Exit')
+     A                                      CA12(12 'Cancel')
+     A                                      VLDCMDKEY(28 'Valid Command Key')
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZSF01                    SFL
+     A            DSSEL          1A  B 10  2
+     A            XWG4TX        40A  O 10 17TEXT('Cust Ref')
+     A            XWBCCD        11A  O 10  5TEXT('Customer')
+     A*‚---------------------------------------------------------------
+     A*‚Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZCT01                    SFLCTL(ZZSF01)
+     A*%%TS  SD  20100727  082616  MSHAHID     REL-V6R1M0  5761-WDS
+     A                                      SFLSIZ(0013)
+     A                                      SFLPAG(0012)
+     A                                      TEXT('Sub-file control format')
+     A                                      CA06(06 'Add')
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A  71                                  SFLDSP
+     A  72                                  SFLDSPCTL
+     A  74                                  SFLCLR
+     A  81                                  SFLEND(*MORE)
+     A            SHWREC         4S 0H      SFLRCDNBR(CURSOR)
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 24'Work with Customers (Cobol vers.)'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE         8Y 0O  3 70EDTWRD('    /  /  ')
+     A                                  4  2'Position to:'
+     A                                  5  2'Enter options, press Enter.'
+     A                                      COLOR(BLU)
+     A                                  6  2'2=Change, 4=Delete, 5=Display, 6=C-
+     A                                      ustomer Maintenance, 8=Orders, 9=Tr-
+     A                                      ans.Hist.'
+     A                                      COLOR(BLU)
+     A                                  8 17'                  Name            -
+     A                                            '
+     A                                      DSPATR(UL)
+     A                                  8  5' Customer  '
+     A                                      DSPATR(UL)
+     A                                  9  2'                                  -
+     A                                                                         -
+     A                                               '
+     A            LOCATE        11A  B  4 15
+     A*‚---------------------------------------------------------------
+     A*‚Trailer Format
+     A*‚---------------------------------------------------------------
+     A          R ZZTR01
+     A                                      OVERLAY
+     A                                      BLINK
+     A                                      KEEP
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A                                 23  2'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 11'F6=Add'
+     A                                      COLOR(BLU)
+     A                                 23 19'F12=Cancel'
+     A                                      COLOR(BLU)
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Maintenance Format 1
+     A*‚---------------------------------------------------------------
+     A          R ZZFT01
+     A                                      TEXT('Enquiry format')
+     A N94                                  CA04(04 'PROMPT')
+     A                                      CA08(08 'ORDERS')
+     A                                      CA09(09 'HISTORY')
+     A                                      KEEP
+     A                                      RTNCSRLOC(&RECNAM &SFIELD)
+     A                                      BLINK
+     A                                      OVERLAY
+     A            SFIELD        10A  H
+     A            RECNAM        10A  H
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 31'Work with Customers (Cobol vers.)'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE         8Y 0O  3 70EDTWRD('    /  /  ')
+     A            ACTDSP        10A  O  4  2DSPATR(RI)
+     A                                  5  2'Customer No . . . .'
+     A            ZWBCCD        11A  B  5 22
+     A  31                                  DSPATR(RI)
+     A N96                                  DSPATR(PR)
+     A                                  6  2'Customer Name . . .'
+     A            ZWG4TX        40A  B  6 22
+     A  32                                  DSPATR(RI)
+     A  94                                  DSPATR(PR)
+     A                                      CHECK(LC)
+     A                                  7  2'Statement Account .'
+     A            ZWB2CD        11A  B  7 22
+     A  94                                  DSPATR(PR)
+     A                                  8  2'Related Account . .'
+     A            ZWB3CD        11A  B  8 22
+     A  94                                  DSPATR(PR)
+     A                                  9  2'Tax Reg . . . . . .'
+     A            ZWHITX        15A  B  9 22
+     A  94                                  DSPATR(PR)
+     A                                 10  2'Bank. . . . . . . .'
+     A            ZWE0NB    R        B 10 22REFFLD(XWE0NB XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 11  2'Bank A/c. . . . . .'
+     A            ZWJUN0    R        B 11 22REFFLD(XWJUN0 XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 11 44'Forex . . . . . .'
+     A            ZWDVCD         3A  B 11 62
+     A  94                                  DSPATR(PR)
+     A                                 12  2'CusGrp. . . . . . >'
+     A            ZWBNCD         2A  B 12 22
+     A  94                                  DSPATR(PR)
+     A  33                                  DSPATR(RI)
+     A                                 13  2'Rep . . . . . . . >'
+     A            ZPERSON        3A  B 13 22
+     A  94                                  DSPATR(PR)
+     A  34                                  DSPATR(RI)
+     A            PNAME     R        O 13 26REFFLD(PNAME XAN4CDEM/SLMEN)
+     A                                      DSPATR(HI)
+     A                                 14  2'Distributor . . . >'
+     A            ZDSDCDE        2A  B 14 22
+     A  94                                  DSPATR(PR)
+     A  35                                  DSPATR(RI)
+     A                                 15 44'Terms . . . . . .'
+     A            ZWBTCD         3A  B 15 62
+     A  94                                  DSPATR(PR)
+     A                                 15  2'Credit Limit. . . .'
+     A            ZWGIVA    R        B 15 22REFFLD(XWGIVA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 16  2'Stl Dsc . . . . . .'
+     A            ZWAOCD         3A  B 16 22
+     A  94                                  DSPATR(PR)
+     A                                 16 44'Int . . . . . . .'
+     A            ZWBBCD         3A  B 16 62
+     A  94                                  DSPATR(PR)
+     A                                 17  2'Cr Guarantee. . . .'
+     A            ZWG4T0        10A  B 17 22
+     A  94                                  DSPATR(PR)
+     A                                 18  2'B/O . . . . . . . .'
+     A            ZWC7ST         1A  B 18 22
+     A  94                                  DSPATR(PR)
+     A                                 18 44'Lang. . . . . . .'
+     A            ZWDAST         1A  B 18 62
+     A  94                                  DSPATR(PR)
+     A                                 19  2'Date Loaded . . . .'
+     A            ZWBPD0          L  B 19 22
+     A  94                                  DSPATR(PR)
+     A                                 19 44'Chg-Date. . . . .'
+     A            ZWBAD0          L  B 19 62
+     A  94                                  DSPATR(PR)
+     A                                 20  2'Last Sale . . . . .'
+     A            ZWARDT          L  B 20 22
+     A  94                                  DSPATR(PR)
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A            ZWKHTX        40A  O 12 26DSPATR(HI)
+     A                                      TEXT('Full Name')
+     A            DNAME         34A  O 14 26DSPATR(HI)
+     A                                      TEXT('Full Name')
+     A                                 23  2'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 11'F4=Prompt'
+     A                                      COLOR(BLU)
+     A  94                                  DSPATR(ND)
+     A                                 23 22'F8=Orders'
+     A                                      COLOR(BLU)
+     A                                 23 33'F9=Trans.History'
+     A                                      COLOR(BLU)
+     A                                 23 51'F12=Cancel'
+     A                                      COLOR(BLU)
+     A*‚---------------------------------------------------------------
+     A*‚Flat Screen Maintenance Format 2
+     A*‚---------------------------------------------------------------
+     A          R ZZFT02
+     A N94                                  CA04(04 'PROMPT')
+     A                                      CA08(08 'ORDERS')
+     A                                      CA09(09 'HISTORY')
+     A                                      KEEP
+     A                                      RTNCSRLOC(&RECNAM &SFIELD)
+     A                                      BLINK
+     A                                      OVERLAY
+     A            SFIELD        10A  H
+     A            RECNAM        10A  H
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 31'Work with Customers (Cobol vers.)'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE         8Y 0O  3 70EDTWRD('    /  /  ')
+     A            ACTDSP        10A  O  4  2DSPATR(RI)
+     A                                  6  2'Amt Last Sale . . .'
+     A            ZWF0VA    R        B  6 22REFFLD(XWF0VA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                  7  2'Date Last Pay . . .'
+     A            ZWASDT          L  B  7 22
+     A  94                                  DSPATR(PR)
+     A                                  8  2'Last Pay. . . . . .'
+     A            ZWF0V0    R        B  8 22REFFLD(XWF0V0 XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                  9  2'Date Last Stmt. . .'
+     A            ZWBQDT          L  B  9 22
+     A  94                                  DSPATR(PR)
+     A                                 10  2'Curr Pay. . . . . .'
+     A            ZWF1VA    R        B 10 22REFFLD(XWF1VA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 11  2'Curr Claim. . . . .'
+     A            ZWF1V0    R        B 11 22REFFLD(XWF1V0 XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 12  2'Curr Sls. . . . . .'
+     A            ZWF2VA    R        B 12 22REFFLD(XWF2VA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 12 44'Curr Cost . . . .'
+     A            ZWF3VA    R        B 12 62REFFLD(XWF3VA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 13  2'Ytd Sales . . . . .'
+     A            ZWF4VA    R        B 13 22REFFLD(XWF4VA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 13 44'Last Year Sls . .'
+     A            ZWF6VA    R        B 13 62REFFLD(XWF6VA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 14  2'Balance . . . . . .'
+     A            ZWIDV0    R        B 14 22REFFLD(XWIDV0 XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A  36                                  DSPATR(RI)
+     A                                 15  2'Current Amt . . . .'
+     A            ZWGAVA    R        B 15 22REFFLD(XWGAVA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 16  2'030 Days. . . . . .'
+     A            ZWGBVA    R        B 16 22REFFLD(XWGBVA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 16 44'060 Days. . . . .'
+     A            ZWGCVA    R        B 16 62REFFLD(XWGCVA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 17  2'090 Days. . . . . .'
+     A            ZWGDVA    R        B 17 22REFFLD(XWGDVA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 17 44'120 Days. . . . .'
+     A            ZWGEVA    R        B 17 62REFFLD(XWGEVA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 18  2'150 Days. . . . . .'
+     A            ZWGFVA    R        B 18 22REFFLD(XWGFVA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 18 44'180 Days. . . . .'
+     A            ZWGGVA    R        B 18 62REFFLD(XWGGVA XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A                                 19  2'Site no . . . . . >'
+     A            ZCUSNO    R        B 19 22REFFLD(CUSNO XAN4CDEM/CUSTS)
+     A  94                                  DSPATR(PR)
+     A  37                                  DSPATR(RI)
+     A                                      EDTCDE(Z)
+     A                                 23  2'F3=Exit'
+     A                                      COLOR(BLU)
+     A                                 23 11'F4=Prompt'
+     A                                      COLOR(BLU)
+     A  94                                  DSPATR(ND)
+     A                                 23 22'F8=Orders'
+     A                                      COLOR(BLU)
+     A                                 23 33'F9=Trans.History'
+     A                                      COLOR(BLU)
+     A                                 23 51'F12=Cancel'
+     A                                      COLOR(BLU)
+     A            ZMSAGE        78A  O 24  2DSPATR(HI)
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMS01                    SFL
+     A                                      TEXT('Message sub-file')
+     A                                      SFLMSGRCD(24)
+     A            ZZMSKY                    SFLMSGKEY
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------
+     A*‚Message Subfile Control Format
+     A*‚---------------------------------------------------------------
+     A          R ZZMC01                    SFLCTL(ZZMS01)
+     A                                      TEXT('Message control')
+     A                                      OVERLAY
+     A                                      PUTOVR
+     A                                      SFLPAG(1)
+     A                                      SFLSIZ(2)
+     A  82                                  SFLINZ
+     A  82                                  SFLDSP
+     A  82                                  SFLDSPCTL
+     A  82                                  SFLEND
+     A            ZZPGM                     SFLPGMQ
+     A*‚---------------------------------------------------------------
+     A          R DUMMY
+     A                                      KEEP
+     A*                                     ASSUME
+     A                                      OVERLAY
+     A                                  1  3' '
+     A*‚---------------------------------------------------------------
+     A          R ZZCNF1
+     A                                      KEEP
+     A                                      BLINK
+     A                                      OVERLAY
+     A                                  1  2'Customers'
+     A                                      COLOR(BLU)
+     A                                  1 31'Work with Customers (Cobol vers.)'
+     A                                      DSPATR(HI)
+     A                                  1 64'Databorough Ltd.'
+     A                                      COLOR(BLU)
+     A            ZZPGM         10A  O  2  2TEXT('Program Name')
+     A                                  2 72TIME
+     A            ZZDATE         8Y 0O  3 70EDTWRD('    /  /  ')
+     A                                  4  2'  CONFIRMATION  '
+     A                                      DSPATR(RI)
+     A                                  6  2'Amt Last Sale . . .'
+     A            ZWF0VA    R        O  6 22REFFLD(XWF0VA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                  7  2'Date Last Pay . . .'
+     A            ZWASDT          L  O  7 22DSPATR(UL)
+     A                                  8  2'Last Pay. . . . . .'
+     A            ZWF0V0    R        O  8 22REFFLD(XWF0V0 XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                  9  2'Date Last Stmt. . .'
+     A            ZWBQDT          L  O  9 22DSPATR(UL)
+     A                                 10  2'Curr Pay. . . . . .'
+     A            ZWF1VA    R        O 10 22REFFLD(XWF1VA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 11  2'Curr Claim. . . . .'
+     A            ZWF1V0    R        O 11 22REFFLD(XWF1V0 XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 12  2'Curr Sls. . . . . .'
+     A            ZWF2VA    R        O 12 22REFFLD(XWF2VA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 12 44'Curr Cost . . . .'
+     A            ZWF3VA    R        O 12 62REFFLD(XWF3VA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 13  2'Ytd Sales . . . . .'
+     A            ZWF4VA    R        O 13 22REFFLD(XWF4VA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 13 44'Last Year Sls . .'
+     A            ZWF6VA    R        O 13 62REFFLD(XWF6VA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 14  2'Balance . . . . . .'
+     A            ZWIDV0    R        O 14 22REFFLD(XWIDV0 XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 15  2'Current Amt . . . .'
+     A            ZWGAVA    R        O 15 22REFFLD(XWGAVA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 16  2'030 Days. . . . . .'
+     A            ZWGBVA    R        O 16 22REFFLD(XWGBVA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 16 44'060 Days. . . . .'
+     A            ZWGCVA    R        O 16 62REFFLD(XWGCVA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 17  2'090 Days. . . . . .'
+     A            ZWGDVA    R        O 17 22REFFLD(XWGDVA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 17 44'120 Days. . . . .'
+     A            ZWGEVA    R        O 17 62REFFLD(XWGEVA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 18  2'150 Days. . . . . .'
+     A            ZWGFVA    R        O 18 22REFFLD(XWGFVA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 18 44'180 Days. . . . .'
+     A            ZWGGVA    R        O 18 62REFFLD(XWGGVA XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                 19  2'Site no . . . . . >'
+     A            ZCUSNO    R        O 19 22REFFLD(CUSNO XAN4CDEM/CUSTS)
+     A                                      DSPATR(UL)
+     A                                      EDTCDE(Z)
+     A            ZCMDF         78A  O 23  2COLOR(BLU)
+     A                                      TEXT('Function Key Usage')
+     A                                 22 30'Press ENTER to confirm'
+     A                                      DSPATR(RI)

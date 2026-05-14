@@ -1,0 +1,747 @@
+/* DSPF·RAD - display file designer.  Dark, terminal-flavoured chrome
+   wrapped around a centred canvas that holds the 24x80 (or 27x132) grid. */
+
+:root {
+    /* Height reserved for the bottom source panel + its handle.  JS updates
+       this when the user drags the resize handle, and #canvasFrame's calc()
+       below reads it to keep the canvas centred without overlap.  Setting
+       it to 0px (e.g. when the panel is collapsed) gives the canvas the
+       full pre-source-panel layout. */
+    --source-panel-h: 260px;
+    --source-handle-h: 5px;
+    --chrome-h: 80px;   /* toolbar + statusbar combined */
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #050a05;
+    color: #d6d6d6;
+    font-family: -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* ---- Toolbar -------------------------------------------------------- */
+#toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 10px;
+    background: #1c1c1c;
+    border-bottom: 1px solid #2a4a2a;
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+#toolbar .brand {
+    font-family: "SF Mono", Menlo, monospace;
+    color: #6f6;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-right: 6px;
+    padding: 2px 6px;
+    border: 1px solid #2a4a2a;
+    border-radius: 3px;
+    background: #0a0a0a;
+}
+#toolbar input,
+#toolbar select,
+#toolbar button {
+    background: #0e0e0e;
+    color: #ddd;
+    border: 1px solid #333;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font: inherit;
+}
+#toolbar button:hover:not(:disabled) {
+    background: #232323;
+    border-color: #4a8a4a;
+    cursor: pointer;
+}
+#toolbar button:disabled { opacity: 0.45; }
+#toolbar button.toggle.on {
+    background: #1f3320;
+    border-color: #6f6;
+    color: #6f6;
+}
+#toolbar .sep {
+    width: 1px; height: 18px;
+    background: #2a2a2a;
+    margin: 0 4px;
+}
+#toolbar .lbl {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #888;
+    font-size: 11px;
+}
+#toolbar .lbl select { margin-left: 2px; }
+.hint {
+    font-family: monospace;
+    font-size: 11px;
+    color: #555;
+    border: 1px dashed #333;
+    padding: 2px 6px;
+    border-radius: 3px;
+    cursor: help;
+}
+#status {
+    font-family: monospace;
+    font-size: 11px;
+    color: #888;
+    margin-left: auto;
+    padding: 2px 6px;
+}
+#status.error { color: #f66; }
+#status.ok    { color: #6f6; }
+
+/* ---- Workspace 3-column -------------------------------------------- */
+.workspace {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.panel {
+    width: 220px;
+    flex: 0 0 220px;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #1c1c1c;
+    min-height: 0;
+}
+.panel.inspector {
+    border-right: none;
+    border-left: 1px solid #1c1c1c;
+    width: 280px;
+    flex-basis: 280px;
+}
+.panel-head {
+    padding: 8px 10px;
+    color: #6f6;
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #1c1c1c;
+    background: #0e0e0e;
+}
+.panel-body {
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 6px;
+}
+
+/* ---- Palette ------------------------------------------------------- */
+.palette-group + .palette-group { margin-top: 12px; }
+.palette-group h4 {
+    margin: 4px 4px 6px;
+    color: #666;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: normal;
+}
+.palette-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 3px;
+    margin-bottom: 4px;
+    cursor: grab;
+    font-size: 12px;
+    user-select: none;
+    transition: background 0.1s, border-color 0.1s;
+}
+.palette-item:hover {
+    background: #1a1f1a;
+    border-color: #4a8a4a;
+}
+.palette-item:active { cursor: grabbing; }
+.palette-item.palette-armed {
+    background: #1f3320;
+    border-color: #6f6;
+    box-shadow: 0 0 0 1px #6f6 inset, 0 0 8px rgba(102, 255, 102, 0.30);
+}
+.palette-item.palette-armed::after {
+    content: '◉ click grid';
+    margin-left: auto;
+    color: #6f6;
+    font-family: monospace;
+    font-size: 10px;
+}
+.palette-hint {
+    margin: 12px 4px 4px;
+    color: #555;
+    font-size: 10px;
+    line-height: 1.4;
+    font-style: italic;
+}
+.palette-hint em { color: #6f6; font-style: normal; }
+.pi-icon {
+    width: 18px;
+    text-align: center;
+    color: #6f6;
+    font-family: "SF Mono", Menlo, monospace;
+    font-weight: bold;
+}
+.pi-label { flex: 1; color: #ccc; }
+
+/* ---- Canvas area --------------------------------------------------- */
+.canvas-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    background: #000;
+    overflow: hidden;
+}
+.canvas-frame {
+    position: relative;
+    background: #050a05;
+    box-shadow:
+        inset 0 0 0 1px #1f3a1f,
+        0 0 0 6px #0a0e0a;
+    /* Cells should look character-shaped (taller than wide), like a real
+       5250 terminal.  We use ~5:3 for 24×80 and ~11:5 for 27×132 so each
+       cell renders ~1.7× taller than it is wide.  The height budget
+       subtracts the chrome (toolbar+statusbar), the source panel and its
+       resize handle so the canvas centres without overlap. */
+    aspect-ratio: 5 / 3;
+    width: min(100%, calc((100vh - var(--chrome-h) - var(--source-panel-h) - var(--source-handle-h)) * 5 / 3));
+    max-height: calc(100vh - var(--chrome-h) - var(--source-panel-h) - var(--source-handle-h));
+}
+.canvas-frame canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    cursor: crosshair;
+}
+.canvas-frame canvas.canvas-armed {
+    cursor: copy;
+    box-shadow: inset 0 0 0 2px #6f6;
+}
+body.wide-mode .canvas-frame {
+    aspect-ratio: 11 / 5;
+    width: min(100%, calc((100vh - var(--chrome-h) - var(--source-panel-h) - var(--source-handle-h)) * 11 / 5));
+}
+.canvas-help {
+    position: absolute;
+    bottom: 14px; left: 18px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #444;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+.canvas-help.hidden { opacity: 0; }
+
+/* ---- Inspector ----------------------------------------------------- */
+.inspector .empty {
+    color: #555;
+    font-size: 12px;
+    text-align: center;
+    padding: 16px 8px;
+    font-style: italic;
+}
+.insp-section {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #1a1a1a;
+}
+.insp-section:last-child { border-bottom: none; }
+.insp-section h4 {
+    margin: 0 0 6px;
+    color: #6f6;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: normal;
+}
+.insp-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+.insp-row > label {
+    color: #888;
+    font-size: 11px;
+    font-family: monospace;
+}
+.insp-row input,
+.insp-row select,
+.insp-row textarea {
+    background: #060606;
+    color: #ddd;
+    border: 1px solid #2a2a2a;
+    padding: 3px 6px;
+    border-radius: 2px;
+    font: inherit;
+    font-size: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.insp-row input:focus,
+.insp-row select:focus,
+.insp-row textarea:focus {
+    border-color: #4a8a4a;
+    outline: none;
+}
+.insp-row textarea { font-family: monospace; resize: vertical; min-height: 50px; }
+.insp-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 2px 0;
+}
+.insp-chip {
+    padding: 3px 7px;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    font-family: monospace;
+    font-size: 10px;
+    color: #aaa;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s, border-color 0.1s;
+}
+.insp-chip:hover { border-color: #4a8a4a; }
+.insp-chip.on {
+    background: #1f3320;
+    border-color: #6f6;
+    color: #6f6;
+}
+.insp-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+}
+.insp-actions button {
+    flex: 1;
+    background: #111;
+    color: #ddd;
+    border: 1px solid #2a2a2a;
+    padding: 5px;
+    border-radius: 2px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.insp-actions button:hover { background: #1a1a1a; border-color: #4a8a4a; }
+.insp-actions button.danger { color: #f88; }
+.insp-actions button.danger:hover { background: #2a1010; border-color: #f88; }
+
+/* ---- Inspector tabs --------------------------------------------------- */
+.insp-tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #1f3a1f;
+}
+.insp-tab {
+    flex: 1;
+    background: #0a0a0a;
+    color: #888;
+    border: 1px solid #1c1c1c;
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+    padding: 4px 8px;
+    font: inherit;
+    font-size: 11px;
+    font-family: monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.insp-tab:hover { color: #ccc; border-color: #2a4a2a; }
+.insp-tab.active {
+    background: #0e1a0e;
+    color: #6f6;
+    border-color: #2a4a2a;
+}
+.insp-pane {
+    display: block;
+}
+
+/* ---- Keyword editor card --------------------------------------------- */
+.insp-kw {
+    background: #060c06;
+    border: 1px solid #1a2a1a;
+    border-radius: 3px;
+    padding: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.insp-kw-head {
+    display: flex;
+    gap: 4px;
+}
+.insp-kw-head input {
+    flex: 1;
+    background: #060606;
+    color: #6f6;
+    border: 1px solid #2a2a2a;
+    padding: 3px 6px;
+    border-radius: 2px;
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.insp-kw-rm {
+    width: 22px;
+    background: #1a0a0a;
+    color: #f88;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1;
+}
+.insp-kw-rm:hover { background: #2a1010; border-color: #f88; }
+/* All inputs/selects inside a keyword card pick up the dark style, not
+   just the direct children - some sections nest inputs in a sub-grid. */
+.insp-kw input,
+.insp-kw select,
+.insp-kw .insp-ind {
+    background: #060606;
+    color: #ddd;
+    border: 1px solid #2a2a2a;
+    padding: 3px 6px;
+    border-radius: 2px;
+    font: inherit;
+    font-size: 11px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+}
+.insp-kw input:focus,
+.insp-kw select:focus { border-color: #4a8a4a; outline: none; }
+.insp-kw .insp-kw-ind { color: #cc6; }
+
+.insp-add-kw {
+    margin-top: 4px;
+    width: 100%;
+    background: #0a0a0a;
+    color: #6f6;
+    border: 1px dashed #2a4a2a;
+    border-radius: 2px;
+    padding: 4px;
+    font-size: 11px;
+    font-family: monospace;
+    cursor: pointer;
+}
+.insp-add-kw:hover { background: #0e1a0e; border-style: solid; }
+
+/* ---- Record items list (in Record tab) ----------------------------- */
+.insp-itemlist {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 280px;
+    overflow: auto;
+}
+.insp-itemrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 2px;
+    cursor: pointer;
+    font: inherit;
+    font-family: monospace;
+    font-size: 11px;
+    color: #ccc;
+    text-align: left;
+}
+.insp-itemrow:hover { background: #161a16; border-color: #2a4a2a; }
+.insp-itemrow-tag {
+    width: 16px;
+    text-align: center;
+    border-radius: 2px;
+    font-weight: bold;
+    background: #1a1a1a;
+}
+.insp-itemrow-tag.tag-constant { color: #6cf; }
+.insp-itemrow-tag.tag-sysvalue { color: #3dd; }
+.insp-itemrow-tag.tag-field    { color: #6f6; }
+.insp-itemrow-tag.tag-hidden   { color: #c8c; }
+.insp-itemrow-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.insp-itemrow-pos { color: #666; font-size: 10px; }
+
+/* Indicators input outside keyword cards */
+.insp-ind {
+    background: #060606;
+    color: #cc6;
+    border: 1px solid #2a2a2a;
+    padding: 3px 6px;
+    border-radius: 2px;
+    font: inherit;
+    font-size: 11px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+}
+.insp-ind:focus { border-color: #4a8a4a; outline: none; }
+
+/* Full-width select inside an .insp-section (no label) */
+.insp-raw-select {
+    background: #060606;
+    color: #ddd;
+    border: 1px solid #2a2a2a;
+    padding: 3px 6px;
+    border-radius: 2px;
+    font: inherit;
+    font-size: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.insp-raw-select:focus { border-color: #4a8a4a; outline: none; }
+
+/* ---- Source panel (bottom) + resize handle ------------------------- */
+.resize-handle {
+    flex: 0 0 var(--source-handle-h);
+    background: #1c1c1c;
+    cursor: row-resize;
+    border-top: 1px solid #0a0a0a;
+    border-bottom: 1px solid #0a0a0a;
+    user-select: none;
+}
+.resize-handle:hover { background: #2a4a2a; }
+.resize-handle.dragging { background: #4a8a4a; }
+body.source-collapsed .resize-handle { display: none; }
+
+.source-panel {
+    flex: 0 0 var(--source-panel-h);
+    display: flex;
+    flex-direction: column;
+    background: #050a05;
+    border-top: 1px solid #1f3a1f;
+    overflow: hidden;
+    min-height: 0;
+}
+body.source-collapsed .source-panel { display: none; }
+
+.source-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: #0e0e0e;
+    border-bottom: 1px solid #1c1c1c;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    flex: 0 0 auto;
+}
+.source-panel-title {
+    color: #6f6;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.source-status {
+    margin-left: auto;
+    color: #888;
+    padding: 1px 6px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    /* Use flex + a CSS ::before bullet instead of emoji glyphs.  Emoji
+       variants of ✓/⌚/⚠ render at different widths than the monospace
+       text around them and shift the chip when status changes; a
+       CSS-drawn 6px circle is fixed-size in every state. */
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.source-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+.source-status.ok    { color: #6f6;  border-color: #2a4a2a; }
+.source-status.warn  { color: #cc6;  border-color: #4a4a2a; }
+.source-status.error { color: #f66;  border-color: #4a2a2a; }
+.source-status.warn::before {
+    /* Subtle pulse during the parse-debounce window so the user gets a
+       beat of "still working" feedback. */
+    animation: source-status-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes source-status-pulse {
+    from { opacity: 0.35; }
+    to   { opacity: 1; }
+}
+.source-collapse,
+.source-chip {
+    background: #0a0a0a;
+    color: #888;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    padding: 1px 8px;
+    font: inherit;
+    cursor: pointer;
+}
+.source-collapse:hover,
+.source-chip:hover { color: #6f6; border-color: #2a4a2a; }
+.source-chip.on {
+    background: #1f3320;
+    color: #6f6;
+    border-color: #2a4a2a;
+}
+
+.source-editor {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ---- CodeMirror 6 dark theme override ------------------------------- */
+.cm-editor {
+    height: 100%;
+    background: #050a05;
+    color: #d6d6d6;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+}
+.cm-editor.cm-focused { outline: none; }
+.cm-editor .cm-scroller { font-family: inherit; }
+.cm-editor .cm-gutters {
+    background: #0a0e0a;
+    color: #2a4a2a;
+    border-right: 1px solid #1c1c1c;
+    user-select: none;
+}
+.cm-editor .cm-activeLineGutter {
+    background: #0e1a0e;
+    color: #6f6;
+}
+.cm-editor .cm-activeLine { background: rgba(15, 30, 15, 0.6); }
+.cm-editor .cm-cursor,
+.cm-editor .cm-dropCursor { border-left-color: #6f6; }
+.cm-editor .cm-selectionBackground,
+.cm-editor.cm-focused .cm-selectionBackground,
+.cm-editor ::selection {
+    background: rgba(74, 154, 255, 0.25) !important;
+}
+.cm-editor .cm-tooltip {
+    background: #0e1a0e;
+    border: 1px solid #2a4a2a;
+    color: #ccc;
+}
+.cm-editor .cm-tooltip-autocomplete > ul > li[aria-selected] {
+    background: #1f3320;
+    color: #6f6;
+}
+.cm-editor .cm-tooltip-autocomplete > ul > li {
+    font-family: "SF Mono", Menlo, monospace;
+}
+.cm-editor .cm-completionLabel { color: #ccc; }
+.cm-editor .cm-completionDetail { color: #6cf; font-style: normal; margin-left: 8px; }
+
+/* Per-item highlight ring when canvas selection is mapped to a source
+   line range.  Applied via a CodeMirror Decoration line mark from JS. */
+.cm-editor .cm-line.dspf-item-highlight {
+    background: rgba(74, 154, 255, 0.08);
+    box-shadow: inset 2px 0 0 #4a9aff;
+}
+
+/* Vertical bar that tracks the cursor's column through the content
+   area.  Sits inside .cm-scroller (CodeMirror's stable scroll container)
+   so it survives panel re-renders and scrolls with the content.  The
+   bar's height is set in JS to scrollHeight so the visible slice always
+   paints across the viewport.  Visibility is toggled by adding the
+   `.show-col-marker` class to .cm-editor (see the source-panel chip). */
+.cm-editor .dspf-col-marker-bar {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    background: rgba(255, 221, 51, 0.45);
+    pointer-events: none;
+    /* z-index 0 keeps the bar BEHIND `.cm-cursorLayer` so the caret is
+       not occluded.  Anything ≥ 5 painted over it. */
+    z-index: 0;
+    display: none;
+}
+/* The `.show` class is toggled on the bar element ITSELF by
+   SourceEditor.setCursorColumnMarker — NOT on `.cm-editor`.  CodeMirror
+   rewrites the editor element's className whenever editorAttributes
+   recompute (focus/blur etc.), which would silently strip any class we
+   set there. */
+.cm-editor .dspf-col-marker-bar.show { display: block; }
+
+/* ---- DDS column ruler (sticky panel above the editor) -------------- */
+/* The .dspf-ruler is the panel's outer DOM (full-width, overflow:hidden).
+   The .dspf-ruler-inner holds the two ruler lines and gets a translateX
+   applied from JS to mirror the editor's horizontal scroll.  Font and
+   line-height MUST match the .cm-editor's so columns line up. */
+.dspf-ruler {
+    background: #0a1a0a;
+    border-bottom: 1px solid #1f3a1f;
+    overflow: hidden;
+    user-select: none;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+}
+.dspf-ruler-inner {
+    white-space: pre;
+    will-change: transform;
+}
+.dspf-ruler-cols   { color: #3a5a3a; }
+.dspf-ruler-labels { color: #6f6;    }
+
+/* Hide the default CodeMirror panel border the showPanel injects above
+   the editor - our ruler already carries its own bottom border. */
+.cm-editor .cm-panels.cm-panels-top { border-bottom: none; }
+.cm-editor .cm-panels { background: transparent; }
+
+/* ---- Statusbar ----------------------------------------------------- */
+#statusbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #0a0a0a;
+    border-top: 1px solid #1f3a1f;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    color: #888;
+    flex: 0 0 auto;
+}
+#statusbar .sb-cell {
+    padding: 2px 6px;
+    background: #060606;
+    border: 1px solid #1a1a1a;
+    border-radius: 2px;
+}
+#statusbar .sb-sep {
+    width: 1px; height: 12px; background: #1a1a1a;
+}
+#statusbar .sb-spacer { flex: 1; }
