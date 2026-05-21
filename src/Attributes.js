@@ -1,7 +1,6 @@
-// DSPF attribute reference - just the keywords we render visually or
-// expose in the inspector.  Anything we don't recognise should still
-// round-trip through the (future) parser/writer via `extraKeywords` on
-// the item, so this file stays small on purpose.
+// DSPF attributes the renderer + inspector know about.  Unrecognised
+// keywords still round-trip via item.keywords[] — this file just enumerates
+// what we surface in dropdowns and paint with special colours.
 
 export const DSPATR_FLAGS = {
     HI: 'High intensity',
@@ -24,9 +23,7 @@ export const COLORS = {
     BLU: 'Blue',
 };
 
-// CSS colour per COLOR keyword.  Picked for taste on the dark canvas - not
-// strict 5250 hardware RGB.  TRQ is teal, PNK leans magenta because pure
-// pink reads badly against black.
+// Tuned for legibility on #050a05, not strict 5250 hardware RGB.
 export const COLOR_CSS = {
     GRN: '#33ff33',
     WHT: '#e8e8e8',
@@ -37,13 +34,8 @@ export const COLOR_CSS = {
     BLU: '#5599ff',
 };
 
-// Used whenever the host hasn't asked for anything special.  Real 5250
-// default is green - we follow.
 export const DEFAULT_COLOR = 'GRN';
 
-// EDTCDE: many codes exist, none rendered specially in v1.  Listed so
-// the inspector can offer a dropdown; the value still flows into the
-// model untouched.
 export const EDTCDE = [
     '', '1', '2', '3', '4', 'A', 'B', 'C', 'D',
     'J', 'K', 'L', 'M', 'N', 'O', 'W', 'X', 'Y', 'Z',
