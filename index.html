@@ -4,12 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>DSPF·RAD · IronTerm</title>
+    <title>DSPF·RAD · Browser-based IBM i (AS/400) display file designer</title>
     <meta name="description"
-          content="DSPF·RAD - browser-side IBM i (AS/400) display file designer.  Drag/drop UI builder for DSPF source.">
+          content="DSPF·RAD is a browser-based RAD designer for IBM i (AS/400) display files. Drag widgets onto a 5250 grid (24x80 or 27x132) and watch DSPF source regenerate live. Supports subfiles (SFL/SFLCTL), ENPTUI controls, and RPGLE / COBOL skeleton generation.">
+    <meta name="keywords"
+          content="DSPF, DDS, IBM i, AS/400, AS400, iSeries, System i, 5250, 5251, RPG, RPGLE, COBOL, display file, subfile, SFL, SFLCTL, ENPTUI, terminal designer, RAD, green screen, SDA">
     <meta name="author" content="Alexandre Bencz">
     <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large">
     <meta name="theme-color" content="#008080">
+
+    <link rel="canonical" href="https://dspf-rad.bencz.cc/">
+
+    <!-- Open Graph (Facebook, LinkedIn, Discord, Slack, ...) -->
+    <meta property="og:type"          content="website">
+    <meta property="og:site_name"     content="DSPF·RAD">
+    <meta property="og:title"         content="DSPF·RAD · Browser-based IBM i display file designer">
+    <meta property="og:description"   content="Drag-and-drop RAD designer for DSPF (display files) on IBM i / AS/400. Live two-way sync between canvas and source, with RPGLE and COBOL skeleton generation.">
+    <meta property="og:url"           content="https://dspf-rad.bencz.cc/">
+    <meta property="og:image"         content="https://github.com/user-attachments/assets/dd74b9a5-8e36-4b34-bac5-51d18e6a8ffa">
+    <meta property="og:image:width"   content="1510">
+    <meta property="og:image:height"  content="864">
+    <meta property="og:image:alt"     content="DSPF·RAD designer showing a 5250 sign-on screen with palette, canvas, inspector and live DSPF source.">
+    <meta property="og:locale"        content="en_US">
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="DSPF·RAD · Browser-based IBM i display file designer">
+    <meta name="twitter:description" content="Drag-and-drop RAD designer for DSPF on IBM i / AS/400. Two-way sync between canvas and source.">
+    <meta name="twitter:image"       content="https://github.com/user-attachments/assets/dd74b9a5-8e36-4b34-bac5-51d18e6a8ffa">
+    <meta name="twitter:image:alt"   content="DSPF·RAD designer showing a 5250 sign-on screen with palette, canvas, inspector and live DSPF source.">
+
+    <!-- Structured data for search engines (schema.org SoftwareApplication) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "DSPF·RAD",
+      "url": "https://dspf-rad.bencz.cc/",
+      "description": "Browser-based RAD designer for IBM i (AS/400) display files (DSPF). Drag widgets onto a 5250 grid with live two-way sync between the canvas and DSPF source. Includes RPGLE and COBOL skeleton generators with protected regions.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any (web browser)",
+      "browserRequirements": "Requires a modern browser with ES modules and import maps (Chrome, Firefox, Safari, Edge).",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "license": "https://www.gnu.org/licenses/gpl-3.0.en.html",
+      "codeRepository": "https://github.com/bencz/DSPF-RAD",
+      "sameAs": [
+        "https://github.com/bencz/DSPF-RAD"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Alexandre Bencz",
+        "url": "https://github.com/bencz"
+      }
+    }
+    </script>
 
     <link rel="icon" type="image/svg+xml"
           href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23050a05'/><text x='32' y='44' font-family='monospace' font-size='18' font-weight='bold' fill='%2333ff33' text-anchor='middle'>DSPF</text></svg>">
