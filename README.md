@@ -7,13 +7,13 @@ Open a `.DSPF` source, drag widgets onto a 5250 grid, tweak attributes in the in
 ## Screenshots
 
 ### Overview
-<img width="1510" height="864" alt="image" src="https://github.com/user-attachments/assets/dd74b9a5-8e36-4b34-bac5-51d18e6a8ffa" />
+<img width="1510" height="864" alt="image" src="https://github.com/user-attachments/assets/0ece6fdb-8651-4c0f-9ca9-1dc545fc8b5b" />
 
 ### Subfile design with overlay mode
-<img width="1512" height="909" alt="image" src="https://github.com/user-attachments/assets/0d1726be-1cf4-4777-b2d8-eb9f147cc5c7" />
+<img width="1510" height="866" alt="image" src="https://github.com/user-attachments/assets/9e57b46d-1ceb-4682-a14f-adc766fecd31" />
 
 ### Live source pane and inspector
-<img width="1512" height="902" alt="image" src="https://github.com/user-attachments/assets/4c655710-4b65-408e-862e-dc93d71627d0" />
+<img width="1512" height="909" alt="image" src="https://github.com/user-attachments/assets/8cae9b12-54d5-46a4-ba2c-8f57e28f13fd" />
 
 ## What it does
 
