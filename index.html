@@ -22,6 +22,27 @@
     <link rel="stylesheet" href="https://unpkg.com/98.css">
     <link rel="stylesheet" href="styles.css">
 
+    <!-- No-FOUC theme application — runs BEFORE styles.css paints.
+         Reads localStorage first (explicit user choice wins).  If empty,
+         falls back to the OS preference via prefers-color-scheme.  Once
+         the rest of the app boots, src/app/Theme.js takes over the
+         wiring (toggle button + live OS-pref tracking).
+         Kept inline because any external script would race the first
+         paint and cause a light↔dark flash. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('dspf-theme');
+          var theme = saved
+            || (window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (_) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+
     <!-- Import map so CodeMirror 6 sub-packages share a single instance
          of @codemirror/state / @codemirror/view across the dep graph.
          Without this, esm.sh serves a fresh copy of @codemirror/state to
@@ -56,11 +77,6 @@
     <div class="title-bar">
         <div class="title-bar-text">
             <span class="app-brand-mark">DSPF</span> · RAD — IronTerm Display File Designer
-        </div>
-        <div class="title-bar-controls">
-            <button aria-label="Minimize" tabindex="-1"></button>
-            <button aria-label="Maximize" tabindex="-1"></button>
-            <button aria-label="Close"    tabindex="-1"></button>
         </div>
     </div>
 
@@ -124,6 +140,8 @@
                  (interaction hint chip and the ephemeral status text). -->
             <li class="menubar-spacer" aria-hidden="true"></li>
             <li class="menubar-info">
+                <button id="themeToggle" type="button" class="theme-toggle"
+                        title="Toggle light/dark theme" aria-label="Toggle theme">☀</button>
                 <span class="hint" title="Drag from palette · Click to select · Arrow keys to nudge (Shift = ×5) · Del to remove">drag·click·arrows·Del</span>
                 <span id="status" class="toolbar-status">ready</span>
             </li>

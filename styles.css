@@ -31,7 +31,9 @@
     --term-dim: #1f3a1f;
 
     /* Win98 chrome palette (matches 98.css internals so manual borders
-       drawn in this file blend with 98.css-styled siblings). */
+       drawn in this file blend with 98.css-styled siblings).  The names
+       describe the literal color in light mode; dark mode remaps them
+       (see [data-theme="dark"] at the bottom of this file). */
     --w98-face:    #c0c0c0;
     --w98-light:   #dfdfdf;
     --w98-white:   #ffffff;
@@ -39,6 +41,30 @@
     --w98-dark:    #0a0a0a;
     --w98-navy:    #000080;
     --w98-teal:    #008080;
+
+    /* Semantic variables that diverge from --w98-* in dark mode.
+         --bg-input  : input / listbox surface (was --w98-white).  In dark
+                       this is the deepest field bg (#1e1e1e) while
+                       --w98-white becomes a subtle light border (#3c3c3c).
+         --fg-accent : navy-colored *text* (palette group headers, the
+                       pi-icon glyph, insp-kw input field name).  In dark
+                       this is a bright blue (#4a9aff); --w98-navy stays
+                       a darker blue used as selection background.
+         --bg-tooltip / --accent-hover-bg / --accent-hover-border :
+                       hover and tooltip surfaces that don't fit any
+                       --w98-* slot. */
+    --bg-input:            #ffffff;
+    --fg-accent:           #000080;
+    --bg-tooltip:          #ffffe1;
+    --accent-hover-bg:     #d8e4ff;
+    --accent-hover-border: #6a90c0;
+    --fg-text:             #000000;  /* default body text on chrome surfaces */
+    --fg-on-accent:        #ffffff;  /* text on navy/selected bg (stays white in both themes) */
+    --fg-muted:            #404040;
+    --fg-disabled:         #808080;
+    --status-ok:           #006000;
+    --status-warn:         #806000;
+    --status-error:        #800000;
 }
 
 html, body {
@@ -47,7 +73,7 @@ html, body {
     height: 100%;
     overflow: hidden;
     background: var(--w98-teal);        /* classic Win98 desktop teal */
-    color: #000;
+    color: var(--fg-text);
 }
 
 body {
@@ -131,7 +157,7 @@ body {
 /* ---- Top-level menu titles (File, Record, View, …) ---- */
 .menu-title {
     background: transparent;
-    color: #000;
+    color: var(--fg-text);
     border: 1px solid transparent;
     padding: 2px 9px 3px;
     cursor: pointer;
@@ -146,7 +172,7 @@ body {
 .menu-title:hover,
 #menubar > li.open > .menu-title {
     background: var(--w98-navy);
-    color: var(--w98-white);
+    color: var(--fg-on-accent);
 }
 /* Underlined access-key hint (visual only — no Alt+key binding). */
 .menu-title u,
@@ -183,7 +209,7 @@ body {
     width: 100%;
     align-items: center;
     background: transparent;
-    color: #000;
+    color: var(--fg-text);
     border: 1px solid transparent;
     padding: 3px 24px 3px 28px;
     text-align: left;
@@ -198,12 +224,12 @@ body {
 }
 .menu-item:hover {
     background: var(--w98-navy);
-    color: var(--w98-white);
+    color: var(--fg-on-accent);
 }
 .menu-item .menu-label { flex: 1; }
 .menu-item .menu-accel {
     margin-left: 24px;
-    color: #404040;
+    color: var(--fg-muted);
     font-family: "SF Mono", Menlo, Consolas, monospace;
     font-size: 10px;
 }
@@ -244,15 +270,15 @@ body {
 .menu-item.disabled,
 .menu-item.disabled .menu-label,
 .menu-item.disabled .menu-accel {
-    color: #808080;
+    color: var(--fg-disabled);
     text-shadow: 1px 1px 0 var(--w98-white);
     cursor: default;
 }
 .menu-item.disabled:hover {
     background: transparent;
-    color: #808080;
+    color: var(--fg-disabled);
 }
-.menu-item.disabled:hover .menu-accel { color: #808080; }
+.menu-item.disabled:hover .menu-accel { color: var(--fg-disabled); }
 
 /* ============================================================
    Main toolbar — visible row below the menubar grouping the
@@ -278,7 +304,7 @@ body {
     align-items: center;
     gap: 4px;
     margin-right: 2px;
-    color: #000;
+    color: var(--fg-text);
     font-size: 11px;
 }
 #toolbar select {
@@ -350,7 +376,7 @@ body {
 }
 .hint {
     font-size: 11px;
-    color: #404040;
+    color: var(--fg-muted);
     padding: 2px 6px;
     background: var(--w98-face);
     border: 1px solid;
@@ -363,14 +389,14 @@ body {
 .toolbar-status {
     padding: 2px 8px;
     font-size: 11px;
-    background: var(--w98-white);
+    background: var(--bg-input);
     border: 1px solid;
     border-color: var(--w98-shadow) var(--w98-light) var(--w98-light) var(--w98-shadow);
     min-width: 100px;
     font-family: "SF Mono", Menlo, Consolas, monospace;
 }
-.toolbar-status.error { color: #800000; font-weight: bold; }
-.toolbar-status.ok    { color: #006000; }
+.toolbar-status.error { color: var(--status-error); font-weight: bold; }
+.toolbar-status.ok    { color: var(--status-ok); }
 
 /* ============================================================
    Workspace 3-col layout
@@ -420,61 +446,61 @@ body {
     padding: 0 2px;
     font-size: 11px;
     font-weight: bold;
-    color: var(--w98-navy);
+    color: var(--fg-accent);
 }
 .palette-item {
     display: flex;
     align-items: center;
     gap: 6px;
     padding: 3px 5px;
-    background: var(--w98-white);
+    background: var(--bg-input);
     border: 1px solid var(--w98-face);   /* invisible until hover/armed */
     cursor: pointer;
     user-select: none;
     font-size: 11px;
-    color: #000;
+    color: var(--fg-text);
 }
 .palette-item + .palette-item { margin-top: 1px; }
 .palette-item:hover {
-    background: #d8e4ff;                  /* light blue hover */
-    border-color: #6a90c0;
+    background: var(--accent-hover-bg);
+    border-color: var(--accent-hover-border);
 }
 .palette-item:active { cursor: grabbing; }
 .palette-item.palette-armed {
     background: var(--w98-navy);
-    color: var(--w98-white);
-    border: 1px dotted var(--w98-white);
+    color: var(--fg-on-accent);
+    border: 1px dotted var(--fg-on-accent);
     outline: 1px solid var(--w98-navy);
     outline-offset: -2px;
 }
 .palette-item.palette-armed .pi-icon,
-.palette-item.palette-armed .pi-label { color: var(--w98-white); }
+.palette-item.palette-armed .pi-label { color: var(--fg-on-accent); }
 .palette-item.palette-armed::after {
     content: '◉ click grid';
     margin-left: auto;
-    color: var(--w98-white);
+    color: var(--fg-on-accent);
     font-family: "SF Mono", Menlo, monospace;
     font-size: 10px;
 }
 .pi-icon {
     width: 18px;
     text-align: center;
-    color: var(--w98-navy);
+    color: var(--fg-accent);
     font-family: "SF Mono", Menlo, Consolas, monospace;
     font-weight: bold;
     flex-shrink: 0;
 }
-.pi-label { flex: 1; color: #000; }
+.pi-label { flex: 1; color: var(--fg-text); }
 .palette-hint {
     margin: 8px 2px 2px;
     padding: 4px;
-    color: #404040;
+    color: var(--fg-muted);
     font-size: 10px;
     line-height: 1.4;
-    background: #ffffe1;                  /* tooltip yellow */
-    border: 1px solid #808080;
+    background: var(--bg-tooltip);
+    border: 1px solid var(--w98-shadow);
 }
-.palette-hint em { color: var(--w98-navy); font-style: normal; font-weight: bold; }
+.palette-hint em { color: var(--fg-accent); font-style: normal; font-weight: bold; }
 
 /* ============================================================
    Canvas — dark 5250 terminal embedded in a deep Win98 sunken well.
@@ -546,7 +572,7 @@ body.wide-mode .canvas-frame {
    box with a "cut-into-border" h4 legend.
    ============================================================ */
 .inspector .empty {
-    color: #404040;
+    color: var(--fg-muted);
     font-size: 11px;
     text-align: center;
     padding: 16px 8px;
@@ -569,7 +595,7 @@ body.wide-mode .canvas-frame {
 }
 .insp-tab {
     background: var(--w98-face);
-    color: #000;
+    color: var(--fg-text);
     border: 1px solid;
     border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
     border-bottom: none;
@@ -583,7 +609,7 @@ body.wide-mode .canvas-frame {
     height: auto;
     min-width: 0;
 }
-.insp-tab:hover { color: #000; }
+.insp-tab:hover { color: var(--fg-text); }
 .insp-tab.active {
     background: var(--w98-face);
     font-weight: normal;
@@ -619,7 +645,7 @@ body.wide-mode .canvas-frame {
     background: var(--w98-face);
     font-size: 11px;
     font-weight: normal;
-    color: #000;
+    color: var(--fg-text);
     text-transform: none;
     letter-spacing: 0;
 }
@@ -634,7 +660,7 @@ body.wide-mode .canvas-frame {
     font-size: 11px;
 }
 .insp-row > label {
-    color: #000;
+    color: var(--fg-text);
     font-size: 11px;
     font-family: inherit;
 }
@@ -664,7 +690,7 @@ body.wide-mode .canvas-frame {
 .insp-chip {
     display: inline-block;
     background: var(--w98-face);
-    color: #000;
+    color: var(--fg-text);
     border: 1px solid;
     border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
     box-shadow:
@@ -678,7 +704,7 @@ body.wide-mode .canvas-frame {
     min-width: 24px;
     text-align: center;
 }
-.insp-chip:hover { color: #000; }
+.insp-chip:hover { color: var(--fg-text); }
 .insp-chip.on {
     border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
     box-shadow:
@@ -702,7 +728,7 @@ body.wide-mode .canvas-frame {
     font-size: 11px;
 }
 .insp-actions button.danger {
-    color: #800000;
+    color: var(--status-error);
     font-weight: bold;
 }
 
@@ -726,7 +752,7 @@ body.wide-mode .canvas-frame {
     font-family: "SF Mono", Menlo, Consolas, monospace;
     font-weight: bold;
     text-transform: uppercase;
-    color: var(--w98-navy);
+    color: var(--fg-accent);
     font-size: 11px;
 }
 .insp-kw-rm {
@@ -734,7 +760,7 @@ body.wide-mode .canvas-frame {
     height: 22px;
     min-width: 0;
     padding: 0;
-    color: #800000;
+    color: var(--status-error);
     font-weight: bold;
     cursor: pointer;
     font-size: 13px;
@@ -748,7 +774,7 @@ body.wide-mode .canvas-frame {
     font-size: 11px;
     font-family: "SF Mono", Menlo, Consolas, monospace;
 }
-.insp-kw .insp-kw-ind { color: #806000; }
+.insp-kw .insp-kw-ind { color: var(--status-warn); }
 
 .insp-add-kw {
     margin-top: 4px;
@@ -769,7 +795,7 @@ body.wide-mode .canvas-frame {
     max-height: 280px;
     overflow: auto;
     padding: 2px;
-    background: var(--w98-white);
+    background: var(--bg-input);
     border: 1px solid;
     border-color: var(--w98-shadow) var(--w98-light) var(--w98-light) var(--w98-shadow);
 }
@@ -778,24 +804,24 @@ body.wide-mode .canvas-frame {
     align-items: center;
     gap: 6px;
     padding: 2px 4px;
-    background: var(--w98-white);
+    background: var(--bg-input);
     border: 1px solid transparent;
     cursor: pointer;
     font-family: "SF Mono", Menlo, Consolas, monospace;
     font-size: 11px;
-    color: #000;
+    color: var(--fg-text);
     text-align: left;
     border-radius: 0;
     min-width: 0;
     height: auto;
 }
 .insp-itemrow:hover {
-    background: #d8e4ff;
+    background: var(--accent-hover-bg);
 }
 .insp-itemrow:focus {
     background: var(--w98-navy);
-    color: var(--w98-white);
-    outline: 1px dotted var(--w98-white);
+    color: var(--fg-on-accent);
+    outline: 1px dotted var(--fg-on-accent);
     outline-offset: -3px;
 }
 .insp-itemrow:focus .insp-itemrow-label,
@@ -811,11 +837,11 @@ body.wide-mode .canvas-frame {
 .insp-itemrow-tag.tag-field    { color: #006000; }
 .insp-itemrow-tag.tag-hidden   { color: #a000a0; }
 .insp-itemrow-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.insp-itemrow-pos { color: #606060; font-size: 10px; }
+.insp-itemrow-pos { color: var(--fg-muted); font-size: 10px; }
 
 /* Indicators input outside keyword cards */
 .insp-ind {
-    color: #806000;
+    color: var(--status-warn);
     width: 100%;
     box-sizing: border-box;
     font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -854,7 +880,7 @@ body.wide-mode .canvas-frame {
     transform: translate(-50%, -50%);
     width: 80px;
     height: 2px;
-    background-image: radial-gradient(circle, #404040 1px, transparent 1.5px);
+    background-image: radial-gradient(circle, var(--fg-muted) 1px, transparent 1.5px);
     background-size: 4px 2px;
     background-repeat: repeat-x;
 }
@@ -898,7 +924,7 @@ body.source-collapsed .source-editor { display: none; }
 /* Reusable chip-style button (┃ col toggle). */
 .source-chip {
     background: var(--w98-face);
-    color: #000;
+    color: var(--fg-text);
     border: 1px solid;
     border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
     box-shadow:
@@ -912,7 +938,7 @@ body.source-collapsed .source-editor { display: none; }
     height: 22px;
     border-radius: 0;
 }
-.source-chip:hover { color: #000; }
+.source-chip:hover { color: var(--fg-text); }
 .source-chip.on {
     border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
     box-shadow:
@@ -934,7 +960,7 @@ body.source-collapsed .source-editor { display: none; }
     padding: 0 4px;
     background: var(--w98-face);
     background-image: none;
-    color: #000;
+    color: var(--fg-text);
     border: 1px solid;
     border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
     box-shadow:
@@ -985,9 +1011,9 @@ body.source-collapsed .source-editor { display: none; }
         inset 1px 1px 0 rgba(255,255,255,0.45);
     flex-shrink: 0;
 }
-.source-status.ok    { color: #006000; }
-.source-status.warn  { color: #806000; }
-.source-status.error { color: #800000; font-weight: bold; }
+.source-status.ok    { color: var(--status-ok); }
+.source-status.warn  { color: var(--status-warn); }
+.source-status.error { color: var(--status-error); font-weight: bold; }
 .source-status.warn::before {
     /* Subtle pulse during the parse-debounce window so the user gets a
        beat of "still working" feedback. */
@@ -1129,3 +1155,212 @@ body.source-collapsed .source-editor { display: none; }
 #sbRecord { min-width: 110px; }
 #sbItems  { min-width: 70px; }
 #sbCursor { min-width: 70px; text-align: right; }
+
+/* ============================================================
+   Theme toggle button — chip-style ☀/☾ in the menubar-info row.
+   Reuses the .source-chip Win98 3D-raised look (kept consistent
+   with the other small chips in the chrome).  Glyph is wider than
+   text so we drop the monospace family for a slightly more open
+   look — the sun/moon read better at the default UI font weight. */
+.theme-toggle {
+    background: var(--w98-face);
+    color: var(--fg-text);
+    border: 1px solid;
+    border-color: var(--w98-white) var(--w98-shadow) var(--w98-shadow) var(--w98-white);
+    box-shadow:
+        inset  1px  1px 0 var(--w98-light),
+        inset -1px -1px 0 var(--w98-dark);
+    padding: 0 7px;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    min-width: 24px;
+    height: 20px;
+    border-radius: 0;
+}
+.theme-toggle:active {
+    border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+    box-shadow:
+        inset  1px  1px 0 var(--w98-dark),
+        inset -1px -1px 0 var(--w98-light);
+}
+.theme-toggle:focus {
+    outline: 1px dotted var(--fg-text);
+    outline-offset: -3px;
+}
+
+/* ============================================================
+   Dark theme — applied via [data-theme="dark"] on <html>.
+
+   Strategy:
+     1. Remap the --w98-* literal palette to dark values.  Most of
+        styles.css already cascades through these vars so 90% of the
+        chrome flips automatically.
+     2. Remap the semantic vars (--bg-input, --fg-text, --fg-muted,
+        --fg-accent, --accent-hover-*, --bg-tooltip, --status-*)
+        to dark counterparts.
+     3. Override 98.css's own hardcoded chrome (.window, .title-bar,
+        select, input, button, .status-bar-field) by selector since
+        98.css 0.1.21 does NOT expose CSS variables.
+     4. Brighten the per-tag-color text classes (constant/sysvalue/
+        field/hidden) and any other spots where a hardcoded color
+        wouldn't read on a dark background.
+
+   The phosphor canvas + CodeMirror (--term-bg, --term-grn,
+   --term-dim) are deliberately untouched — phosphor green on black
+   is the canonical IBM 5250 look and shouldn't change with theme.
+   ============================================================ */
+[data-theme="dark"] {
+    /* --- semantic palette ---------------------------------- */
+    --bg-input:            #1e1e1e;
+    --fg-accent:           #4a9aff;
+    --bg-tooltip:          #3a3a1a;
+    --accent-hover-bg:     #264f78;
+    --accent-hover-border: #3794ff;
+    --fg-text:             #cccccc;
+    --fg-muted:            #888888;
+    --fg-disabled:         #555555;
+    --status-ok:           #4ec94e;
+    --status-warn:         #d7b75d;
+    --status-error:        #e06c75;
+
+    /* --- Win98 palette remap ------------------------------ */
+    --w98-face:    #2b2b2b;
+    --w98-light:   #353535;
+    --w98-white:   #3c3c3c;   /* "lightest" border ladder in dark */
+    --w98-shadow:  #1a1a1a;
+    --w98-dark:    #000000;
+    --w98-navy:    #0e3a5c;
+    --w98-teal:    #181818;   /* desktop bg behind the app window */
+}
+
+/* ---- 98.css overrides (no CSS vars in 98.css 0.1.21) ------ */
+
+/* .window — the raised silver panel.  Original box-shadow uses the
+   classic 4-color recipe (white, light gray, gray, dark); dark mode
+   uses the same recipe shifted down. */
+[data-theme="dark"] .window {
+    background: var(--w98-face);
+    color: var(--fg-text);
+    box-shadow:
+        inset -1px -1px 0 var(--w98-dark),
+        inset  1px  1px 0 var(--w98-light),
+        inset -2px -2px 0 var(--w98-shadow),
+        inset  2px  2px 0 var(--w98-white);
+}
+
+/* .title-bar — the navy gradient.  Solid dark blue in dark mode
+   keeps the brand-mark legible without a bright gradient.  98.css's
+   inactive title bar uses a gray gradient; in dark we use muted blue. */
+[data-theme="dark"] .title-bar {
+    background: linear-gradient(90deg, #0c2840 0%, #0e639c 100%);
+}
+[data-theme="dark"] .title-bar.inactive {
+    background: linear-gradient(90deg, #2a2a2a 0%, #555555 100%);
+}
+
+/* form controls — 98.css gives them a white bg + 4-color sunken
+   bezel.  Dark mode uses the dark input bg + a darker bezel. */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] input[type="tel"],
+[data-theme="dark"] input[type="url"],
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background-color: var(--bg-input);
+    color: var(--fg-text);
+    box-shadow:
+        inset -1px -1px 0 var(--w98-light),
+        inset  1px  1px 0 var(--w98-shadow),
+        inset -2px -2px 0 var(--w98-white),
+        inset  2px  2px 0 var(--w98-dark);
+}
+
+/* select :focus highlight — 98.css paints it navy+white text.  In
+   dark we use the darker accent + white-on-accent. */
+[data-theme="dark"] select:focus {
+    background-color: var(--w98-navy);
+    color: var(--fg-on-accent);
+}
+
+/* button — 98.css raised silver; same 4-color recipe in dark. */
+[data-theme="dark"] button,
+[data-theme="dark"] input[type="reset"],
+[data-theme="dark"] input[type="submit"] {
+    background: var(--w98-face);
+    color: var(--fg-text);
+    box-shadow:
+        inset -1px -1px 0 var(--w98-dark),
+        inset  1px  1px 0 var(--w98-white),
+        inset -2px -2px 0 var(--w98-shadow),
+        inset  2px  2px 0 var(--w98-light);
+}
+[data-theme="dark"] button:not(:disabled):active,
+[data-theme="dark"] input[type="reset"]:not(:disabled):active,
+[data-theme="dark"] input[type="submit"]:not(:disabled):active {
+    box-shadow:
+        inset -1px -1px 0 var(--w98-white),
+        inset  1px  1px 0 var(--w98-dark),
+        inset -2px -2px 0 var(--w98-light),
+        inset  2px  2px 0 var(--w98-shadow);
+}
+[data-theme="dark"] :disabled,
+[data-theme="dark"] :disabled + label,
+[data-theme="dark"] input[readonly],
+[data-theme="dark"] input[readonly] + label {
+    color: var(--fg-disabled);
+}
+
+/* .status-bar-field — 98.css gives it a sunken 2-color shadow. */
+[data-theme="dark"] .status-bar-field {
+    box-shadow:
+        inset -1px -1px 0 var(--w98-light),
+        inset  1px  1px 0 var(--w98-shadow);
+    color: var(--fg-text);
+}
+
+/* ---- App-specific dark adjustments ---------------------- */
+
+/* Body text default — html/body set color:#000 inline, so override. */
+[data-theme="dark"] html,
+[data-theme="dark"] body {
+    color: var(--fg-text);
+}
+
+/* The .app-brand-mark inside the title bar is its own phosphor pill
+   — leave untouched (looks great in either theme). */
+
+/* Item tag colors — saturated primaries don't read on dark.  Brighten. */
+[data-theme="dark"] .insp-itemrow-tag.tag-constant { color: #6a9aff; }
+[data-theme="dark"] .insp-itemrow-tag.tag-sysvalue { color: #5fd7d7; }
+[data-theme="dark"] .insp-itemrow-tag.tag-field    { color: #87d787; }
+[data-theme="dark"] .insp-itemrow-tag.tag-hidden   { color: #d787d7; }
+
+/* Resize-handle hover/dragging — light-mode uses gray shades that
+   would clash with the dark chrome.  Override to dark equivalents. */
+[data-theme="dark"] .resize-handle:hover    { background: #3a3a3a; }
+[data-theme="dark"] .resize-handle.dragging { background: #505050; }
+
+/* Disabled menu items use a "carved-out" white text-shadow in light
+   mode; in dark that white shadow would be a bright halo around gray
+   text.  Drop the text-shadow. */
+[data-theme="dark"] .menu-item.disabled,
+[data-theme="dark"] .menu-item.disabled .menu-label,
+[data-theme="dark"] .menu-item.disabled .menu-accel {
+    text-shadow: none;
+}
+
+/* Menu accelerator on navy hover — light mode uses #c0c0c0; that's
+   still readable on the dark blue hover bg, but slightly bumped
+   here for better legibility. */
+[data-theme="dark"] .menu-item:hover .menu-accel { color: #b8b8b8; }
+
+/* Scrollbar — 98.css renders custom scrollbars via background-image
+   SVGs that are tuned for light chrome.  In dark they look slightly
+   off but remain functional.  Accepted (matches 98.css ecosystem
+   behavior — most 98.css dark forks ignore the scrollbar). */
+

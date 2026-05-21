@@ -20,11 +20,14 @@ import { makeChromeSync } from './chromeSync.js';
 import { bindSourceSync } from './sourceSync.js';
 import { bindPanelResize } from './panelResize.js';
 import { bindFileIO, downloadText } from './fileIO.js';
+import { initTheme }      from './Theme.js';
 
 const $ = (id) => document.getElementById(id);
 
 function main () {
     console.log('%c[dspf·rad]', 'color:#6f6', 'boot — DSPF-RAD designer (v0.5)');
+
+    initTheme();
 
     const els = collectDomRefs();
     const doc = new DspfDocument();
