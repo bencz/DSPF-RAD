@@ -9,7 +9,7 @@
 // - 拖放：readDropSpec → onPlace。
 
 import {
-    Fragment, useCallback, useEffect, useRef, useState, useSyncExternalStore,
+    Fragment, useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore,
 } from 'react';
 
 import { BG, COL_LINE, GRID_DOT, OVERLAY_ALPHA } from '@dspf/canvas/theme.js';
@@ -42,8 +42,9 @@ export function DspfGrid ({ doc, bus = NO_BUS, onSelect, onPlace, onPlaceArmed }
     useSelection(bus);
 
     // 量測容器寬度 → cellW（px）。cellH = 2 × cellW。
-    // jsdom 寬度為 0，量測無效時保留初始值（測試與 SSR 安全）。
-    useEffect(() => {
+    // useLayoutEffect：在 paint 前同步量測並寫回 cellW，避免首幀以預設 10px
+    // 渲染過大格子再跳變。jsdom 寬度為 0，量測無效時保留初始值（測試安全）。
+    useLayoutEffect(() => {
         const el = ref.current;
         if (!el) return;
         const update = () => {

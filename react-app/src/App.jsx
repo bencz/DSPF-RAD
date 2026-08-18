@@ -34,6 +34,7 @@ import { DspfGrid }       from './preview/DspfGrid.jsx';
 import { createSelectionBus } from './preview/useSelection.js';
 import { InspectorForm }  from './preview/InspectorForm.jsx';
 import { TestPanel }      from './preview/TestPanel.jsx';
+import { bindPreviewResize } from './preview/previewResize.js';
 
 // ---- small bindings ported from boot.js (not exported there) -----------
 
@@ -140,6 +141,7 @@ export default function App () {
     const sourceStatusRef = useRef(null);
     const modelSelRef     = useRef(null);
     const fileInputRef    = useRef(null);
+    const previewResizeRef = useRef(null);
 
     // Handlers created in the mount effect (designer/palette/inspector…)
     // are reached through these refs from JSX event handlers.
@@ -201,6 +203,9 @@ export default function App () {
             handle:      document.getElementById('resizeHandle'),
             collapseBtn: document.getElementById('sourceCollapse'),
         });
+
+        // Horizontal splitter for the React preview pane (drag left to magnify).
+        bindPreviewResize({ handle: previewResizeRef.current });
         bindColumnMarkerPref(sourceEditor, document.getElementById('cursorColToggle'));
 
         // File open/save (verbatim legacy module; ids resolved inside).
@@ -450,6 +455,9 @@ export default function App () {
                             Drag a widget from the palette onto the grid.
                         </div>
                     </main>
+
+                    <div className="preview-resize-handle" ref={previewResizeRef} role="separator"
+                         aria-label="Resize React preview pane" aria-orientation="vertical"></div>
 
                     <aside className="window panel preview" id="reactGridPane">
                         <div className="title-bar">

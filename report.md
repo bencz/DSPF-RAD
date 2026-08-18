@@ -157,3 +157,42 @@ npx playwright test  # E2E（自動起 preview server）
 ```
 
 除錯面：`window.dspfRad`（doc、designer、parse、write、load）保留。
+
+## 10. 修改記錄：預覽面板可拉鬆放大（2026-08-18）
+
+### 10.1 需求
+
+「React Preview」區要能向左拉鬆，放大預覽效果。使用者拖曳分割條把預覽面板變寬，格子隨之變大（cellW = gridWidth / cols）。
+
+### 10.2 改動
+
+| 檔案 | 類型 | 內容 |
+|---|---|---|
+| `react-app/src/preview/previewResize.js` | 新增 | 水平分割條邏輯：pointer 拖曳寫入 `--preview-panel-w`，雙重上限（視口比例 + 高度感知），localStorage 持久化；`parseAspect` 純函數 |
+| `react-app/src/App.jsx` | 改 | import、ref、分割條 JSX（canvas 與預覽之間）、boot effect 呼叫 `bindPreviewResize` |
+| `react-app/src/styles.css` | 改 | `:root` 加 `--preview-panel-w`；`.panel.preview` 改用該 var 並改為伸縮 flex column；`.preview-body` 加 `flex:1`；新增 `.preview-resize-handle`（col-resize）與深色主題覆寫 |
+| `react-app/src/preview/DspfGrid.jsx` | 改 | 量測 effect 改用 useLayoutEffect，paint 前同步寫回 cellW，消除首幀過大格子閃現 |
+| `react-app/src/preview/__tests__/previewresize.test.js` | 新增 | 7 個 jsdom 測試（拖曳放大、縮小下限、持久化、還原、parseAspect） |
+| `react-app/e2e/preview-resize.spec.js` | 新增 | 4 個 Playwright 測試（真實滑鼠拖曳） |
+
+### 10.3 過程中發現並修正的缺陷
+
+| # | 缺陷 | 修正 |
+|---|---|---|
+| 15 | `.preview-body` 依內容高度（grid 自身高），非可用垂直空間；`heightBudgetCap` 量到的是 grid 目前高度，形成循環上限，拖曳無法放大 | `.panel.preview` 改為伸縮 flex column、`.preview-body` 加 `flex:1`，讓 bodyH 反映真實可用高度（同時修正 grid 靠上、下方留白的問題） |
+| 16 | jsdom 此版本無 localStorage（global 與 window 皆 undefined），持久化路徑無法測試 | 測試檔提供功能性 in-memory Storage mock；模組端 setPointerCapture/releasePointerCapture 加 try/catch 防護 |
+| 17 | DspfGrid 的 cellW 初始為 10（useState），useEffect 在 paint 後才量測，首幀顯示過大格子再跳變 | 改用 useLayoutEffect，paint 前同步量測寫回 |
+
+### 10.4 測試結果
+
+| 層 | 數字 |
+|---|---|
+| vitest | 15 檔 / 106 測試全綠（原 99 + 新增 7） |
+| Playwright E2E | 20 測試全綠（smoke 13 + parity 3 + resize 4） |
+| vite build | 成功 |
+
+resize 的 4 個 E2E：分割條顯示 col-resize、向左拖放大（paneW 與 cellW 同增）、向右拖縮至下限 MIN_W=320、寬度跨重新載入持久化。
+
+### 10.5 已知限制
+
+- 極短視窗下 MIN_W=320 可能超過高度上限，grid 會輕微裁切（邊界案例）。

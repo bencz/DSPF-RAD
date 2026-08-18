@@ -18,6 +18,9 @@
        below reads it to keep the canvas centred without overlap. */
     --source-panel-h: 260px;
     --source-handle-h: 6px;
+    /* React preview pane width.  JS updates it when the user drags the
+       horizontal splitter left of the pane; wider = bigger cells. */
+    --preview-panel-w: 400px;
     /* Outer title bar + menubar + record toolbar + statusbar + paddings.
        The canvas-frame's height calc subtracts this so the grid never
        overlaps the chrome.  Each chrome row is ~22-28px so the budget
@@ -888,6 +891,33 @@ body.wide-mode .canvas-frame {
 .resize-handle.dragging { background: #a0a0a0; }
 body.source-collapsed .resize-handle { display: none; }
 
+/* Horizontal splitter between the canvas and the React preview pane.
+   Drag left grows the pane (magnifies the preview); drag right shrinks. */
+.preview-resize-handle {
+    flex: 0 0 6px;
+    align-self: stretch;
+    background: var(--w98-face);
+    cursor: col-resize;
+    border-left:  1px solid var(--w98-white);
+    border-right: 1px solid var(--w98-shadow);
+    user-select: none;
+    position: relative;
+}
+.preview-resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 60px;
+    background-image: radial-gradient(circle, var(--fg-muted) 1px, transparent 1.5px);
+    background-size: 2px 4px;
+    background-repeat: repeat-y;
+}
+.preview-resize-handle:hover { background: #d0d0d0; }
+.preview-resize-handle.dragging { background: #a0a0a0; }
+
 /* Source panel is itself a Win98 sub-window — title bar at top,
    gray sub-toolbar (col toggle, sync LED, collapse arrow), then
    the dark CodeMirror surface in a sunken well. */
@@ -1344,6 +1374,8 @@ body.source-collapsed .source-editor { display: none; }
    would clash with the dark chrome.  Override to dark equivalents. */
 [data-theme="dark"] .resize-handle:hover    { background: #3a3a3a; }
 [data-theme="dark"] .resize-handle.dragging { background: #505050; }
+[data-theme="dark"] .preview-resize-handle:hover    { background: #3a3a3a; }
+[data-theme="dark"] .preview-resize-handle.dragging { background: #505050; }
 
 /* Disabled menu items use a "carved-out" white text-shadow in light
    mode; in dark that white shadow would be a bright halo around gray
@@ -1368,11 +1400,15 @@ body.source-collapsed .source-editor { display: none; }
 /* ============================================================
    React Preview pane (T-03) — fourth workspace column.
    Cell math matches the canvas: cellH = 2 * cellW, font = 1.7 * cellW
-   (--cell set by DspfGrid via ResizeObserver).
+   (--cell set by DspfGrid via ResizeObserver).  The pane width is a
+   CSS var so the horizontal splitter can widen it (bigger cells).
    ============================================================ */
-.panel.preview { width: 400px; flex: 0 0 400px; min-width: 0; }
+.panel.preview { width: var(--preview-panel-w); flex: 0 0 var(--preview-panel-w); min-width: 0;
+                 display: flex; flex-direction: column; min-height: 0; }
 .preview-body {
     display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
     align-items: center;
     justify-content: center;
     padding: 6px;
