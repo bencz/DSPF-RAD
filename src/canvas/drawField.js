@@ -1,17 +1,13 @@
 // Regular input/output/both field renderer.  Hidden (H) and Non-display
 // (ND) fields paint a slot-marker so the designer can still see them.
 
-import { COLOR_CSS, DEFAULT_COLOR } from '../Attributes.js';
-import { flagsOf, valueOf } from '../model/keywords.js';
-import { hasKeyword } from './keywordReaders.js';
-import { datePlaceholder, timePlaceholder } from './metrics.js';
-import { getEntryDefaults } from './entryDefaults.js';
+import { resolveItemStyle, renderItemText } from './styleResolver.js';
 
 export function drawField (gc, it, parentRec) {
     const { ctx } = gc;
 
-    const styling = resolveStyling(it, parentRec, gc.document);
-    const text    = renderText(it);
+    const styling = resolveItemStyle(it, parentRec, gc.document);
+    const text    = renderItemText(it);
 
     const x = (it.col - 1) * gc.cellW;
     const y = (it.row - 1) * gc.cellH;
@@ -24,43 +20,8 @@ export function drawField (gc, it, parentRec) {
     paintText(ctx, x, y, w, h, gc, it, text, styling);
 }
 
-// Resolve flags + colour by folding in record-level entry defaults (only
-// for entry usages I and B; output fields stay independent).
-function resolveStyling (it, parentRec, doc) {
-    const isEntry  = it.usage === 'I' || it.usage === 'B';
-    const defaults = isEntry
-        ? getEntryDefaults(parentRec, doc)
-        : { flags: [], color: null };
-    const own   = flagsOf(it, 'DSPATR');
-    const flags = own.length ? own : defaults.flags;
-    const color = valueOf(it, 'COLOR') ?? defaults.color;
-
-    return {
-        flags, color,
-        colour:   COLOR_CSS[color || DEFAULT_COLOR] || COLOR_CSS.GRN,
-        isHi:     flags.includes('HI'),
-        isRi:     flags.includes('RI'),
-        isUl:     flags.includes('UL'),
-        isNd:     flags.includes('ND'),
-        isBl:     flags.includes('BL') || hasKeyword(it, 'BLINK'),
-        isPr:     flags.includes('PR'),
-        isHidden: it.usage === 'H',
-    };
-}
-
-function renderText (it) {
-    const len = Math.max(1, it._effectiveLength ?? it.length ?? 1);
-    if (it.dataType === 'L') {
-        return (datePlaceholder(valueOf(it, 'DATFMT')) ?? '_'.repeat(len)).slice(0, len);
-    }
-    if (it.dataType === 'T') {
-        return (timePlaceholder(valueOf(it, 'TIMFMT')) ?? '_'.repeat(len)).slice(0, len);
-    }
-    const label = (it.name || '').slice(0, len);
-    if (label.length === 0)   return '_'.repeat(len);
-    if (label.length === len) return label;
-    return label + '_'.repeat(len - label.length);
-}
+// resolveItemStyle + renderItemText live in ./styleResolver.js (shared
+// with the React preview renderer).
 
 function paintBackground (ctx, x, y, w, h, s) {
     if (s.isRi) {

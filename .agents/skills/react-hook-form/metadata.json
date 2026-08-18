@@ -1,0 +1,27 @@
+{
+  "version": "2.1.0",
+  "organization": "Community",
+  "technology": "React Hook Form",
+  "date": "July 2026",
+  "abstract": "Focused guide to the React Hook Form decisions a capable model gets wrong. Contains 35 rules across 7 categories, verified against react-hook-form 7.82.0 by diffing the shipped type definitions and type-checking every code block under tsc --strict against the real package types. Covers where a subscription must live to isolate re-renders, the third useForm generic that transforming resolvers require, the options that silently drop data from the submitted payload (register disabled, shouldUnregister, useFieldArray disabled), the NaN that valueAsNumber produces for an empty input, server error handling via setError('root.*'), resetDefaultValues() for rebasing the dirty baseline after a save, and the Watch / FormStateSubscribe / FieldArray render-prop components. Rules that merely restate what the library already does correctly have been removed.",
+  "references": [
+    "https://react-hook-form.com/docs",
+    "https://react-hook-form.com/advanced-usage",
+    "https://react-hook-form.com/docs/useform",
+    "https://react-hook-form.com/docs/useform/subscribe",
+    "https://react-hook-form.com/docs/useform/seterror",
+    "https://react-hook-form.com/docs/useform/setvalue",
+    "https://react-hook-form.com/docs/useform/handlesubmit",
+    "https://react-hook-form.com/docs/useform/register",
+    "https://react-hook-form.com/docs/useform/resetdefaultvalues",
+    "https://react-hook-form.com/docs/useform/formstate",
+    "https://react-hook-form.com/docs/usewatch",
+    "https://react-hook-form.com/docs/usecontroller",
+    "https://react-hook-form.com/docs/usefieldarray",
+    "https://react-hook-form.com/docs/useformstate",
+    "https://github.com/react-hook-form/react-hook-form/releases",
+    "https://github.com/react-hook-form/resolvers",
+    "https://ui.shadcn.com/docs/components/form"
+  ],
+  "category": "Frontend"
+}

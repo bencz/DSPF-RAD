@@ -32,7 +32,10 @@ function mergeContinuations (kept) {
     const out = [];
     for (let i = 0; i < kept.length; ) {
         const prefix = kept[i].substring(0, 44);
-        let kwArea   = kept[i].substring(44).trimEnd();
+        // `+` 續行的分隔空格由 writer 放在 `+` 之前（token 邊界斷行時），
+        // 這裡不能 trim 掉，否則重解析會把相鄰 token 併成一個。
+        const kwRaw  = kept[i].substring(44);
+        let kwArea   = kwRaw.endsWith('+') ? kwRaw : kwRaw.trimEnd();
         let j        = i + 1;
 
         while ((kwArea.endsWith('+') || kwArea.endsWith('-')) && j < kept.length) {

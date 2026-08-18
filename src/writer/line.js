@@ -29,10 +29,13 @@ export function pushLine (out, params) {
         // For `-` we want a hard split at the column so internal spaces
         // inside the literal are preserved.
         let breakIdx = cont === '+' ? remaining.lastIndexOf(' ', room) : room;
-        if (breakIdx < 1) breakIdx = room;
+        const spaceBreak = breakIdx >= 1;
+        if (!spaceBreak) breakIdx = room;
 
+        // `+` 斷行在 token 間時，分隔空格必須留在前一行（`+` 之前）。
+        // 否則重解析時相鄰 token（如 `&R2; &C2;`）會併成一個。
         const head = cont === '+'
-            ? remaining.substring(0, breakIdx).replace(/\s+$/, '')
+            ? remaining.substring(0, spaceBreak ? breakIdx + 1 : breakIdx)
             : remaining.substring(0, breakIdx);
         const chunk = head + cont;
 
@@ -42,7 +45,7 @@ export function pushLine (out, params) {
         first = false;
 
         remaining = cont === '+'
-            ? remaining.substring(breakIdx).replace(/^\s+/, '')
+            ? remaining.substring(spaceBreak ? breakIdx + 1 : breakIdx)
             : remaining.substring(breakIdx);
     }
     out.push(first

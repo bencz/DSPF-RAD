@@ -12,7 +12,7 @@ import { drawRecordChrome } from './drawWindow.js';
 import { drawLinkedSubfile } from './drawSubfile.js';
 import { drawItem } from './itemDispatch.js';
 import { recordOffset } from './windowSpec.js';
-import { effectiveLength } from './metrics.js';
+import { computeLayout } from './styleResolver.js';
 import { cellAt, itemAt } from './hitTest.js';
 
 export class GridCanvas {
@@ -136,9 +136,11 @@ export class GridCanvas {
         drawRecordChrome(this, record, isOverlay);
         const offset = recordOffset(record);
         // Pre-compute REFFLD clamp so the renderer + hit-tester agree.
+        // Sourced from the shared computeLayout (same formula the React
+        // preview renderer uses).
         for (const it of record.items) {
             if (it.kind === 'field') {
-                it._effectiveLength = effectiveLength(it, record.items, this.document.cols);
+                it._effectiveLength = computeLayout(it, record, this.document).effectiveLength;
             }
         }
         for (const it of record.items) {

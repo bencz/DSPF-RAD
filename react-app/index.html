@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSPF·RAD — IronTerm Display File Designer</title>
+    <script>
+        // No-FOUC theme: same logic as the original index.html.  Sets
+        // data-theme on <html> from localStorage before first paint;
+        // src/app/Theme.js takes over for runtime wiring.
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem('dspf-theme'); } catch (e) {}
+            var theme = saved ||
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+</head>
+<body class="dspf-rad">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

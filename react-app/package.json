@@ -1,0 +1,41 @@
+{
+  "name": "dspf-rad-react",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Vite + React shell for DSPF·RAD, reusing the existing zero-dependency DSPF logic modules (model/parser/writer/codegen/canvas/source).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "6.18.0",
+    "@codemirror/commands": "6.7.0",
+    "@codemirror/language": "6.10.0",
+    "@codemirror/lint": "6.8.0",
+    "@codemirror/search": "6.5.6",
+    "@codemirror/state": "6.5.0",
+    "@codemirror/view": "6.34.0",
+    "@lezer/common": "1.2.3",
+    "@lezer/highlight": "1.2.1",
+    "@lezer/lr": "1.4.2",
+    "@tanstack/react-form": "^1.33.5",
+    "98.css": "0.1.21",
+    "codemirror": "6.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.4",
+    "@vitejs/plugin-react": "^5.0.0",
+    "jsdom": "^30.0.1",
+    "vite": "^7.0.0",
+    "vitest": "^4.1.10"
+  }
+}

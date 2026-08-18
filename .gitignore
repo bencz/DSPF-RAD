@@ -53,3 +53,10 @@ dist/
 build/
 .tmp/
 .cache/
+
+# Playwright / Vitest artifacts (react-app)
+react-app/e2e/test-results/
+react-app/e2e/playwright-report/
+react-app/e2e/*.png
+react-app/test-results/
+react-app/playwright-report/
