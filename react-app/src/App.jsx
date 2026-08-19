@@ -35,6 +35,8 @@ import { createSelectionBus } from './preview/useSelection.js';
 import { InspectorForm }  from './preview/InspectorForm.jsx';
 import { TestPanel }      from './preview/TestPanel.jsx';
 import { bindPreviewResize } from './preview/previewResize.js';
+import { ConvertedPane }  from './converted/ConvertedPane.jsx';
+import { bindConvertedResize } from './converted/convertedResize.js';
 
 // ---- small bindings ported from boot.js (not exported there) -----------
 
@@ -141,6 +143,7 @@ export default function App () {
     const sourceStatusRef = useRef(null);
     const modelSelRef     = useRef(null);
     const fileInputRef    = useRef(null);
+    const convertedResizeRef = useRef(null);
     const previewResizeRef = useRef(null);
 
     // Handlers created in the mount effect (designer/palette/inspector…)
@@ -150,6 +153,12 @@ export default function App () {
     // 選取 bus：在 mount effect 內建立（依賴 designer），用 state 傳給
     // DspfGrid，建立後觸發一次 re-render 完成訂閱。
     const [bus, setBus] = useState(null);
+    // First-slice feature flag: keep the converted pane removable without
+    // changing the Canvas or faithful React preview contracts.
+    const [convertedEnabled, setConvertedEnabled] = useState(true);
+    // Keep the faithful preview optional so compact workspaces can focus on
+    // the Canvas or the Modern React converted pane without changing doc state.
+    const [faithfulPreviewEnabled, setFaithfulPreviewEnabled] = useState(true);
 
     // ---- chrome state (replaces chromeSync's DOM writes) ----------------
     const buildChrome = () => ({
@@ -206,6 +215,7 @@ export default function App () {
 
         // Horizontal splitter for the React preview pane (drag left to magnify).
         bindPreviewResize({ handle: previewResizeRef.current });
+        bindConvertedResize({ handle: convertedResizeRef.current });
         bindColumnMarkerPref(sourceEditor, document.getElementById('cursorColToggle'));
 
         // File open/save (verbatim legacy module; ids resolved inside).
@@ -408,6 +418,12 @@ export default function App () {
 
                     <span className="sep" aria-hidden="true"></span>
 
+                    <button id="hideReactPreviewToggle" className={'toggle' + (!faithfulPreviewEnabled ? ' on' : '')}
+                            aria-pressed={!faithfulPreviewEnabled}
+                            title="Hide or show the faithful React Preview pane"
+                            onClick={() => setFaithfulPreviewEnabled((value) => !value)}>
+                        {faithfulPreviewEnabled ? 'Hide React' : 'Show React'}
+                    </button>
                     <button id="overlayToggle" className={'toggle' + (chrome.showOverlay ? ' on' : '')}
                             title="Render the other records faded behind the active one" onClick={onToggleOverlay}>Overlay</button>
                     <button id="hideCondToggle" className={'toggle' + (chrome.hideConditioned ? ' on' : '')}
@@ -456,10 +472,13 @@ export default function App () {
                         </div>
                     </main>
 
-                    <div className="preview-resize-handle" ref={previewResizeRef} role="separator"
-                         aria-label="Resize React preview pane" aria-orientation="vertical"></div>
+                    <div className={'preview-resize-handle' + (!faithfulPreviewEnabled ? ' is-hidden' : '')}
+                         ref={previewResizeRef} role="separator"
+                         aria-label="Resize React preview pane" aria-orientation="vertical"
+                         aria-hidden={!faithfulPreviewEnabled}></div>
 
-                    <aside className="window panel preview" id="reactGridPane">
+                    <aside className={'window panel preview' + (!faithfulPreviewEnabled ? ' is-hidden' : '')}
+                           id="reactGridPane" aria-hidden={!faithfulPreviewEnabled}>
                         <div className="title-bar">
                             <div className="title-bar-text">React Preview</div>
                         </div>
@@ -468,6 +487,27 @@ export default function App () {
                                       onSelect={(id) => designerRef.current?.selectItem(id)}
                                       onPlace={(spec, cell) => designerRef.current?.placeFromSpec(spec, cell)}
                                       onPlaceArmed={() => paletteRef.current?.getArmedSpec() ?? null} />
+                        </div>
+                    </aside>
+                    <div className={'converted-resize-handle' + (!convertedEnabled ? ' is-hidden' : '')}
+                         ref={convertedResizeRef} role="separator"
+                         aria-label="Resize Modern React pane" aria-orientation="vertical"
+                         aria-hidden={!convertedEnabled}></div>
+
+                    <aside className="window panel converted"
+                           id="convertedPane" data-enabled={convertedEnabled ? 'true' : 'false'}>
+                        <div className="title-bar">
+                            <div className="title-bar-text">Modern React</div>
+                            <div className="title-bar-controls">
+                                <button type="button" className="converted-toggle"
+                                        aria-pressed={convertedEnabled}
+                                        onClick={() => setConvertedEnabled((value) => !value)}>
+                                    {convertedEnabled ? 'On' : 'Off'}
+                                </button>
+                            </div>
+                        </div>
+                        <div className="panel-body converted-body">
+                            <ConvertedPane doc={doc} bus={bus} enabled={convertedEnabled} />
                         </div>
                     </aside>
 

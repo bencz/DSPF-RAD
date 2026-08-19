@@ -870,3 +870,172 @@ document immutability
 - 讓 generated app 自動執行 unsupported action。
 
 原因：這些功能都依賴 Semantic IR、identity、reference graph 與 capability matrix。
+
+## 24. First visible Modern React slice
+
+### 24.1 目的
+
+先讓使用者看到 Modern React converted pane。此 slice 不宣稱完成完整 DSPF converter，也不執行商用 transaction。
+
+### 24.2 執行次序
+
+```text
+V2.1-0A Legacy baseline
+    ↓
+V2.1-0B Read-only visual conversion adapter
+    ↓
+V2.1-0C Modern MUI converted pane
+    ↓
+V2.1-0D Playwright integration check
+    ↓
+V2.1-1 Semantic IR
+    ↓
+V2.1-2 Identity and reference graph
+    ↓
+V2.1-3 Capability matrix
+```
+
+### 24.3 V2.1-0A：Legacy baseline
+
+固定目前行為基準：
+
+```text
+106 Vitest
+20 Playwright
+vite build
+DSPF round-trip
+Canvas / React faithful preview parity
+```
+
+原因：Modern React 會新增 MUI component、theme、CSS 與 layout。先固定基準，才可知道新功能是否破壞原有 logic。
+
+### 24.4 V2.1-0B：Read-only visual conversion adapter
+
+建立下列 read-only flow：
+
+```text
+DspfDocument
+    ↓
+visual conversion model
+    ↓
+Converted preview
+```
+
+第一版只支援可安全顯示的內容：
+
+```text
+constant
+field
+sysvalue
+record name
+row
+col
+length
+usage
+basic COLOR
+basic DSPATR
+```
+
+此 adapter 不得呼叫：
+
+```text
+doc.updateItem()
+doc.addItem()
+doc.adopt()
+doc.emit()
+```
+
+此 adapter 不得修改：
+
+```text
+item.id
+record.type
+record.keywords
+activeRecordIndex
+```
+
+原因：Converted preview 必須先證明它不會修改原本的 `DspfDocument`。
+
+### 24.5 V2.1-0C：Modern MUI converted pane
+
+建立可見的 Modern React 效果：
+
+- MUI theme。
+- `#0F3460` primary accent。
+- 黑、白、灰階。
+- Inter font。
+- 16px base font。
+- 12-column grid。
+- field 依 length 計算 target span。
+- constant、field、sysvalue Modern React components。
+- Converted pane 與 Canvas、React faithful preview 並存。
+- Feature flag 控制 Converted pane。
+
+本 slice 不包含：
+
+- business transaction。
+- Spring Boot runtime。
+- production export。
+- automatic OPTION/FUNCTION action。
+- production Node conversion service。
+
+### 24.6 V2.1-0D：Playwright integration check
+
+Playwright 必須測試：
+
+- Canvas 仍然顯示。
+- React faithful preview 仍然顯示。
+- Converted pane 可以顯示。
+- Converted pane 使用 12-column layout。
+- Converted pane 不修改 `DspfDocument`。
+- 切換 Converted pane 不改變 `activeRecordIndex`。
+- 原有 selection 不被破壞。
+- 原有 source sync 不被破壞。
+
+測試流程：
+
+```text
+load the SIGNON fixture
+read the original document snapshot
+open the Converted pane
+assert that the modern field exists
+assert that the modern constant exists
+assert that the grid span exists
+read the document snapshot again
+assert that the two snapshots are equal
+run the existing faithful preview parity checks
+```
+
+### 24.7 First-slice acceptance gate
+
+此 slice 只有在下列條件全部成立時完成：
+
+```text
+Modern Converted pane shows the SIGNON fixture
+Converted fields use the modern token system
+Converted layout uses the 12-column grid
+The document snapshot remains unchanged
+106 Vitest tests pass
+20 Playwright tests pass
+vite build succeeds
+DSPF round-trip remains unchanged
+Canvas / React faithful parity remains unchanged
+```
+
+### 24.8 Architecture boundary
+
+此 slice 的結果是：
+
+```text
+Modern React visual preview
+```
+
+此 slice 的結果不是：
+
+```text
+完整 DSPF runtime converter
+完整 business workflow
+銀行 production app
+```
+
+完成 V2.1-0A 至 V2.1-0D 後，才開始 V2.1-1 Semantic IR。

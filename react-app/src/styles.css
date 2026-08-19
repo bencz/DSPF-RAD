@@ -21,6 +21,9 @@
     /* React preview pane width.  JS updates it when the user drags the
        horizontal splitter left of the pane; wider = bigger cells. */
     --preview-panel-w: 400px;
+    /* Modern converted pane width.  Keep it separate from the faithful
+       preview so the two visual contracts can be tested independently. */
+    --converted-panel-w: 430px;
     /* Outer title bar + menubar + record toolbar + statusbar + paddings.
        The canvas-frame's height calc subtracts this so the grid never
        overlaps the chrome.  Each chrome row is ~22-28px so the budget
@@ -917,6 +920,30 @@ body.source-collapsed .resize-handle { display: none; }
 }
 .preview-resize-handle:hover { background: #d0d0d0; }
 .preview-resize-handle.dragging { background: #a0a0a0; }
+.converted-resize-handle {
+    flex: 0 0 6px;
+    align-self: stretch;
+    background: var(--w98-face);
+    cursor: col-resize;
+    border-left: 1px solid var(--w98-white);
+    border-right: 1px solid var(--w98-shadow);
+    user-select: none;
+    position: relative;
+}
+.converted-resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 60px;
+    transform: translate(-50%, -50%);
+    background-image: radial-gradient(circle, var(--fg-muted) 1px, transparent 1.5px);
+    background-size: 2px 4px;
+    background-repeat: repeat-y;
+}
+.converted-resize-handle:hover { background: #d0d0d0; }
+.converted-resize-handle.dragging { background: #a0a0a0; }
 
 /* Source panel is itself a Win98 sub-window — title bar at top,
    gray sub-toolbar (col toggle, sync LED, collapse arrow), then
@@ -1405,6 +1432,51 @@ body.source-collapsed .source-editor { display: none; }
    ============================================================ */
 .panel.preview { width: var(--preview-panel-w); flex: 0 0 var(--preview-panel-w); min-width: 0;
                  display: flex; flex-direction: column; min-height: 0; }
+.panel.converted {
+    width: var(--converted-panel-w);
+    flex: 0 0 var(--converted-panel-w);
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+.converted-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.converted-toggle {
+    min-width: 30px;
+    padding: 1px 4px;
+    border: 1px solid var(--w98-shadow);
+    background: var(--w98-face);
+    color: var(--w98-text);
+    font: inherit;
+    cursor: pointer;
+}
+.converted-toggle[aria-pressed="true"] {
+    color: var(--w98-blue);
+    font-weight: 700;
+}
+.converted-pane .MuiCssBaseline-root {
+    display: none;
+}
+
+/* Keep the legacy Canvas and faithful preview measurable on compact
+   workspaces.  The converted pane becomes visible on a wide workspace,
+   where it has room without forcing the Canvas below a measurable width. */
+@media (max-width: 1450px) {
+    .panel.converted {
+        display: none;
+    }
+}
+.panel.preview.is-hidden,
+.preview-resize-handle.is-hidden,
+.panel.converted.is-hidden,
+.converted-resize-handle.is-hidden {
+    display: none;
+}
 .preview-body {
     display: flex;
     flex: 1 1 auto;
