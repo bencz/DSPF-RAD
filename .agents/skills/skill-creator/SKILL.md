@@ -1,9 +1,6 @@
 ---
 name: skill-creator
-description: >-
-  Guide for creating effective skills. This skill should be used when users want
-  to create a new skill (or update an existing skill) that extends Kilo's
-  capabilities with specialized knowledge, workflows, or tool integrations.
+description: "This skill should be used when users create or update a skill that adds reusable workflows, domain knowledge, resources, or tool integrations."
 metadata:
   category: development
   source:
@@ -181,6 +178,46 @@ To complete SKILL.md, answer the following questions:
 2. When should the skill be used?
 3. In practice, how should the agent use the skill? All reusable skill contents developed above should be referenced so that the agent knows how to use them.
 
+
+## Output Style Requirements
+
+Write skill instructions and skill-generated documents in clear ASD-STE100 style.
+
+Give every action complete context. Name the owner, source object, target object, and affected artifact. Do not use an unqualified pronoun or object name.
+
+```text
+Move the variable `CUSTOMER_ID` that belongs to the `CUSTOMER` record to the `CUSTOMER_HEADER` component.
+```
+
+Give the reason for every important action. State the dependency or risk.
+
+```text
+Keep the source record owner in the symbol map because the generated component must preserve reference scope.
+```
+
+Give evidence after every completed or failed operation.
+
+```text
+Completed. Wrote the skill to `.agents/skills/example/SKILL.md`.
+Failed. `quick_validate.py` returned exit code 1.
+```
+
+Use pseudocode for multi-step skill workflows. Put conditions before actions and show the reason for each gate.
+
+```text
+read the user requirement
+read the existing skill and repository rules
+IF the skill already exists:
+    preserve its public contract
+    because existing users depend on its trigger and output
+write the updated SKILL.md
+run the validator
+IF validation passes:
+    package the skill
+    report the package path
+```
+
+Apply these rules to SKILL.md, references, examples, validation output, package reports, and final responses. Preserve code, paths, identifiers, commands, and quoted logs exactly.
 ### Step 5: Packaging a Skill
 
 Once the skill is ready, it should be packaged into a distributable zip file that gets shared with the user. The packaging process automatically validates the skill first to ensure it meets all requirements:
