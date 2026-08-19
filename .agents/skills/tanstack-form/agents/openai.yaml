@@ -1,0 +1,4 @@
+interface:
+  display_name: "TanStack Form"
+  short_description: "Build type-safe forms with TanStack"
+  default_prompt: "Use $tanstack-form to build type-safe forms with TanStack Form."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "TanStack DB (React)"
+  short_description: "Build local-first React data features"
+  default_prompt: "Use $tanstack-db to build or debug local-first React data features."

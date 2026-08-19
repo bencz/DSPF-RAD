@@ -2,8 +2,8 @@
 ## Skill Loading
 
 Before editing files for a substantial task:
-- Run `npx @tanstack/intent@latest list` from the workspace root to see available local skills.
-- If a listed skill matches the task, run `npx @tanstack/intent@latest load <package>#<skill>` before changing files.
+- Run `pnpm dlx @tanstack/intent@latest list` from the workspace root to see available local skills.
+- If a listed skill matches the task, run `pnpm dlx @tanstack/intent@latest load <package>#<skill>` before changing files.
 - Use the loaded `SKILL.md` guidance while making the change.
 - Monorepos: when working across packages, run the skill check from the workspace root and prefer the local skill for the package being changed.
 - Multiple matches: prefer the most specific local skill for the package or concern you are changing; load additional skills only when the task spans multiple packages or concerns.
@@ -99,6 +99,7 @@ python3 -m http.server 8000     # then open http://localhost:8000
 ## Testing & QA
 
 - **No automated tests, no test runner, no CI** — nothing to run. Do not invent commands.
+- Skill Path C:\Users\ZY92193\Documents\workspace\project\DSPF-RAD\.agents\skills\vitest
 - `TESTS/` (20 files, e.g. `MULTI_WINDOW.DSPF`, `CHOICE.DSPF`) and `QDDSSRC/` (50 real-world sources) are DSPF fixtures for manual round-trip exercise; they are referenced by zero code. Load them via File → Open (`#fileInput` → `parseDspf` → `doc.adopt`), which auto-switches the model from `DSPSIZ`.
 - `QDDSSRC/` files are NOT valid UTF-8 (legacy single-byte chars in banner comments) — use `:raw` or convert before reading.
 - Verification workflow: serve over HTTP, load a fixture, exercise the changed path (canvas edit → source regenerates; source edit → canvas follows), watch the status pill. Use `window.dspfRad.parse(text)` / `.write()` / `.load(text)` in the console for quick round-trip checks.
