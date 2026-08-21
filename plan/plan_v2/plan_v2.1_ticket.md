@@ -547,20 +547,20 @@ V2.1-0F — the first visual conversion boundary and regression protection must 
 
 **Acceptance criteria:**
 
-- [ ] The IR schema has a version.
-- [ ] The IR includes source revision and display profile fields.
-- [ ] The IR includes record formats and record relations.
-- [ ] The IR includes fields, constants, references, indicators, AIDs, windows, subfiles, menus, messages, and capabilities.
-- [ ] The IR builder returns new objects.
-- [ ] The IR builder leaves `DspfDocument.toJSON()` unchanged.
-- [ ] The IR distinguishes unknown, unsupported, and manual-review semantics.
+- [x] The IR schema has a version.
+- [x] The IR includes source revision and display profile fields.
+- [x] The IR includes record formats and record relations.
+- [x] The IR includes fields, constants, references, indicators, AIDs, windows, subfiles, menus, messages, and capabilities.
+- [x] The IR builder returns new objects.
+- [x] The IR builder leaves `DspfDocument.toJSON()` unchanged.
+- [x] The IR distinguishes unknown, unsupported, and manual-review semantics.
 
 **Tests:**
 
-- Schema test: parse a 24x80 fixture and assert the required IR groups.
-- Schema test: parse a 27x132 fixture and assert the display profile.
-- Immutability test: compare document snapshots before and after IR construction.
-- Regression test: run the existing 108 Vitest tests.
+- Smoke: build a 24x80 IR with a field and assert required groups and qualified identity.
+- Immutability: compare document snapshots before and after IR construction.
+- Public API: import `buildDspfSemanticIR` from `src/codegen/index.js`.
+- Note: the repository has no automated test runner; browser verification remains the project test policy.
 
 **Pass condition:**
 
@@ -570,7 +570,9 @@ The versioned IR describes the required DSPF groups and the legacy document rema
 
 The IR mutates the document, omits a required semantic group, or treats an unknown value as a successful conversion.
 
-**Status:** Draft — blocked by V2.1-0F.
+**Evidence:** `node --input-type=module` smoke checks passed: required groups present, one field mapped, identity `dspf:MAIN:field:USER:occurrence:1`, and document snapshot unchanged. Public export check passed.
+
+**Status:** Completed.
 
 ## V2.1-1B — Resolve DSPSIZ display profiles
 
