@@ -8,6 +8,7 @@ export { mapSemanticLayout } from './layoutMapper.js';
 export { buildRuntimeBindings } from './runtimeBinding.js';
 export { buildConvertedScreen } from './convertedScreen.js';
 export { resolvePfDdReferences } from './pfDdResolver.js';
+export { buildSflRuntime } from './sflRuntime.js';
 export { resolveRecordRelations } from './recordRelations.js';
 export { generateRpgle } from './rpgle.js';
 export { generateCobol } from './cobol.js';

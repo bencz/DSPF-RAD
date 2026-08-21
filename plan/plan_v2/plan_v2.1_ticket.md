@@ -887,6 +887,9 @@ The following tickets complete the plan coverage after the first visual slice. E
 **Acceptance:** `SFLPAG`, `SFLSIZ`, `SFLEND`, `SFLDSP`, `SFLDSPCTL`, `SFLCLR`, `SFLNXTCHG`, `SFLMSGRCD`, and RRN have defined states. Missing runtime rows return `contract-only` or `manual-review`.
 
 **Tests:** SFL fixture, message subfile fixture, variable page-size fixture, indicator fixture, and schema tests.
+**Implementation:** `src/codegen/sflRuntime.js` provides `buildSflRuntime()` with explicit SFL control/template, page, total, indicator, end, row, and scroll fields.
+**Evidence:** `pnpm test -- --run` passed 11 tests, including SFLPAG/SFLSIZ extraction, SFL indicators, contract-only status, and empty runtime rows.
+**Status:** Completed.
 
 ### V2.1-1K — Normalize DSPF indicator semantics
 

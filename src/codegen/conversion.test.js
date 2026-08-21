@@ -7,6 +7,7 @@ import {
     buildConvertedScreen,
     resolvePfDdReferences,
     resolveRecordRelations,
+    buildSflRuntime,
     buildDspfSemanticIR,
     buildRuntimeBindings,
     mapSemanticLayout,
@@ -120,5 +121,23 @@ describe('V2.1 conversion completeness', () => {
             expect.objectContaining({ relation: 'WINDOW_CHILD', status: 'manual-review' }),
         ]));
         expect(result.diagnostics[0].status).toBe('manual-review');
+    });
+
+    it('builds an explicit SFL runtime contract from control keywords', () => {
+        const result = buildSflRuntime({
+            controlRecord: { name: 'CTL', type: 'SFLCTL', keywords: [
+                { name: 'SFLCTL', args: ['ROWS'], indicators: [] },
+                { name: 'SFLSIZ', args: ['0015'], indicators: [] },
+                { name: 'SFLPAG', args: ['0014'], indicators: [] },
+                { name: 'SFLDSP', args: [], indicators: ['31'] },
+                { name: 'SFLDSPCTL', args: [], indicators: ['32'] },
+                { name: 'SFLCLR', args: [], indicators: ['30'] },
+                { name: 'SFLEND', args: ['*MORE'], indicators: ['80'] },
+            ], items: [] },
+            templateRecord: { name: 'ROWS', type: 'SFL', keywords: [], items: [] },
+        });
+        expect(result).toMatchObject({ controlRecord: 'CTL', templateRecord: 'ROWS', pageSize: 14, totalSize: 15, status: 'contract-only' });
+        expect(result.displayIndicator).toBe('31');
+        expect(result.rows).toEqual([]);
     });
 });
