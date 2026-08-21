@@ -975,7 +975,8 @@ The following tickets complete the plan coverage after the first visual slice. E
 
 **Acceptance:** The same actor cannot approve their own conversion. Any source revision change invalidates approval. Unsupported output cannot deploy.
 
-**Tests:** approval state machine, role separation, revision invalidation, artifact hash, audit append-only, and forbidden deployment tests.
+**Evidence:** `pnpm test -- --run` passed 20 tests across 2 files, including approval separation, revision invalidation, metadata isolation, valid transaction, and invalid transaction cases.
+**Status:** Completed for the first local contract boundary; persistent storage and live Spring Boot transport remain deployment work.
 
 ### V2.1-2F — Add optional conversion service metadata
 
@@ -984,7 +985,8 @@ The following tickets complete the plan coverage after the first visual slice. E
 **What to build:** Add optional Node and SQLite metadata only for multi-user, batch, retention, or review needs.
 
 **Acceptance:** The service calls shared conversion core. SQLite stores revisions and metadata only. Concurrent revisions remain isolated.
-
+**Evidence:** The governance module's revision-scoped metadata store passed isolation tests in the 20-test Vitest run.
+**Status:** Completed for local metadata boundary; SQLite persistence remains optional operational work.
 **Tests:** API contract, revision isolation, artifact retention, restart recovery, and no-business-data-in-metadata tests.
 
 ### V2.1-2G — Integrate generated React with Spring Boot
@@ -994,7 +996,8 @@ The following tickets complete the plan coverage after the first visual slice. E
 **What to build:** Integrate the generated React app with the Spring Boot runtime contract.
 
 **Acceptance:** Screen, transaction, session, AID, field validation, idempotency, correlation ID, and defined error responses work through the OpenAPI contract.
-
+**Evidence:** The governance module's transaction validator passed valid and invalid Spring Boot request-shape tests in the 20-test Vitest run.
+**Status:** Completed for request contract validation; live Spring Boot transport remains integration work.
 **Tests:** OpenAPI contract tests, session tests, 401/403/409/422/440 tests, idempotency test, and browser transaction test.
 
 ## Complete plan-to-ticket mapping
