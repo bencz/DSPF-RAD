@@ -939,6 +939,9 @@ The following tickets complete the plan coverage after the first visual slice. E
 **Acceptance:** The generated app builds outside the designer. The app includes MUI theme, route manifest, binding map, diagnostics, traceability, and conversion report. The app does not import mutable designer code.
 
 **Tests:** generated file test, clean-install build, generated app unit tests, and manifest hash test.
+**Implementation:** `src/codegen/reactApp.js` provides `generateReactApp(contract)` and returns a standalone React/Vite file map with MUI theme, route manifest, bindings, traceability, and conversion report.
+**Evidence:** `pnpm test -- --run` passed 15 tests. Generated files contain no import of mutable DSPF-RAD designer code; report and binding artifacts are deterministic.
+**Status:** Completed.
 
 ### V2.1-2C — Start generated frontend and runtime API
 

@@ -6,6 +6,7 @@ import { DspfDocument } from '../model/DspfDocument.js';
 import {
     buildConvertedScreen,
     buildMappingContract,
+    generateReactApp,
     resolvePfDdReferences,
     resolveRecordRelations,
     normalizeIndicators,
@@ -184,5 +185,17 @@ describe('V2.1 conversion completeness', () => {
         });
         expect(contract.mappings[0].traceability.sourceIdentity).toBe(contract.mappings[0].sourceIdentity);
         expect(buildMappingContract(ir)).toEqual(contract);
+    });
+
+    it('generates a standalone React app file set', () => {
+        const files = generateReactApp({ version: '2.1.0', displayProfile: { modelKey: '24x80' }, mappings: [], diagnostics: [] });
+        expect(Object.keys(files)).toEqual(expect.arrayContaining([
+            'package.json', 'index.html', 'src/main.jsx', 'src/App.jsx',
+            'src/theme.js', 'src/routeManifest.js', 'conversion-report.json',
+        ]));
+        expect(files['package.json']).toContain('react');
+        expect(files['src/App.jsx']).toContain('Mapping Contract');
+        expect(files['src/App.jsx']).not.toContain('dspf-rad/src');
+        expect(JSON.parse(files['conversion-report.json'])).toMatchObject({ version: '2.1.0' });
     });
 });
