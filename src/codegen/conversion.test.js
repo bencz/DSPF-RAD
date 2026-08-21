@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { DspfDocument } from '../model/DspfDocument.js';
 import {
     buildConvertedScreen,
+    buildMappingContract,
     resolvePfDdReferences,
     resolveRecordRelations,
     normalizeIndicators,
@@ -166,5 +167,22 @@ describe('V2.1 conversion completeness', () => {
         expect(result.actions[0]).toMatchObject({ aid: 'CA03', status: 'manual-review', executable: false });
         expect(result.actions[1]).toMatchObject({ aid: 'ENTER', status: 'manual-review', executable: false });
         expect(result.diagnostics).toHaveLength(3);
+    });
+
+    it('generates deterministic complete source-to-target mappings', () => {
+        const doc = documentWith();
+        const ir = buildDspfSemanticIR(doc);
+        const contract = buildMappingContract(ir);
+        expect(contract.version).toBe('2.1.0');
+        expect(contract.mappings[0]).toMatchObject({
+            sourceIdentity: expect.any(String),
+            targetComponent: 'ConvertedField',
+            runtimeBindingKey: expect.any(String),
+            domId: expect.any(String),
+            status: 'converted',
+            lossiness: expect.any(Array),
+        });
+        expect(contract.mappings[0].traceability.sourceIdentity).toBe(contract.mappings[0].sourceIdentity);
+        expect(buildMappingContract(ir)).toEqual(contract);
     });
 });

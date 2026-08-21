@@ -926,6 +926,9 @@ The following tickets complete the plan coverage after the first visual slice. E
 **Acceptance:** Each mapping contains source identity, target component, source geometry, target geometry, binding key, DOM id, status, lossiness, and traceability.
 
 **Tests:** Mapping schema test, duplicate identity test, 24x80/27x132 mapping test, lossiness test, and deterministic output test.
+**Implementation:** `src/codegen/mappingContract.js` provides `buildMappingContract(ir)` with version, source/target geometry, runtime binding, DOM identity, status, lossiness, and traceability.
+**Evidence:** `pnpm test -- --run` passed 14 tests, including complete mapping fields, identity separation, and deterministic repeated output.
+**Status:** Completed.
 
 ### V2.1-2B — Generate standalone React output
 
