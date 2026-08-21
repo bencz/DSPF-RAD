@@ -15,4 +15,13 @@ describe('PF/DD source index', () => {
         expect(resolveIndexedReffld({ field: 'CUSTID', file: 'CUSTMAST' }, index)).toMatchObject({ status: 'converted', length: 10 });
         expect(resolveIndexedReffld({ field: 'XWE0NB', file: 'XAN4CDEM/CUSTS' }, index)).toMatchObject({ status: 'manual-review', target: 'XAN4CDEM/CUSTS.XWE0NB' });
     });
+
+    it('indexes time fields and logical-file base keys', () => {
+        const index = buildPfDdIndex([
+            { path: 'ACCTMAST.PF', text: '     A            LASTTRANTM     6T 0' },
+            { path: 'ACCTMASTL1.LF', text: '     A          R ACCTL1\n     A          P ACCTMAST\n     A          K CUSTID' },
+        ]);
+        expect(index['ACCTMAST.LASTTRANTM']).toMatchObject({ dataType: 'T', length: 6 });
+        expect(index['ACCTMASTL1.__record']).toMatchObject({ baseFile: 'ACCTMAST', keys: ['CUSTID'] });
+    });
 });
