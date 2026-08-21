@@ -28,5 +28,6 @@ export { validateMappingContract } from './mappingValidation.js';
 export { authorizeRuntimeRequest } from './securityContract.js';
 export { createTransactionProcessor } from './transactionContract.js';
 export { createRuntimeClient } from './runtimeClient.js';
+export { createReceiptStore, makeConversionReceipt } from './receipts.js';
 export { assessObjectCompleteness } from './completeness.js';
 export { generateCobol } from './cobol.js';

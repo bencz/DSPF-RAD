@@ -505,3 +505,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/runtimeClient.test.js` passed 57 tests across 17 files.
 
 **Status:** V3.5D client boundary complete. A live Spring Boot server and browser-to-live-API smoke remain required for runtime-ready status.
+
+## V3.6A execution evidence
+
+`src/codegen/receipts.js` provides revision-scoped conversion receipts and an isolated receipt store. Receipts retain source, mapping, and output SHA-256 hashes, command, result, exit code, tests, timestamp, and artifact paths.
+
+**Test:** `pnpm test -- --run src/codegen/receipts.test.js` passed 58 tests across 18 files. The test proves receipt fields and revision isolation.
+
+**Status:** V3.6A receipt boundary complete. Persistent SQLite storage and restart recovery remain deployment work.
