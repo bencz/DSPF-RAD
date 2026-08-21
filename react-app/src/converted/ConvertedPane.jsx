@@ -53,6 +53,13 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
                         <Chip label="Visual preview" color="primary" size="small" />
                     </Stack>
 
+                    <Paper variant="outlined" sx={{ p: 1.5 }} data-testid="converted-provenance">
+                        <Typography variant="subtitle2">Source provenance</Typography>
+                        <Typography variant="caption" component="div">{active?.name} · {active?.type}</Typography>
+                        <Typography variant="caption" component="div">Items: {active?.items?.length ?? 0}</Typography>
+                        {active?.type === 'SFL' && <Typography variant="caption" component="div">SFL template · control relation requires runtime metadata</Typography>}
+                    </Paper>
+
                     <Divider />
 
                     <Box className="converted-grid" data-testid="converted-grid" data-grid-columns="12"
@@ -74,7 +81,7 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
                             <Typography variant="subtitle2" color="warning.main">
                                 Manual review
                             </Typography>
-                            <Stack spacing={0.5} sx={{ mt: 1 }}>
+                            <Stack spacing={0.5} sx={{ mt: 1 }} data-testid="converted-review">
                                 {model.warnings.map((warning) => (
                                     <Typography key={`${warning.sourceId}-${warning.message}`} variant="caption">
                                         {warning.message}

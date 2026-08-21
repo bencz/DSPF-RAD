@@ -449,3 +449,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** React Vitest passed 111 tests in 17 files. Vite production build succeeded. Converted-pane Playwright passed 5 tests, including WCUSTSD2 load and SFL selection.
 
 **Status:** V3.3A integrated preview refresh boundary complete.
+
+## V3.3B execution evidence
+
+`react-app/src/converted/ConvertedPane.jsx` now renders a provenance panel for the active record and a dedicated review evidence region. Hidden H controls remain excluded from visible cards while their source items remain in the model.
+
+**Test:** React Vitest passed 111 tests in 17 files. After rebuilding the preview artifact, `npm exec playwright test e2e/converted-pane.spec.js -- --workers=1` passed 6 tests, including WCUSTSD2 SFL provenance, control/template addressing, and REFFLD review evidence.
+
+**Status:** V3.3B SFL provenance preview boundary complete.

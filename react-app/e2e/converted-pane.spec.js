@@ -86,3 +86,14 @@ test('keeps the WCUSTSD2 SFL control/template records addressable', async ({ pag
     await expect(page.locator('#convertedPane')).toContainText('ZZCT01');
     await expect(page.locator('#convertedPane [data-testid="converted-item"]')).not.toHaveCount(0);
 });
+
+test('shows WCUSTSD2 SFL provenance and review evidence', async ({ page }) => {
+    await page.goto('/');
+    const source = readFileSync('../QDDSSRC/WCUSTSD2.DSPF', 'utf8');
+    await page.evaluate((text) => window.dspfRad.load(text), source);
+    const value = await page.locator('#recordSel option', { hasText: 'ZZSF01' }).getAttribute('value');
+    await page.locator('#recordSel').selectOption(value);
+    await expect(page.locator('[data-testid="converted-provenance"]')).toContainText('ZZSF01');
+    await expect(page.locator('[data-testid="converted-provenance"]')).toContainText('SFL');
+    await expect(page.locator('[data-testid="converted-review"]')).toContainText('REFFLD');
+});
