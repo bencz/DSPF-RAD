@@ -4,6 +4,7 @@
 
 import { MODELS } from '../model/constants.js';
 import { buildIdentityGraph } from './identityGraph.js';
+import { classifyCapabilities } from './capabilities.js';
 
 const SCHEMA_VERSION = '2.1.0';
 const CONVERTER_VERSION = 'dspf-rad-semantic-ir-1';
@@ -77,6 +78,7 @@ export function buildDspfSemanticIR (doc) {
     const resolvedProfile = resolveDisplayProfile(snapshot);
     const { source: profileSource, ...displayProfile } = resolvedProfile;
     const identityGraph = buildIdentityGraph(snapshot);
+    const classified = classifyCapabilities(snapshot, identityGraph.identities);
     const records = [];
     const fields = [];
     const constants = [];
@@ -89,8 +91,12 @@ export function buildDspfSemanticIR (doc) {
         diagnostics.push({
             code: 'UNKNOWN_DISPLAY_PROFILE',
             severity: 'manual-review',
+            status: 'manual-review',
             message: `Unsupported display model: ${snapshot.modelKey}`,
+            reason: 'The display profile is not known',
             action: 'resolve-display-profile',
+            sourceIdentity: null,
+            sourceLocation: null,
         });
     }
 
@@ -186,7 +192,7 @@ export function buildDspfSemanticIR (doc) {
         menus: [],
         messages: [],
         cursor: null,
-        capabilities,
-        diagnostics: [...diagnostics, ...identityGraph.diagnostics],
+        capabilities: [...capabilities, ...classified.capabilities],
+        diagnostics: [...diagnostics, ...identityGraph.diagnostics, ...classified.diagnostics],
     };
 }

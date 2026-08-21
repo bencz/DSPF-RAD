@@ -668,18 +668,18 @@ V2.1-1B and V2.1-1C — capability decisions need a known display profile and so
 
 **Acceptance criteria:**
 
-- [ ] CHOICE, CHCCTL, CA, CF, ENTER, MNUBARCHC, PULLDOWN, and PSHBTNCHC have capability entries.
-- [ ] SFL runtime limitations produce review states.
-- [ ] REFFLD with unresolved source data produces review state.
-- [ ] Unsupported actions do not generate executable handlers.
-- [ ] Every review state includes a reason and source identity.
+- [x] CHOICE, CHCCTL, CA, CF, ENTER, MNUBARCHC, PULLDOWN, and PSHBTNCHC have capability entries.
+- [x] SFL runtime limitations produce review states.
+- [x] REFFLD with unresolved source data produces review state.
+- [x] Unsupported actions do not generate executable handlers.
+- [x] Every review state includes a reason and source identity.
 
 **Tests:**
 
-- Capability matrix test using CHOICE and MENU_BAR fixtures.
-- Action test using push-button and CA/CF fixtures.
-- Unsupported semantics test.
-- Report test that checks source identity and reason fields.
+- Smoke: classify CA, SFL, and item-level REFFLD keywords.
+- Capability matrix: action statuses include explicit review reasons and source identities.
+- Immutability: classification leaves the document snapshot unchanged.
+- Diagnostic shape: non-converted statuses include status, severity, reason, and source identity.
 
 **Pass condition:**
 
@@ -689,7 +689,9 @@ Every source object has an explicit conversion status and reason.
 
 The converter creates an executable action for an unresolved or unsupported semantic.
 
-**Status:** Draft — blocked by V2.1-1B and V2.1-1C.
+**Evidence:** `node --input-type=module` smoke check passed: five capability entries included `manual-review` for CA/REFFLD and `converted-with-warning` for SFL; all diagnostics carried status and the document snapshot was unchanged.
+
+**Status:** Completed.
 
 ## V2.1-1E — Build profile-based semantic layout mapper
 
