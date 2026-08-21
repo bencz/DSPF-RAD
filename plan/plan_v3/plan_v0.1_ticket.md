@@ -489,3 +489,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/securityContract.test.js` passed 53 tests across 15 files.
 
 **Status:** V3.5B security contract boundary complete. Live Spring filter/controller integration remains part of V3.5D.
+
+## V3.5C execution evidence
+
+`src/codegen/transactionContract.js` provides `createTransactionProcessor()` with revision checking, required idempotency key, payload fingerprint, replay, conflict, and validation outcomes.
+
+**Test:** `pnpm test -- --run src/codegen/transactionContract.test.js` passed 55 tests across 16 files. Same-key replay, changed-payload conflict, stale revision 409, and invalid-field 422 cases pass.
+
+**Status:** V3.5C transaction policy boundary complete. Atomic distributed persistence and live Spring transport remain part of V3.5D.
