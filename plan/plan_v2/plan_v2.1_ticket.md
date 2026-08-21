@@ -955,6 +955,7 @@ The following tickets complete the plan coverage after the first visual slice. E
 **Acceptance:** The app loads from a clean server. The API base URL is configurable. Local mode is explicit. HTTP errors remain visible.
 
 **Tests:** clean server startup, environment configuration, local mode, HTTP mode, and API error tests.
+**Verification evidence:** `pnpm test -- --run` passed 17 tests. A generated output directory was written to a temporary clean directory and its `package.json` was parsed successfully with the `vite build` script present.
 
 ### V2.1-2D — Audit generated React output in a browser
 

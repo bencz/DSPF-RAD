@@ -1,6 +1,9 @@
 // Completeness tests for the V2.1 conversion-core contracts.
 // These tests protect observable mapping, status, identity, and immutability invariants.
 
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { DspfDocument } from '../model/DspfDocument.js';
 import {
@@ -18,6 +21,7 @@ import {
     resolveDisplayProfile,
     buildActionGraph,
 } from './index.js';
+import { writeGeneratedReactApp } from './writeReactApp.js';
 
 function field (name = 'USER', overrides = {}) {
     return {
@@ -214,4 +218,14 @@ describe('V2.1 conversion completeness', () => {
         expect(server.apiBaseUrl).toBe('/api');
         expect(html.status).toBe(200);
         expect(missing.status).toBe(404);
+    });
+
+    it('writes a standalone React output directory', async () => {
+        const files = generateReactApp({ version: '2.1.0', displayProfile: { modelKey: '24x80' }, mappings: [], diagnostics: [] });
+        const directory = await mkdtemp(join(tmpdir(), 'dspf-rad-react-'));
+        await writeGeneratedReactApp(files, directory);
+        const packageFile = await readFile(join(directory, 'package.json'), 'utf8');
+        await rm(directory, { recursive: true, force: true });
+        expect(JSON.parse(packageFile).scripts.build).toBe('vite build');
+        expect(packageFile).toContain('react');
     });
