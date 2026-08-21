@@ -481,3 +481,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/springBoot.test.js` passed 49 tests across 14 files. Generated WCUSTSD2 Spring output has a complete project file tree and remains explicitly contract-only until runtime services are implemented.
 
 **Status:** V3.5A project generation boundary complete.
+
+## V3.5B execution evidence
+
+`src/codegen/securityContract.js` provides `authorizeRuntimeRequest()` for session, expiry, CSRF, and deny-by-default role checks. The helper returns explicit 200, 401, 403, and 440 outcomes with session and correlation context.
+
+**Test:** `pnpm test -- --run src/codegen/securityContract.test.js` passed 53 tests across 15 files.
+
+**Status:** V3.5B security contract boundary complete. Live Spring filter/controller integration remains part of V3.5D.

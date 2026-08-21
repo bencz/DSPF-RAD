@@ -25,5 +25,6 @@ export { generateRpgle } from './rpgle.js';
 export { assembleSflScreens } from './sflAssembly.js';
 export { normalizeFieldSemantics } from './fieldRoles.js';
 export { validateMappingContract } from './mappingValidation.js';
+export { authorizeRuntimeRequest } from './securityContract.js';
 export { assessObjectCompleteness } from './completeness.js';
 export { generateCobol } from './cobol.js';
