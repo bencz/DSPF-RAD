@@ -12,6 +12,12 @@ test.describe('React preview pane', () => {
         await expect(page.locator('#sbItems')).toHaveText('20 items');
     });
 
+test('shows React and Spring output actions in the main controller', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#genReact')).toBeVisible();
+    await expect(page.locator('#genSpring')).toBeVisible();
+});
+
     test('positions items on the grid', async ({ page }) => {
         await page.goto('/');
         const sig = await page.locator('.dspf-item').first().getAttribute('data-sig');

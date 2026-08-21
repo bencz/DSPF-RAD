@@ -20,8 +20,10 @@ import { SourceEditor } from '@dspf/source/SourceEditor.js';
 
 import { parseDspf }      from '@dspf/parser/parseDspf.js';
 import { writeDspf }      from '@dspf/writer/writeDspf.js';
-import { generateRpgle }  from '@dspf/codegen/rpgle.js';
-import { generateCobol }  from '@dspf/codegen/cobol.js';
+import { buildCompleteSemanticIR } from '@dspf/codegen/semanticAssembly.js';
+import { buildMappingContract } from '@dspf/codegen/mappingContract.js';
+import { generateReactApp } from '@dspf/codegen/reactApp.js';
+import { generateSpringBootApp } from '@dspf/codegen/springBoot.js';
 
 import { seedDemo }       from '@dspf/app/demoSeed.js';
 import { setupMenubar }   from '@dspf/app/menubar.js';
@@ -316,6 +318,17 @@ export default function App () {
         downloadText(prog + '.CBLLE', src);
         flash(`Generated ${prog}.CBLLE skeleton.`, 'ok');
     };
+    const onGenReact = () => {
+        const contract = buildMappingContract(buildCompleteSemanticIR(doc));
+        downloadText('dspf-react-output.json', JSON.stringify(generateReactApp(contract), null, 2));
+        flash('Generated React/Vite app artifact map.', 'ok');
+    };
+    const onGenSpring = () => {
+        const contract = buildMappingContract(buildCompleteSemanticIR(doc));
+        downloadText('dspf-spring-output.json', JSON.stringify(generateSpringBootApp(contract), null, 2));
+        flash('Generated Spring Boot artifact map.', 'ok');
+    };
+
     const onExportJson = async () => {
         const json = JSON.stringify(doc.toJSON(), null, 2);
         console.log(json);
@@ -426,8 +439,11 @@ export default function App () {
                     </button>
                     <button id="overlayToggle" className={'toggle' + (chrome.showOverlay ? ' on' : '')}
                             title="Render the other records faded behind the active one" onClick={onToggleOverlay}>Overlay</button>
-                    <button id="hideCondToggle" className={'toggle' + (chrome.hideConditioned ? ' on' : '')}
-                            title="Hide items that only render when an indicator is on/off (cleans up screens like CLOCK)" onClick={onToggleHideCond}>Hide cond</button>
+                    <button id="genRpgle" title="Generate RPGLE skeleton with protected regions" onClick={onGenRpgle}>↗ RPGLE</button>
+                    <button id="genCobol" title="Generate COBOL skeleton with protected regions" onClick={onGenCobol}>↗ COBOL</button>
+                    <button id="genReact" title="Generate standalone React/Vite artifact" onClick={onGenReact}>↗ React</button>
+                    <button id="genSpring" title="Generate Spring Boot artifact" onClick={onGenSpring}>↗ Spring</button>
+                    <button id="exportJson" title="Copy internal model as JSON (debug)" onClick={onExportJson}>{`{·}`}</button>
                 </div>
 
                 <div id="legacyControls" hidden>
