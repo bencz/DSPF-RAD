@@ -1080,3 +1080,18 @@ The converted preview must never render stale Semantic IR. Canvas edits and sour
 **Implementation progress:** Added `src/app/convertedPreview.js`, integrated `DspfDocument.emit()` refresh wiring in `src/app/boot.js`, and added the `#convertedPane` markup in `index.html`.
 **Test evidence:** `pnpm test -- --run` passed 17 conversion tests.
 **Browser evidence:** `http://localhost:5173/` is the DSPF-RAD main controller (`DSPF·RAD — IronTerm Display File Designer`) and is the correct integrated-preview audit target. `http://localhost:8000/` is the template reference application (`Posters Galore Administration`) and is not a DSPF-RAD runtime target. Main-controller mutation assertions remain open until executed against the 5173 application.
+
+## Runtime identity verification protocol
+
+Do not infer application ownership from a default development command or port number. Before browser evidence, record URL, document title, served entry module, application-specific DOM marker, runtime marker, listening process, and workspace directory.
+
+Current local mapping:
+
+```text
+http://localhost:5173/ → DSPF-RAD main controller and integrated preview
+http://localhost:8000/ → template reference application; not DSPF-RAD runtime
+```
+
+The port mapping must be confirmed again after a server restart. Browser tab names are labels only and are not evidence. A successful server-start message is not proof that the browser reached that process.
+
+The previous audit error came from treating the repository's example `python -m http.server 8000` command as port ownership, without checking title, entry module, DOM markers, process ownership, and working directory. Future audit evidence must include all of those checks.

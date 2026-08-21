@@ -1138,3 +1138,9 @@ DspfDocument.emit()
 ```
 
 Canvas and source-editor mutations must produce the same current preview result. The refresh must not create a second document, write generated code back to the source editor, or change Canvas, faithful React preview, selection, or source-sync behavior. Browser verification must compare before/after states for field geometry, constant text, DSPSIZ, SFL, and indicator changes.
+
+## Runtime identity verification protocol
+
+Browser evidence must identify the application by URL, title, served entry module, application DOM marker, runtime marker, listening process, and workspace directory. Do not infer ownership from a default command or port number. The current local mapping is `5173 = DSPF-RAD main controller and integrated preview`; `8000 = template reference application`.
+
+Browser tab names and server-start messages are not evidence. Reconfirm the mapping after every restart. The previous port mistake resulted from treating the example `python -m http.server 8000` command as ownership without checking the served application identity. Future preview audits must record all identity checks before testing behavior.
