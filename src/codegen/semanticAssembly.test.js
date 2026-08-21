@@ -22,3 +22,11 @@ describe('V3.1A Semantic IR assembly', () => {
         expect(ir.droppedObjectCount).toBe(0);
     });
 });
+
+
+    it('attaches indexed REFFLD metadata to Semantic IR fields', () => {
+        const doc = new DspfDocument();
+        doc.records[0].items.push({ id: 'x', kind: 'field', name: 'CUSTID', row: 1, col: 1, length: 10, usage: 'B', indicators: [], keywords: [{ name: 'REFFLD', args: ['CUSTID', 'CUSTMAST'], indicators: [] }] });
+        const ir = buildCompleteSemanticIR(doc, { pfDdIndex: { 'CUSTMAST.CUSTID': { dataType: 'A', length: 10, decimals: 0, sourcePath: 'CUSTMAST.PF' } } });
+        expect(ir.fields.find(field => field.name === 'CUSTID').references[0]).toMatchObject({ status: 'converted', length: 10 });
+    });

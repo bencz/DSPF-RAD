@@ -401,3 +401,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/semanticAssembly.test.js` passed 32 tests across 9 files. The test proves CA03, indicator 31, SFLCTL→SFL metadata, H field source status, and zero dropped objects.
 
 **Status:** V3.1A core assembly complete.
+
+## V3.1B execution evidence
+
+`buildCompleteSemanticIR(doc, { pfDdIndex })` now attaches indexed REFFLD metadata to each matching Semantic IR field. Resolved references retain type, length, decimals, and source path. Missing references retain target and `manual-review` status.
+
+**Test:** `pnpm test -- --run src/codegen/semanticAssembly.test.js` passed 34 tests across 9 files. The test proves `CUSTMAST.CUSTID` metadata reaches the Semantic IR field.
+
+**Status:** V3.1B integration boundary complete for supplied PF/DD metadata. External `XAN4CDEM` references remain actionable manual-review until their source or approved alias is supplied.

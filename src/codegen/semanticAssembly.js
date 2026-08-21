@@ -4,10 +4,20 @@
 import { buildActionGraph } from './actionGraph.js';
 import { buildDspfSemanticIR } from './semanticIR.js';
 import { normalizeIndicators } from './indicators.js';
+import { resolveIndexedReffld } from './pfDdIndex.js';
 import { buildSflRuntime } from './sflRuntime.js';
 
-export function buildCompleteSemanticIR (doc) {
+export function buildCompleteSemanticIR (doc, options = {}) {
     const ir = buildDspfSemanticIR(doc);
+    const pfDdIndex = options.pfDdIndex ?? {};
+    for (const field of ir.fields) {
+        const source = doc.records.flatMap(record => record.items)
+            .find(item => item.name === field.name && item.kind === 'field');
+        const keyword = source?.keywords?.find(item => item.name === 'REFFLD');
+        if (!keyword) continue;
+        const [referencedField, file] = keyword.args ?? [];
+        field.references = [resolveIndexedReffld({ field: referencedField, file }, pfDdIndex)];
+    }
     const aids = [];
     const indicators = [];
     const subfiles = [];
