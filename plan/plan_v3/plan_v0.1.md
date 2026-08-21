@@ -227,3 +227,9 @@ The generated app must render mapped screen components, not only a metadata dump
 ## Additional Spring and QA review findings
 
 The Spring scaffold cannot pass the runtime gate while endpoints return `contract-only`. V3 must define session cookie and CSRF behavior, deny-by-default authorization, atomic idempotency key scope/fingerprint/replay/TTL rules, error response mapping, append-only audit, maker-checker, SoD, non-repudiation, artifact receipts, and revision invalidation. A live generated-React-to-Spring smoke test must exercise the OpenAPI contract before runtime-ready status.
+
+## Additional Spring QA blocker findings
+
+Before the runtime gate can pass, V3 must require a real Spring Boot server and a generated-React-to-server smoke test. The plan must define session acquisition, `DSPF_SESSION` cookie flags, expiry/rotation, CSRF enforcement for state-changing requests, deny-by-default authorization, and 401/403/440 tests. Idempotency must bind key, actor/session, operation, and payload; same-key replay must return the original result; payload mismatch must conflict; concurrent duplicates must serialize atomically.
+
+The Markdown runtime contract and `contract/openapi.yaml` must be reconciled before client/server generation. In particular, resolve the `subfiles` shape and transaction `correlationId` projection. Store per-gate receipts with command, result, exit code, tests, timestamp, and artifact paths. `XAN4CDEM` missing-source status remains deployment-blocking.
