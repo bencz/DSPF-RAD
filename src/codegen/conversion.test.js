@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { DspfDocument } from '../model/DspfDocument.js';
 import {
+    buildConvertedScreen,
     buildDspfSemanticIR,
     buildRuntimeBindings,
     mapSemanticLayout,
@@ -76,5 +77,18 @@ describe('V2.1 conversion completeness', () => {
         const result = buildRuntimeBindings({ runtimeSource: 'program.RPGLE', bindings: [{ role: 'unknown' }] });
         expect(result.bindings[0].status).toBe('manual-review');
         expect(result.diagnostics[0]).toMatchObject({ status: 'manual-review', sourceIdentity: null });
+    });
+
+    it('builds a complete classified screen without executable unresolved actions', () => {
+        const doc = documentWith();
+        doc.records[0].items.push({ id: 'label', kind: 'constant', text: 'Welcome', row: 1, col: 1, keywords: [], indicators: [] });
+        const before = JSON.stringify(doc.toJSON());
+        const screen = buildConvertedScreen(buildDspfSemanticIR(doc), doc.records[0].name);
+        expect(screen.record.name).toBe('MAIN');
+        expect(screen.items.map(item => item.kind)).toEqual(['field', 'constant']);
+        expect(screen.items[0].source.row).toBe(2);
+        expect(screen.items[0].target.actualSpan).toBeGreaterThan(0);
+        expect(screen.actions).toEqual([]);
+        expect(JSON.stringify(doc.toJSON())).toBe(before);
     });
 });

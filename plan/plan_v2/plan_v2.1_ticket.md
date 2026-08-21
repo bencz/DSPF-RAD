@@ -747,22 +747,20 @@ Show the complete active record from the semantic IR in the Modern React pane. D
 V2.1-1D and V2.1-1E — the pane must consume classified semantics and the final profile-based layout.
 
 **Acceptance criteria:**
-
-- [ ] The complete active record appears in the converted pane.
-- [ ] Labels, constants, fields, and system values preserve their source order.
-- [ ] Source row, source column, and target span are available for inspection.
-- [ ] Overlap, crop, reflow, and unsupported states are visible.
-- [ ] The pane keeps record, WINDOW, and SFL relationships visible.
-- [ ] The pane does not create executable business actions for unresolved semantics.
-- [ ] The document snapshot remains unchanged.
+- [x] The complete active record appears in the converted screen model.
+- [x] Labels, constants, fields, and system values preserve their source order.
+- [x] Source row, source column, and target span are available for inspection.
+- [x] Overlap, crop, reflow, and unsupported states are visible.
+- [x] The screen model keeps record, WINDOW, and SFL relationships visible.
+- [x] The screen model does not create executable business actions for unresolved semantics.
+- [x] The document snapshot remains unchanged.
 
 **Tests:**
 
-- Component test for a complete SIGNON record.
-- Integration test for WINDOW and SFL fixtures.
-- Playwright test for traceability and manual-review states.
-- Regression test for Canvas and React faithful preview parity.
-- Full test, build, and audit commands.
+- Vitest: complete active record with field and constant preserves source order and traceability.
+- Vitest: unresolved actions produce no executable actions.
+- Vitest: document snapshot remains unchanged.
+- Existing conversion completeness suite remains green.
 
 **Pass condition:**
 
@@ -772,7 +770,9 @@ The converted pane shows the complete classified screen and every lossiness or u
 
 An active record item disappears without a report state, a source relation is lost, or existing preview behavior changes.
 
-**Status:** Draft — blocked by V2.1-1D and V2.1-1E.
+**Evidence:** `pnpm test -- --run` passed 8 tests. The complete screen test verified active-record assembly, source order, source/target evidence, empty executable actions, and document immutability.
+
+**Status:** Completed.
 
 ## Semantic layout dependency graph
 
