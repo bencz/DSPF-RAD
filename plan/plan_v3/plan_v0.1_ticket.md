@@ -497,3 +497,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/transactionContract.test.js` passed 55 tests across 16 files. Same-key replay, changed-payload conflict, stale revision 409, and invalid-field 422 cases pass.
 
 **Status:** V3.5C transaction policy boundary complete. Atomic distributed persistence and live Spring transport remain part of V3.5D.
+
+## V3.5D execution evidence
+
+`src/codegen/runtimeClient.js` provides `createRuntimeClient()` for generated React to Spring Boot transaction requests. The client sends credentials, CSRF, idempotency, correlation, AID, field, cursor, and subfile payloads. Non-2xx responses remain thrown errors with status and body; no local fallback is used.
+
+**Test:** `pnpm test -- --run src/codegen/runtimeClient.test.js` passed 57 tests across 17 files.
+
+**Status:** V3.5D client boundary complete. A live Spring Boot server and browser-to-live-API smoke remain required for runtime-ready status.
