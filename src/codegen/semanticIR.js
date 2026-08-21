@@ -29,12 +29,40 @@ function copyKeywords (keywords = []) {
     }));
 }
 
-function resolveProfile (modelKey) {
-    const model = MODELS[modelKey];
-    if (!model) {
-        return { modelKey: 'unknown', rows: null, cols: null, status: 'manual-review' };
+export function resolveDisplayProfile (source) {
+    const snapshot = typeof source === 'string' ? { modelKey: source } : source;
+    const dspsiz = (snapshot?.records ?? []).flatMap(record => record.keywords ?? [])
+        .find(keyword => keyword.name === 'DSPSIZ');
+    const args = dspsiz?.args ?? [];
+    const rows = Number.parseInt(args[0], 10);
+    const cols = Number.parseInt(args[1], 10);
+    const keywordKey = `${rows}x${cols}`;
+    if (MODELS[keywordKey]) {
+        return {
+            modelKey: keywordKey,
+            rows,
+            cols,
+            status: 'resolved',
+            source: 'DSPSIZ',
+        };
     }
-    return { modelKey, rows: model.rows, cols: model.cols, status: 'resolved' };
+    const model = MODELS[snapshot?.modelKey];
+    if (model) {
+        return {
+            modelKey: snapshot.modelKey,
+            rows: model.rows,
+            cols: model.cols,
+            status: 'resolved',
+            source: 'document-model',
+        };
+    }
+    return {
+        modelKey: 'unknown',
+        rows: null,
+        cols: null,
+        status: 'manual-review',
+        source: dspsiz ? 'DSPSIZ' : 'missing',
+    };
 }
 
 function itemName (item) {
@@ -45,7 +73,8 @@ function itemName (item) {
 
 export function buildDspfSemanticIR (doc) {
     const snapshot = doc.toJSON();
-    const displayProfile = resolveProfile(snapshot.modelKey);
+    const resolvedProfile = resolveDisplayProfile(snapshot);
+    const { source: profileSource, ...displayProfile } = resolvedProfile;
     const records = [];
     const fields = [];
     const constants = [];
@@ -140,6 +169,7 @@ export function buildDspfSemanticIR (doc) {
             converterVersion: CONVERTER_VERSION,
         },
         displayProfile,
+        displayProfileSource: profileSource,
         recordFormats: records,
         recordRelations: [],
         constants,

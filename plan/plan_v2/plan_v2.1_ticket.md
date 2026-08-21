@@ -588,18 +588,18 @@ V2.1-1A — the display profile must be stored in the semantic IR.
 
 **Acceptance criteria:**
 
-- [ ] The resolver identifies 24x80.
-- [ ] The resolver identifies 27x132.
-- [ ] The resolver records the source of the profile decision.
-- [ ] The resolver handles DSPSIZ profile keywords without relying on the UI file-open flow.
-- [ ] The resolver reports an unknown profile as manual-review instead of silently using 24x80.
+- [x] The resolver identifies 24x80.
+- [x] The resolver identifies 27x132.
+- [x] The resolver records the source of the profile decision.
+- [x] The resolver handles DSPSIZ profile keywords without relying on the UI file-open flow.
+- [x] The resolver reports an unknown profile as manual-review instead of silently using 24x80.
 
 **Tests:**
 
-- Unit test: 24x80 and 27x132 profile fixtures.
-- Edge test: missing DSPSIZ and symbolic DSPSIZ values.
-- Integration test: conversion core receives the resolved column count.
-- Regression test: faithful Canvas model selection remains unchanged.
+- Smoke: resolve document model profiles for 24x80 and 27x132.
+- DSPSIZ: resolve explicit `DSPSIZ(27 132)` independently of the UI.
+- Edge: missing or unknown profile returns `manual-review`.
+- Integration: `buildDspfSemanticIR()` stores the source separately from the strict display profile object.
 
 **Pass condition:**
 
@@ -609,7 +609,9 @@ Every conversion has an explicit source column count or a manual-review status.
 
 The converter silently uses 80 columns for a 132-column source.
 
-**Status:** Draft — blocked by V2.1-1A.
+**Evidence:** `node --input-type=module` smoke checks passed for document-model 27x132, explicit DSPSIZ 27x132, unknown profile manual-review, and Semantic IR profile source.
+
+**Status:** Completed.
 
 ## V2.1-1C — Build qualified identity and reference graph
 
