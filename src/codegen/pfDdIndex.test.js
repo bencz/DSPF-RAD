@@ -25,3 +25,9 @@ describe('PF/DD source index', () => {
         expect(index['ACCTMASTL1.__record']).toMatchObject({ baseFile: 'ACCTMAST', keys: ['CUSTID'] });
     });
 });
+
+    it('resolves REFFLD metadata through the indexed source boundary', () => {
+        const index = buildPfDdIndex([{ path: 'CUSTMAST.PF', text: '     A            CUSTID        10A' }]);
+        const resolved = resolveIndexedReffld({ field: 'CUSTID', file: 'CUSTMAST' }, index);
+        expect(resolved).toMatchObject({ status: 'converted', dataType: 'A', length: 10, sourcePath: 'CUSTMAST.PF' });
+    });
