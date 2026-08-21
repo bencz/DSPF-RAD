@@ -6,6 +6,7 @@ import { buildDspfSemanticIR } from './semanticIR.js';
 import { normalizeIndicators } from './indicators.js';
 import { resolveIndexedReffld } from './pfDdIndex.js';
 import { assembleSflScreens } from './sflAssembly.js';
+import { normalizeFieldSemantics } from './fieldRoles.js';
 import { buildSflRuntime } from './sflRuntime.js';
 
 export function buildCompleteSemanticIR (doc, options = {}) {
@@ -19,6 +20,9 @@ export function buildCompleteSemanticIR (doc, options = {}) {
         if (!keyword) continue;
         const [referencedField, file] = keyword.args ?? [];
         field.references = [resolveIndexedReffld({ field: referencedField, file }, pfDdIndex)];
+    }
+    for (let index = 0; index < ir.fields.length; index++) {
+        ir.fields[index] = normalizeFieldSemantics(ir.fields[index]);
     }
     const aids = [];
     const indicators = [];

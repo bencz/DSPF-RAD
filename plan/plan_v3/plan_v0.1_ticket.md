@@ -417,3 +417,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/sflAssembly.test.js src/codegen/semanticAssembly.test.js` passed 35 tests across 10 files.
 
 **Status:** V3.1C SFL control/template assembly boundary complete. External runtime rows and scroll execution remain contract-only.
+
+## V3.1D execution evidence
+
+`src/codegen/fieldRoles.js` provides `normalizeFieldSemantics()`. The assembly now attaches role, editability, visibility, and item-scoped indicator polarity to Semantic IR fields.
+
+**Test:** `pnpm test -- --run` passed 41 tests across 11 files. H, P, I, O, B roles and positive/negative indicators are covered.
+
+**Status:** V3.1D role and indicator boundary complete.
