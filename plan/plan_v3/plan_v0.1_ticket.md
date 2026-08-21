@@ -377,3 +377,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/sourceManifest.test.js` passed 27 tests across 6 files.
 
 **Status:** V3.0A core manifest boundary complete. Full Custom-Account inventory execution remains the next integration check.
+
+## V3.0C execution evidence
+
+`src/codegen/dependencyClosure.js` provides `buildDependencyClosure()` and classifies each dependency as `resolved`, `missing`, `ambiguous`, or `unsupported`, while retaining `sourceIdentity`, target, kind, and reason.
+
+**Test:** `pnpm test -- --run src/codegen/dependencyClosure.test.js` passed 29 tests across 7 files. The test proves that `XAN4CDEM/CUSTS.XWE0NB` remains an explicit missing dependency and cannot become a successful conversion by fallback.
+
+**Status:** V3.0C core classifier complete. Full source-set graph integration remains part of V3.0D/V3.1A.

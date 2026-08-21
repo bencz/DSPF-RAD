@@ -17,6 +17,7 @@ export { createGeneratedServer } from './generatedServer.js';
 export { approveConversion, createMetadataStore, validateTransaction } from './governance.js';
 export { generateSpringBootApp } from './springBoot.js';
 export { buildSourceManifest } from './sourceManifest.js';
+export { buildDependencyClosure } from './dependencyClosure.js';
 export { resolveRecordRelations } from './recordRelations.js';
 export { generateRpgle } from './rpgle.js';
 export { generateCobol } from './cobol.js';
