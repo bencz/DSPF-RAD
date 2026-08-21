@@ -30,5 +30,6 @@ export { createTransactionProcessor } from './transactionContract.js';
 export { createRuntimeClient } from './runtimeClient.js';
 export { createReceiptStore, makeConversionReceipt } from './receipts.js';
 export { assessDeployment } from './deploymentGate.js';
+export { resolveMetadataAuthority } from './metadataAuthority.js';
 export { assessObjectCompleteness } from './completeness.js';
 export { generateCobol } from './cobol.js';

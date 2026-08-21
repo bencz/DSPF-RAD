@@ -534,3 +534,13 @@ npm run generate:spring -- <DSPF path> <output directory>
 Running both commands with `QDDSSRC/WCUSTSD2.DSPF` generated 10 React files and 13 Spring files with 188 mappings. The generated React output passed `npm install` and `npm run build`. The generated Spring output passed `mvn -q -DskipTests package`.
 
 The output report contains 80 diagnostics because the DSPF references external `XAN4CDEM` PF/DD members that are not present in the checked source set. The commands still produce runnable/buildable artifacts, but the readiness gate keeps the conversion review-required and not deployable.
+
+## V3.0E — Define compiled DDS and source metadata authority
+
+**What to build:** Resolve reference metadata through compiled DDS metadata, exact PF/LF source, or an explicitly approved alias.
+
+**Acceptance criteria:** Compiled metadata has priority. Exact PF/LF source is the offline fallback. An approved alias is traceable. Missing metadata returns `missing-source` and blocks runtime/deployment readiness. No same-name fallback is allowed.
+
+**Verification:** `pnpm test -- --run src/codegen/metadataAuthority.test.js` passed 63 tests across 20 files. Tests cover compiled priority, exact source, approved alias, and missing-source behavior.
+
+**Status:** V3.0E authority boundary complete. IBM i compiled metadata import and external `XAN4CDEM` source delivery remain operational inputs.
