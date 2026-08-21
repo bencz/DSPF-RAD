@@ -965,7 +965,8 @@ The following tickets complete the plan coverage after the first visual slice. E
 
 **Acceptance:** The browser shows the complete mapped screen, field bindings, route, diagnostics, review states, and responsive layout. The browser audit records screenshots and console/network results.
 
-**Tests:** Playwright at 24x80, 27x132, compact, wide, 100% zoom, 200% zoom, error, forbidden, not-found, and manual-review states.
+**Evidence:** In `react-app`, `npm test -- --run` passed 108 tests in 16 files; `npm run build` succeeded; `npm exec playwright test -- --workers=1` passed 24 tests. At `http://localhost:5173/`, the DSPF-RAD controller showed the MUI converted pane, 12-column grid, and 20 converted items; model and document/source mutations refreshed the preview.
+**Status:** Completed for main-controller and generated React preview audit.
 
 ### V2.1-2E — Approve a conversion revision before deployment
 
@@ -975,8 +976,7 @@ The following tickets complete the plan coverage after the first visual slice. E
 
 **Acceptance:** The same actor cannot approve their own conversion. Any source revision change invalidates approval. Unsupported output cannot deploy.
 
-**Evidence:** `pnpm test -- --run` passed 20 tests across 2 files, including approval separation, revision invalidation, metadata isolation, valid transaction, and invalid transaction cases.
-**Status:** Completed for the first local contract boundary; persistent storage and live Spring Boot transport remain deployment work.
+**Status:** Local approval boundary tested; persistent audit, SoD, non-repudiation, and deployment gate remain open.
 
 ### V2.1-2F — Add optional conversion service metadata
 
@@ -985,8 +985,7 @@ The following tickets complete the plan coverage after the first visual slice. E
 **What to build:** Add optional Node and SQLite metadata only for multi-user, batch, retention, or review needs.
 
 **Acceptance:** The service calls shared conversion core. SQLite stores revisions and metadata only. Concurrent revisions remain isolated.
-**Evidence:** The governance module's revision-scoped metadata store passed isolation tests in the 20-test Vitest run.
-**Status:** Completed for local metadata boundary; SQLite persistence remains optional operational work.
+**Status:** In-memory metadata boundary tested; SQLite persistence, retention, and restart recovery remain open.
 **Tests:** API contract, revision isolation, artifact retention, restart recovery, and no-business-data-in-metadata tests.
 
 ### V2.1-2G — Integrate generated React with Spring Boot
@@ -995,9 +994,7 @@ The following tickets complete the plan coverage after the first visual slice. E
 
 **What to build:** Integrate the generated React app with the Spring Boot runtime contract.
 
-**Acceptance:** Screen, transaction, session, AID, field validation, idempotency, correlation ID, and defined error responses work through the OpenAPI contract.
-**Evidence:** The governance module's transaction validator passed valid and invalid Spring Boot request-shape tests in the 20-test Vitest run.
-**Status:** Completed for request contract validation; live Spring Boot transport remains integration work.
+**Status:** Request-shape validator tested; live Spring Boot transport, OpenAPI server, session, and transaction integration remain open.
 **Tests:** OpenAPI contract tests, session tests, 401/403/409/422/440 tests, idempotency test, and browser transaction test.
 
 ## Complete plan-to-ticket mapping
@@ -1023,8 +1020,10 @@ The following tickets complete the plan coverage after the first visual slice. E
 
 ```text
 V2.1-0A to V2.1-0F: Completed
-V2.1-1A to V2.1-2G: Designed, not implemented
-Next task: V2.1-1A
+V2.1-1A to V2.1-1L: Completed
+V2.1-2A to V2.1-2D: Completed
+V2.1-2E to V2.1-2G: Local boundaries completed; production integrations open
+Next: Spring Boot project and PF/DD source integration
 ```
 
 ```text

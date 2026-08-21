@@ -1144,3 +1144,15 @@ Canvas and source-editor mutations must produce the same current preview result.
 Browser evidence must identify the application by URL, title, served entry module, application DOM marker, runtime marker, listening process, and workspace directory. Do not infer ownership from a default command or port number. The current local mapping is `5173 = DSPF-RAD main controller and integrated preview`; `8000 = template reference application`.
 
 Browser tab names and server-start messages are not evidence. Reconfirm the mapping after every restart. The previous port mistake resulted from treating the example `python -m http.server 8000` command as ownership without checking the served application identity. Future preview audits must record all identity checks before testing behavior.
+
+## Current execution status
+
+```text
+V2.1-1A through V2.1-1L: completed conversion-core boundaries
+V2.1-2A through V2.1-2D: completed mapping, generated output, server boundary, and browser audit
+V2.1-2E: local approval boundary completed; persistent governance open
+V2.1-2F: in-memory metadata boundary completed; SQLite persistence open
+V2.1-2G: request-shape validation completed; live Spring Boot integration open
+```
+
+The generated React output is now testable through the Vite app. The main controller remains `http://localhost:5173/`; `http://localhost:8000/` is the template reference and must not be used as DSPF-RAD evidence. Before declaring production integration complete, provide the actual Spring Boot project, OpenAPI server, PF/DD source metadata, and the required persistence policy.
