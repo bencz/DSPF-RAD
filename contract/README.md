@@ -19,7 +19,7 @@
 | `semantic-layout-design.md` | Semantic IR、identity、record relations、layout、regression boundary |
 | `openapi.yaml` | Spring Boot runtime 與 conversion API 的 OpenAPI 3.1 contract |
 | `target_design.md` | Contract-owned design tokens |
-| `target-react-admin/components-used.md` | MUI component inventory and boundary rules for the target React admin reference template |
+| `target-react-admin-components-used.md` | MUI component inventory and boundary rules for the target React admin reference template |
 | `frontend/component-state.schema.json` | Frontend component state schema |
 | `frontend/field-binding.schema.json` | Frontend field binding schema |
 | `frontend/route-manifest.schema.json` | Generated route manifest schema |
