@@ -473,3 +473,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/generatedValidation.test.js` passed 48 tests across 14 files. The validator accepts a complete artifact and rejects missing route/binding evidence.
 
 **Status:** V3.4B artifact validation boundary complete. The generated-app Browser matrix remains required for each generated application.
+
+## V3.5A execution evidence
+
+`generateSpringBootApp()` now emits the runtime project boundary: Maven project, application, controllers, domain records, application service boundary, security, audit, resources, OpenAPI, and contract test path.
+
+**Test:** `pnpm test -- --run src/codegen/springBoot.test.js` passed 49 tests across 14 files. Generated WCUSTSD2 Spring output has a complete project file tree and remains explicitly contract-only until runtime services are implemented.
+
+**Status:** V3.5A project generation boundary complete.
