@@ -18,6 +18,7 @@ export { approveConversion, createMetadataStore, validateTransaction } from './g
 export { generateSpringBootApp } from './springBoot.js';
 export { buildSourceManifest } from './sourceManifest.js';
 export { buildDependencyClosure } from './dependencyClosure.js';
+export { assessSourceReadiness } from './readiness.js';
 export { resolveRecordRelations } from './recordRelations.js';
 export { generateRpgle } from './rpgle.js';
 export { generateCobol } from './cobol.js';

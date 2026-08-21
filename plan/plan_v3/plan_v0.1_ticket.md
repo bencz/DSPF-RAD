@@ -385,3 +385,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/dependencyClosure.test.js` passed 29 tests across 7 files. The test proves that `XAN4CDEM/CUSTS.XWE0NB` remains an explicit missing dependency and cannot become a successful conversion by fallback.
 
 **Status:** V3.0C core classifier complete. Full source-set graph integration remains part of V3.0D/V3.1A.
+
+## V3.0D execution evidence
+
+`src/codegen/readiness.js` provides `assessSourceReadiness(closure)`. A source set with missing or ambiguous edges remains previewable and buildable, but is review-required, not runtime-ready, and not deployable. A fully resolved closure can become deployable.
+
+**Test:** `pnpm test -- --run src/codegen/readiness.test.js` passed 31 tests across 8 files.
+
+**Status:** V3.0D readiness boundary complete.
