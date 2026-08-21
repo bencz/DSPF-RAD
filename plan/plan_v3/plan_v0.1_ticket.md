@@ -513,3 +513,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/receipts.test.js` passed 58 tests across 18 files. The test proves receipt fields and revision isolation.
 
 **Status:** V3.6A receipt boundary complete. Persistent SQLite storage and restart recovery remain deployment work.
+
+## V3.6B execution evidence
+
+`src/codegen/deploymentGate.js` provides `assessDeployment()`. The gate blocks unapproved revisions, maker-checker violations, stale approvals, and explicit manual-review blockers. Only an approved current revision without blockers is deployable.
+
+**Test:** `pnpm test -- --run` passed 60 tests across 19 files. Approval and deployment cases cover success, blocker, self-approval, and stale revision paths.
+
+**Status:** V3.6B local deployment-gate boundary complete. Persistent audit storage and live production enforcement remain deployment integration work.
