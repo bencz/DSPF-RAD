@@ -1227,3 +1227,11 @@ The generated Spring output is a contract scaffold. It is not a production runti
 `WCUSTSD2.DSPF` references `XAN4CDEM/CUSTS` and `XAN4CDEM/SLMEN`. The pulled Custom-Account source provides `CUSTMAST.PF`, `ACCTMAST.PF`, `CUSTMASTL1.LF`, and `ACCTMASTL1.LF`; no matching `XAN4CDEM` PF/DD source exists in the input. Therefore `ZWE0NB`, `ZWJUN0`, `PNAME`, `ZWGIVA`, and the ZZFT02/ZZCNF1 REFFLD fields must remain `manual-review`. The resolver must not substitute a same-named local file without an explicit mapping contract.
 
 **Evidence:** Pulled source search found no `XWE0NB`, `ZWJUN0`, `XWGIVA`, `XWIDV0`, or `XAN4CDEM` definitions. The source index resolves available local fields and correctly returns `manual-review` for `XAN4CDEM/CUSTS.XWE0NB`.
+
+## WCUSTSD2 SFL output verification
+
+The Playwright suite now loads `QDDSSRC/WCUSTSD2.DSPF`, verifies `ZZSF01`, `ZZCT01`, `ZZFT01`, and `ZZFT02` are addressable, selects the SFL control record, and confirms the converted pane renders visible items while excluding `SFIELD` and `RECNAM` hidden controls.
+
+**Evidence:** `npm exec playwright test e2e/converted-pane.spec.js -- --workers=1` passed 5 tests. `npm test -- --run --pool=forks` passed 110 tests. The full generated React app build and WCUSTSD2 output build also passed previously.
+
+**Status:** Complete SFL record addressing and visible-item rendering; PF/DD resolution remains blocked only for external `XAN4CDEM` sources absent from the pulled input.

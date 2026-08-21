@@ -74,3 +74,15 @@ test('loads WCUSTSD2 and preserves SFL/hidden-control semantics', async ({ page 
     await expect(page.locator('#convertedPane [data-testid="converted-item"]', { hasText: 'RECNAM' })).toHaveCount(0);
     await expect(page.locator('#convertedPane [data-testid="converted-warnings"]')).toContainText('REFFLD');
 });
+
+test('keeps the WCUSTSD2 SFL control/template records addressable', async ({ page }) => {
+    await page.goto('/');
+    const source = readFileSync('../QDDSSRC/WCUSTSD2.DSPF', 'utf8');
+    await page.evaluate((text) => window.dspfRad.load(text), source);
+    const records = await page.locator('#recordSel option').allTextContents();
+    expect(records.map((text) => text.split(' ')[0])).toEqual(expect.arrayContaining(['ZZSF01', 'ZZCT01', 'ZZFT01', 'ZZFT02']));
+    const ctlValue = await page.locator('#recordSel option', { hasText: 'ZZCT01' }).getAttribute('value');
+    await page.locator('#recordSel').selectOption(ctlValue);
+    await expect(page.locator('#convertedPane')).toContainText('ZZCT01');
+    await expect(page.locator('#convertedPane [data-testid="converted-item"]')).not.toHaveCount(0);
+});
