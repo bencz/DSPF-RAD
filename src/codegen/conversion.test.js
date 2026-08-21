@@ -7,6 +7,7 @@ import {
     buildConvertedScreen,
     resolvePfDdReferences,
     resolveRecordRelations,
+    normalizeIndicators,
     buildSflRuntime,
     buildDspfSemanticIR,
     buildRuntimeBindings,
@@ -139,5 +140,18 @@ describe('V2.1 conversion completeness', () => {
         expect(result).toMatchObject({ controlRecord: 'CTL', templateRecord: 'ROWS', pageSize: 14, totalSize: 15, status: 'contract-only' });
         expect(result.displayIndicator).toBe('31');
         expect(result.rows).toEqual([]);
+    });
+
+    it('normalizes indicator polarity and scope without merging meanings', () => {
+        const result = normalizeIndicators({
+            recordIndicators: ['03'],
+            keywordIndicators: ['N12'],
+            itemIndicators: ['45'],
+            indara: true,
+        });
+        expect(result.indara).toBe(true);
+        expect(result.record[0]).toMatchObject({ number: 3, polarity: 'positive', scope: 'record' });
+        expect(result.keyword[0]).toMatchObject({ number: 12, polarity: 'negative', scope: 'keyword' });
+        expect(result.item[0]).toMatchObject({ number: 45, polarity: 'positive', scope: 'item' });
     });
 });

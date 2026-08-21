@@ -898,6 +898,9 @@ The following tickets complete the plan coverage after the first visual slice. E
 **What to build:** Preserve indicator number, polarity, scope, `INDARA`, display state, enabled state, and action state as separate values.
 
 **Acceptance:** Item, keyword, and record indicator scopes remain distinct. `Nxx` polarity remains distinct from `xx`. Unknown scope receives `manual-review`.
+**Implementation:** `src/codegen/indicators.js` provides `normalizeIndicators()` with separate record, keyword, and item scopes, preserved `Nxx` polarity, `INDARA`, and manual-review diagnostics.
+**Evidence:** `pnpm test -- --run` passed 12 tests, including positive/negative polarity, scope separation, and `INDARA` preservation.
+**Status:** Completed.
 
 **Tests:** indicator polarity matrix, conditioned keyword test, `INDARA` test, SFL indicator test, and immutability test.
 
