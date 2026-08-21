@@ -441,3 +441,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/completeness.test.js` passed 45 tests across 13 files. The tests prove both zero-drop pass and dropped-object failure behavior.
 
 **Status:** V3.2B zero-drop gate complete.
+
+## V3.3A execution evidence
+
+`react-app/src/conversion/semanticPreview.js` now rebuilds Semantic IR, Mapping Contract, and converted screen data from the current `DspfDocument`. `ConvertedPane` subscribes to document changes and exposes source revision, mapping count, and semantic status attributes.
+
+**Test:** React Vitest passed 111 tests in 17 files. Vite production build succeeded. Converted-pane Playwright passed 5 tests, including WCUSTSD2 load and SFL selection.
+
+**Status:** V3.3A integrated preview refresh boundary complete.

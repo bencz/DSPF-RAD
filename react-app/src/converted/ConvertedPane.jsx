@@ -13,6 +13,7 @@ import {
     Typography,
 } from '@mui/material';
 
+import { buildSemanticPreview } from '../conversion/semanticPreview.js';
 import { buildVisualModel } from '../conversion/visualModel.js';
 import { convertedTheme } from './convertedTheme.js';
 
@@ -29,6 +30,7 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
 
     if (!enabled) return null;
 
+    const semantic = buildSemanticPreview(doc);
     const model = buildVisualModel(doc);
     const selectedId = bus?.current ?? null;
     const active = model.records[model.activeRecordIndex] ?? model.records[0];
@@ -36,7 +38,10 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
         <ThemeProvider theme={convertedTheme}>
             <CssBaseline />
             <Box className="converted-pane" data-testid="converted-pane"
-                 sx={{ height: '100%', overflow: 'auto', bgcolor: 'background.default', p: 2 }}>
+                 sx={{ height: '100%', overflow: 'auto', bgcolor: 'background.default', p: 2 }}
+                 data-source-revision={semantic.ir.sourceRevision.sourceHash}
+                 data-mapping-count={semantic.contract.mappings.length}
+                 data-semantic-status={semantic.screen.status}>
                 <Stack spacing={2}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                         <Box>
