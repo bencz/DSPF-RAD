@@ -1215,3 +1215,9 @@ browser E2E: WCUSTSD2 test passed 4/4
 ```
 
 The generated Spring output is a contract scaffold. It is not a production runtime until session, authorization, idempotency, validation, audit, and business transaction implementations are supplied.
+
+## PF/DD source-index implementation
+
+`src/codegen/pfDdIndex.js` now indexes PF/LF field definitions by qualified file and field name, preserving data type, length, decimals, and source path. `resolveIndexedReffld()` resolves matching metadata and returns explicit `manual-review` for external or missing sources such as `XAN4CDEM/CUSTS`.
+
+**Evidence:** `pnpm test -- --run` passed 26 tests in 5 files, including PF field metadata extraction, resolved `CUSTMAST.CUSTID`, and unresolved `XAN4CDEM/CUSTS.XWE0NB`.
