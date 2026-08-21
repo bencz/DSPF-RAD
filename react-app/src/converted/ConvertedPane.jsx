@@ -58,7 +58,7 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
                              gap: 1,
                              alignItems: 'start',
                          }}>
-                        {(active?.items ?? []).map((item) => (
+                        {(active?.items ?? []).filter((item) => !item.hidden).map((item) => (
                             <ConvertedItem key={item.sourceId} item={item}
                                            selected={item.sourceId === selectedId} />
                         ))}
