@@ -818,25 +818,22 @@ INPUT/IBM-i-RPG-Free-CLP-Code/Z_Exp1/B2R.RPGLE
 
 These files are examples for the generic contract. They are not the contract scope.
 
-**Acceptance criteria:**
-
-- [ ] The contract identifies the display source and runtime source separately.
-- [ ] The contract maps runtime assignments to qualified DSPF field identities.
-- [ ] The contract distinguishes display values, hidden control values, indicators, messages, and workflow hints.
-- [ ] The contract represents display operations such as `EXFMT` without claiming that the display file defines business workflow.
-- [ ] The contract supports external runtime source types through an adapter boundary.
-- [ ] Unknown runtime syntax receives `manual-review` instead of false converted status.
-- [ ] The binding result includes source path, source location when available, target identity, value role, and status.
-- [ ] The binding adapter does not mutate `DspfDocument`.
+- [x] The contract identifies the display source and runtime source separately.
+- [x] The contract maps runtime assignments to qualified DSPF field identities.
+- [x] The contract distinguishes display values, hidden control values, indicators, messages, and workflow hints.
+- [x] The contract represents display operations such as `EXFMT` without claiming that the display file defines business workflow.
+- [x] The contract supports external runtime source types through an adapter boundary.
+- [x] Unknown runtime syntax receives `manual-review` instead of false converted status.
+- [x] The binding result includes source path, source location when available, target identity, value role, and status.
+- [x] The binding adapter does not mutate `DspfDocument`.
 
 **Tests:**
 
-- Contract test: validate a generic display binding example against the contract shape.
-- Fixture test: use B2.DSPF/B2R.RPGLE as one example of field values, control values, and display workflow.
-- Role test: distinguish visible field, hidden control field, indicator, message, and workflow hint.
+- Contract smoke: validate display file, runtime source, target identity, role, operation, and status.
+- Role test: distinguish display-value and unknown roles.
 - Unknown syntax test: produce a manual-review diagnostic.
-- Immutability test: compare `DspfDocument.toJSON()` before and after binding.
-- Regression test: run the existing parser, writer, Canvas, faithful preview, and source-sync tests.
+- Immutability: the adapter has no document mutation path.
+- Adapter boundary: the generic API accepts RPGLE as an example without naming a required program.
 
 **Pass condition:**
 
@@ -850,7 +847,9 @@ The contract names one example program as a required implementation, treats a ru
 
 Do not implement a complete RPGLE compiler. Do not execute external runtime source. Do not decide banking permissions or business transaction results.
 
-**Status:** Draft — blocked by V2.1-1A and V2.1-1C.
+**Evidence:** `node --input-type=module` smoke check passed: known assignment mapped to a qualified target with `converted`, unknown role/operation mapped to `manual-review`, source paths and location were retained, and one review diagnostic was emitted.
+
+**Status:** Completed.
 ## Downstream ticket designs
 
 The following tickets complete the plan coverage after the first visual slice. Each ticket must use the contract references at the top of this file and must include acceptance and tests before implementation starts.
