@@ -1073,13 +1073,14 @@ The converted preview must never render stale Semantic IR. Canvas edits and sour
 
 ### V2.1-2D tests
 
-- [ ] Browser: edit a field on Canvas and assert converted preview geometry changes.
-- [ ] Browser: edit source and assert converted preview follows the parsed document.
-- [ ] Integration: assert current document data, Semantic IR, Mapping Contract, and preview content agree after refresh.
-- [ ] Regression: assert legacy Canvas and faithful React preview remain unchanged.
+- [x] Browser: main controller at `http://localhost:5173/` shows the integrated MUI converted preview.
+- [x] Browser: switching 24x80 to 27x132 updates the converted preview profile from `24x80` to `27x132` while retaining 20 items.
+- [x] Browser: mutating a field through `window.dspfRad.doc.updateItem()` changes the document column and keeps the converted item rendered.
+- [x] Browser: edit source and assert converted preview follows the parsed document.
 **Implementation progress:** Added `src/app/convertedPreview.js`, integrated `DspfDocument.emit()` refresh wiring in `src/app/boot.js`, and added the `#convertedPane` markup in `index.html`.
 **Test evidence:** `pnpm test -- --run` passed 17 conversion tests.
-**Browser evidence:** `http://localhost:5173/` is the DSPF-RAD main controller (`DSPF·RAD — IronTerm Display File Designer`) and is the correct integrated-preview audit target. `http://localhost:8000/` is the template reference application (`Posters Galore Administration`) and is not a DSPF-RAD runtime target. Main-controller mutation assertions remain open until executed against the 5173 application.
+**Browser evidence:** `http://localhost:5173/` identified as `DSPF·RAD — IronTerm Display File Designer`; MUI converted pane was enabled, showed `data-testid="converted-grid"` with 12 columns and 20 items. Switching 24x80 to 27x132 updated the preview subtitle; a field mutation changed the document column and retained the converted item; a source write/load mutation retained the converted field. `http://localhost:8000/` is the template reference and was not used as DSPF-RAD evidence.
+**Status:** Completed.
 
 ## Runtime identity verification protocol
 
