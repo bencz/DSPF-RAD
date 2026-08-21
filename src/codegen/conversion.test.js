@@ -9,6 +9,7 @@ import {
     generateReactApp,
     resolvePfDdReferences,
     resolveRecordRelations,
+    createGeneratedServer,
     normalizeIndicators,
     buildSflRuntime,
     buildDspfSemanticIR,
@@ -199,3 +200,18 @@ describe('V2.1 conversion completeness', () => {
         expect(JSON.parse(files['conversion-report.json'])).toMatchObject({ version: '2.1.0' });
     });
 });
+
+
+    it('serves generated output with explicit local mode and API errors', async () => {
+        const files = generateReactApp({ version: '2.1.0', displayProfile: { modelKey: '24x80' }, mappings: [], diagnostics: [] });
+        const server = createGeneratedServer(files, { mode: 'local', apiBaseUrl: '/api' });
+        await new Promise(resolve => server.listen(0, resolve));
+        const port = server.address().port;
+        const html = await fetch(`http://127.0.0.1:${port}/index.html`);
+        const missing = await fetch(`http://127.0.0.1:${port}/missing`);
+        await new Promise(resolve => server.close(resolve));
+        expect(server.mode).toBe('local');
+        expect(server.apiBaseUrl).toBe('/api');
+        expect(html.status).toBe(200);
+        expect(missing.status).toBe(404);
+    });

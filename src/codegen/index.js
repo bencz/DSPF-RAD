@@ -13,6 +13,7 @@ export { normalizeIndicators } from './indicators.js';
 export { buildActionGraph } from './actionGraph.js';
 export { buildMappingContract } from './mappingContract.js';
 export { generateReactApp } from './reactApp.js';
+export { createGeneratedServer } from './generatedServer.js';
 export { resolveRecordRelations } from './recordRelations.js';
 export { generateRpgle } from './rpgle.js';
 export { generateCobol } from './cobol.js';

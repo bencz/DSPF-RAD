@@ -947,6 +947,9 @@ The following tickets complete the plan coverage after the first visual slice. E
 
 **Blocked by:** V2.1-2B.
 
+**Implementation:** `src/codegen/generatedServer.js` provides `createGeneratedServer(files, options)` with explicit `local`/`http` mode metadata, configurable API base URL, static artifact serving, and visible JSON 404 errors.
+**Evidence:** `pnpm test -- --run` passed 16 tests. The server smoke test served `index.html` with HTTP 200, returned JSON 404 for missing output, and preserved local mode plus `/api` configuration.
+**Status:** Completed.
 **What to build:** Start the generated frontend and a local runtime API through explicit `local` or `http` mode.
 
 **Acceptance:** The app loads from a clean server. The API base URL is configurable. Local mode is explicit. HTTP errors remain visible.
