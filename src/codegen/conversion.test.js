@@ -239,3 +239,13 @@ describe('V2.1 conversion completeness', () => {
         });
         expect(files['vite.config.js']).toContain('@vitejs/plugin-react');
     });
+
+    it('generates mapped React screen components and review diagnostics', () => {
+        const files = generateReactApp({ version: '3.4', displayProfile: { modelKey: '24x80' }, mappings: [
+            { sourceIdentity: 'field:USER', targetComponent: 'ConvertedField', source: { record: 'MAIN', row: 1, col: 1, length: 10 }, target: { row: 1, col: 1, actualSpan: 2 }, runtimeBindingKey: 'MAIN.USER', domId: 'user-1', status: 'converted', lossiness: [], output: { role: 'input', visible: true, editable: true } },
+            { sourceIdentity: 'field:SFIELD', targetComponent: 'HiddenControl', source: { record: 'MAIN', row: 1, col: 1, length: 10 }, target: null, runtimeBindingKey: 'MAIN.SFIELD', domId: 'hidden-1', status: 'converted-with-warning', lossiness: [], output: { role: 'hidden-control', visible: false, editable: false } },
+        ], diagnostics: [{ code: 'REVIEW', message: 'Review field', severity: 'manual-review' }] });
+        expect(files['src/App.jsx']).toContain('ConvertedField');
+        expect(files['src/App.jsx']).toContain('hidden-control');
+        expect(files['src/App.jsx']).toContain('Review field');
+    });

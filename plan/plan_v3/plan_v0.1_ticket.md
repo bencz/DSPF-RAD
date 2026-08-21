@@ -457,3 +457,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** React Vitest passed 111 tests in 17 files. After rebuilding the preview artifact, `npm exec playwright test e2e/converted-pane.spec.js -- --workers=1` passed 6 tests, including WCUSTSD2 SFL provenance, control/template addressing, and REFFLD review evidence.
 
 **Status:** V3.3B SFL provenance preview boundary complete.
+
+## V3.4A execution evidence
+
+`src/codegen/reactApp.js` now generates a React screen component tree from Mapping Contract mappings. Visible mappings render `generated-item` components. Hidden mappings remain addressable hidden controls. Conversion diagnostics render in a review region. The generated package includes the React entry and Vite React plugin configuration.
+
+**Test:** `pnpm test -- --run src/codegen/conversion.test.js` passed 46 tests. WCUSTSD2 output regenerated into `.tmp/v3-wcustsd2-react` and `npm run build` succeeded with 918 modules transformed.
+
+**Status:** V3.4A generated React screen boundary complete.

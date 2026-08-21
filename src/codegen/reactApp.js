@@ -21,7 +21,15 @@ export function generateReactApp (contract = {}) {
         'vite.config.js': "import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\nexport default defineConfig({ plugins: [react()] });\n",
         'index.html': '<div id="root"></div><script type="module" src="/src/main.jsx"></script>\n',
         'src/main.jsx': "import { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport App from './App.jsx';\ncreateRoot(document.getElementById('root')).render(<StrictMode><App /></StrictMode>);\n",
-        'src/App.jsx': "import { Typography } from '@mui/material';\nimport { routeManifest } from './routeManifest.js';\nimport { bindings } from './bindings.js';\nexport default function App () { return <main><Typography variant=\"h4\">Mapping Contract</Typography><Typography>{routeManifest.routes[0].screen}</Typography><pre>{JSON.stringify(bindings, null, 2)}</pre></main>; }\n",
+        'src/App.jsx': `import { Typography, Paper, Stack } from '@mui/material';
+import { routeManifest } from './routeManifest.js';
+import { bindings } from './bindings.js';
+const mappings = ${json(contract.mappings ?? [])};
+const diagnostics = ${json(contract.diagnostics ?? [])};
+export default function App () {
+    return <main><Typography variant="h4">Mapping Contract · {routeManifest.routes[0].screen}</Typography><Stack spacing={1}>{mappings.map((mapping) => mapping.output?.visible === false ? <span key={mapping.sourceIdentity} data-source-id={mapping.sourceIdentity} data-role="hidden-control" hidden>{mapping.sourceIdentity}</span> : <Paper key={mapping.sourceIdentity} data-testid="generated-item" data-source-id={mapping.sourceIdentity}><Typography>{mapping.targetComponent}</Typography><Typography>{mapping.source?.record} · {mapping.sourceIdentity}</Typography></Paper>)}</Stack>{diagnostics.length > 0 && <section data-testid="generated-review"><Typography>Manual review</Typography>{diagnostics.map((diagnostic) => <Typography key={diagnostic.code + diagnostic.sourceIdentity}>{diagnostic.message}</Typography>)}</section>}<pre>{JSON.stringify(bindings, null, 2)}</pre></main>;
+}
+`,
         'src/theme.js': "import { createTheme } from '@mui/material/styles';\nexport const theme = createTheme({ typography: { fontSize: 16 }, palette: { primary: { main: '#0F3460' } } });\n",
         'src/routeManifest.js': `export const routeManifest = ${json(routeManifest)}`,
         'src/bindings.js': `export const bindings = ${json(bindingMap)}`,
