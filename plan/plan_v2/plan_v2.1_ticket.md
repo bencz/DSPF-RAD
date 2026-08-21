@@ -41,6 +41,18 @@ If a ticket needs to change one of these contracts, update the contract file, th
 | V2.1-1E | Build profile-based semantic layout mapper | V2.1-1B, V2.1-1C | Preserve source geometry while producing target 12-grid layout |
 | V2.1-1G | Define the RPGLE display binding adapter | V2.1-1A, V2.1-1C | Bind RPGLE runtime values and EXFMT workflow hints to DSPF fields |
 | V2.1-1F | Show the complete semantic converted screen | V2.1-1D, V2.1-1E, V2.1-1G | Show the full active record with traceability and lossiness warnings |
+| V2.1-1H | Resolve external PF/DD field references | V2.1-1A, V2.1-1C | Resolve REFFLD type, length, decimals, validation, or manual review |
+| V2.1-1I | Resolve DSPF record-format relations | V2.1-1A, V2.1-1C | Resolve SFL, WINDOW, menu, and message record ownership |
+| V2.1-1J | Define the first-release SFL runtime contract | V2.1-1I | Describe SFL page, RRN, scroll, indicator, and message state |
+| V2.1-1K | Normalize DSPF indicator semantics | V2.1-1A, V2.1-1I | Preserve polarity and indicator scope |
+| V2.1-1L | Build the OPTION/FUNCTION action graph | V2.1-1D, V2.1-1I, V2.1-1K | Preserve AID, target, permission, and destructive action metadata |
+| V2.1-2A | Generate the source-to-target Mapping Contract | V2.1-1D, V2.1-1E, V2.1-1G, V2.1-1H, V2.1-1J, V2.1-1L | Produce versioned mapping and traceability |
+| V2.1-2B | Generate standalone React output | V2.1-2A | Produce an independent React/Vite application |
+| V2.1-2C | Start generated frontend and runtime API | V2.1-2B | Run the generated app with local or HTTP runtime mode |
+| V2.1-2D | Audit generated React output in a browser | V2.1-2C | Prove output layout, binding, routes, errors, and interactions |
+| V2.1-2E | Approve a conversion revision before deployment | V2.1-2D | Enforce review, audit, SoD, and revision approval |
+| V2.1-2F | Add optional conversion service metadata | V2.1-2E | Add Node/SQLite metadata only when operational needs exist |
+| V2.1-2G | Integrate generated React with Spring Boot | V2.1-2D, V2.1-2E | Prove runtime API, session, auth, idempotency, and errors |
 
 ---
 
@@ -831,7 +843,156 @@ The contract names one example program as a required implementation, treats a ru
 Do not implement a complete RPGLE compiler. Do not execute external runtime source. Do not decide banking permissions or business transaction results.
 
 **Status:** Draft — blocked by V2.1-1A and V2.1-1C.
-## Updated Semantic Layout dependency graph
+## Downstream ticket designs
+
+The following tickets complete the plan coverage after the first visual slice. Each ticket must use the contract references at the top of this file and must include acceptance and tests before implementation starts.
+
+### V2.1-1H — Resolve external PF/DD field references
+
+**Blocked by:** V2.1-1A and V2.1-1C.
+
+**What to build:** Resolve `REFFLD` references from available PF/DD sources. Return resolved type, length, decimals, validation, source location, and reference status.
+
+**Acceptance:** Existing PF/DD resolves without warning. Missing PF/DD returns `manual-review`. Multiple matches return a conflict diagnostic. The document snapshot remains unchanged.
+
+**Tests:** PF/DD fixture test, missing-source test, multiple-match test, immutability test, and full legacy regression.
+
+### V2.1-1I — Resolve DSPF record-format relations
+
+**Blocked by:** V2.1-1A and V2.1-1C.
+
+**What to build:** Resolve `SFLCTL → SFL`, `WINDOW → child`, `MNUBAR → PULLDOWN`, message records, and owner relations.
+
+**Acceptance:** Each known relation has a source and target identity. An unresolved relation receives `manual-review`. A record is not silently converted into a route.
+
+**Tests:** `WCONHDRD.DSPF`, `SCROLL_BAR.DSPF`, `MENU_BAR.DSPF`, WINDOW relation, SFL relation, and unknown relation tests.
+
+### V2.1-1J — Define the first-release SFL runtime contract
+
+**Blocked by:** V2.1-1I.
+
+**What to build:** Describe SFL page, RRN, scroll, indicator, message subfile, and runtime row state without claiming full IBM i execution.
+
+**Acceptance:** `SFLPAG`, `SFLSIZ`, `SFLEND`, `SFLDSP`, `SFLDSPCTL`, `SFLCLR`, `SFLNXTCHG`, `SFLMSGRCD`, and RRN have defined states. Missing runtime rows return `contract-only` or `manual-review`.
+
+**Tests:** SFL fixture, message subfile fixture, variable page-size fixture, indicator fixture, and schema tests.
+
+### V2.1-1K — Normalize DSPF indicator semantics
+
+**Blocked by:** V2.1-1A and V2.1-1I.
+
+**What to build:** Preserve indicator number, polarity, scope, `INDARA`, display state, enabled state, and action state as separate values.
+
+**Acceptance:** Item, keyword, and record indicator scopes remain distinct. `Nxx` polarity remains distinct from `xx`. Unknown scope receives `manual-review`.
+
+**Tests:** indicator polarity matrix, conditioned keyword test, `INDARA` test, SFL indicator test, and immutability test.
+
+### V2.1-1L — Build the OPTION/FUNCTION action graph
+
+**Blocked by:** V2.1-1D, V2.1-1I, and V2.1-1K.
+
+**What to build:** Model CHOICE, CHCCTL, PSHBTNCHC, CA, CF, ENTER, menu, row scope, page scope, permission, destructive state, confirmation, and idempotency.
+
+**Acceptance:** Every action has a source identity and AID or receives `manual-review`. Unsupported actions do not generate executable handlers.
+
+**Tests:** CHOICE, MENU_BAR, push-button, CA/CF, destructive action, and unknown target tests.
+
+### V2.1-2A — Generate the source-to-target Mapping Contract
+
+**Blocked by:** V2.1-1D, V2.1-1E, V2.1-1G, V2.1-1H, V2.1-1J, and V2.1-1L.
+
+**What to build:** Generate versioned source-to-target mappings for every converted object.
+
+**Acceptance:** Each mapping contains source identity, target component, source geometry, target geometry, binding key, DOM id, status, lossiness, and traceability.
+
+**Tests:** Mapping schema test, duplicate identity test, 24x80/27x132 mapping test, lossiness test, and deterministic output test.
+
+### V2.1-2B — Generate standalone React output
+
+**Blocked by:** V2.1-2A.
+
+**What to build:** Generate an independent React/Vite app from the Mapping Contract.
+
+**Acceptance:** The generated app builds outside the designer. The app includes MUI theme, route manifest, binding map, diagnostics, traceability, and conversion report. The app does not import mutable designer code.
+
+**Tests:** generated file test, clean-install build, generated app unit tests, and manifest hash test.
+
+### V2.1-2C — Start generated frontend and runtime API
+
+**Blocked by:** V2.1-2B.
+
+**What to build:** Start the generated frontend and a local runtime API through explicit `local` or `http` mode.
+
+**Acceptance:** The app loads from a clean server. The API base URL is configurable. Local mode is explicit. HTTP errors remain visible.
+
+**Tests:** clean server startup, environment configuration, local mode, HTTP mode, and API error tests.
+
+### V2.1-2D — Audit generated React output in a browser
+
+**Blocked by:** V2.1-2C.
+
+**What to build:** Run the generated app through a real browser audit.
+
+**Acceptance:** The browser shows the complete mapped screen, field bindings, route, diagnostics, review states, and responsive layout. The browser audit records screenshots and console/network results.
+
+**Tests:** Playwright at 24x80, 27x132, compact, wide, 100% zoom, 200% zoom, error, forbidden, not-found, and manual-review states.
+
+### V2.1-2E — Approve a conversion revision before deployment
+
+**Blocked by:** V2.1-2D.
+
+**What to build:** Add conversion review, approval, rejection, override, supersession, maker-checker, SoD, and audit state.
+
+**Acceptance:** The same actor cannot approve their own conversion. Any source revision change invalidates approval. Unsupported output cannot deploy.
+
+**Tests:** approval state machine, role separation, revision invalidation, artifact hash, audit append-only, and forbidden deployment tests.
+
+### V2.1-2F — Add optional conversion service metadata
+
+**Blocked by:** V2.1-2E.
+
+**What to build:** Add optional Node and SQLite metadata only for multi-user, batch, retention, or review needs.
+
+**Acceptance:** The service calls shared conversion core. SQLite stores revisions and metadata only. Concurrent revisions remain isolated.
+
+**Tests:** API contract, revision isolation, artifact retention, restart recovery, and no-business-data-in-metadata tests.
+
+### V2.1-2G — Integrate generated React with Spring Boot
+
+**Blocked by:** V2.1-2D and V2.1-2E.
+
+**What to build:** Integrate the generated React app with the Spring Boot runtime contract.
+
+**Acceptance:** Screen, transaction, session, AID, field validation, idempotency, correlation ID, and defined error responses work through the OpenAPI contract.
+
+**Tests:** OpenAPI contract tests, session tests, 401/403/409/422/440 tests, idempotency test, and browser transaction test.
+
+## Complete plan-to-ticket mapping
+
+| Plan area | Ticket coverage |
+|---|---|
+| Regression firewall and visual slice | V2.1-0A to V2.1-0F |
+| Semantic IR | V2.1-1A |
+| DSPSIZ profile | V2.1-1B |
+| Identity and references | V2.1-1C, V2.1-1H, V2.1-1I |
+| Capability classification | V2.1-1D, V2.1-1L |
+| Semantic layout | V2.1-1E, V2.1-1J, V2.1-1K |
+| External runtime binding | V2.1-1G |
+| Complete converted screen | V2.1-1F |
+| Mapping Contract | V2.1-2A |
+| Generated React output | V2.1-2B |
+| Generated server and runtime | V2.1-2C, V2.1-2G |
+| Browser audit | V2.1-2D |
+| Governance | V2.1-2E |
+| Optional Node/SQLite | V2.1-2F |
+
+## Ticket status
+
+```text
+V2.1-0A to V2.1-0F: Completed
+V2.1-1A to V2.1-2G: Designed, not implemented
+Next task: V2.1-1A
+```
 
 ```text
 V2.1-1A DspfSemanticIR
