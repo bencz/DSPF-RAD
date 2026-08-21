@@ -4,5 +4,6 @@
 export { buildDspfSemanticIR, resolveDisplayProfile } from './semanticIR.js';
 export { buildIdentityGraph } from './identityGraph.js';
 export { classifyKeyword, classifyCapabilities } from './capabilities.js';
+export { mapSemanticLayout } from './layoutMapper.js';
 export { generateRpgle } from './rpgle.js';
 export { generateCobol } from './cobol.js';

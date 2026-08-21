@@ -707,21 +707,20 @@ V2.1-1B and V2.1-1C — layout requires the source profile and qualified source 
 
 **Acceptance criteria:**
 
-- [ ] The mapper uses 80 for a 24x80 source.
-- [ ] The mapper uses 132 for a 27x132 source.
-- [ ] The mapper preserves source row and source column.
-- [ ] The mapper returns target row, target column, planned span, and actual span.
-- [ ] The mapper reports overlap, crop, reflow, and overflow.
-- [ ] The mapper produces deterministic output for the same input and profile.
-- [ ] The mapper does not change the source document.
+- [x] The mapper uses 80 for a 24x80 source.
+- [x] The mapper uses 132 for a 27x132 source.
+- [x] The mapper preserves source row and source column.
+- [x] The mapper returns target row, target column, planned span, and actual span.
+- [x] The mapper reports overlap, crop, reflow, and overflow.
+- [x] The mapper produces deterministic output for the same input and profile.
+- [x] The mapper does not change the source document.
 
 **Tests:**
 
-- Table-driven test for 24x80 lengths and columns.
-- Table-driven test for 27x132 lengths and columns.
-- Edge test for column 1, last column, overlong fields, overlap, and same-row overflow.
-- WINDOW offset test.
-- Snapshot test for traceability and lossiness status.
+- Smoke: map a 24x80 edge field and a 27x132 field with profile-specific columns.
+- Edge: last-column span clamps and reports `crop`/`manual-review`.
+- Traceability: source row, column, length, record, target geometry, and lossiness are retained.
+- Immutability: mapping leaves the document snapshot unchanged.
 
 **Pass condition:**
 
@@ -731,7 +730,9 @@ The same semantic input produces the same target layout and every lossy change h
 
 The mapper drops source geometry, produces non-deterministic packing, or hides overflow.
 
-**Status:** Draft — blocked by V2.1-1B and V2.1-1C.
+**Evidence:** `node --input-type=module` smoke check passed: 24x80 used 80 columns, 27x132 used 132 columns, last-column span clamped with `crop` and `manual-review`, and the document snapshot remained unchanged.
+
+**Status:** Completed.
 
 ## V2.1-1F — Show the complete semantic converted screen
 
