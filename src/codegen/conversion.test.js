@@ -13,6 +13,7 @@ import {
     buildRuntimeBindings,
     mapSemanticLayout,
     resolveDisplayProfile,
+    buildActionGraph,
 } from './index.js';
 
 function field (name = 'USER', overrides = {}) {
@@ -153,5 +154,17 @@ describe('V2.1 conversion completeness', () => {
         expect(result.record[0]).toMatchObject({ number: 3, polarity: 'positive', scope: 'record' });
         expect(result.keyword[0]).toMatchObject({ number: 12, polarity: 'negative', scope: 'keyword' });
         expect(result.item[0]).toMatchObject({ number: 45, polarity: 'positive', scope: 'item' });
+    });
+
+    it('builds safe action graph and reviews unknown targets', () => {
+        const result = buildActionGraph({ records: [{ name: 'MAIN', type: 'RECORD', keywords: [
+            { name: 'CA03', args: [], indicators: [] },
+            { name: 'ENTER', args: [], indicators: [] },
+            { name: 'PSHBTNCHC', args: ['1', 'Save'], indicators: [] },
+        ], items: [] }] });
+        expect(result.actions).toHaveLength(3);
+        expect(result.actions[0]).toMatchObject({ aid: 'CA03', status: 'manual-review', executable: false });
+        expect(result.actions[1]).toMatchObject({ aid: 'ENTER', status: 'manual-review', executable: false });
+        expect(result.diagnostics).toHaveLength(3);
     });
 });

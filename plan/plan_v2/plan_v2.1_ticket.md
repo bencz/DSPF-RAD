@@ -913,6 +913,9 @@ The following tickets complete the plan coverage after the first visual slice. E
 **Acceptance:** Every action has a source identity and AID or receives `manual-review`. Unsupported actions do not generate executable handlers.
 
 **Tests:** CHOICE, MENU_BAR, push-button, CA/CF, destructive action, and unknown target tests.
+**Implementation:** `src/codegen/actionGraph.js` provides `buildActionGraph()` with AID, source identity, scope placeholders, permission, destructive, confirmation, idempotency, status, and executable guard fields.
+**Evidence:** `pnpm test -- --run` passed 13 tests. CA, ENTER, and PSHBTNCHC actions receive source identities, `manual-review`, and `executable: false` until runtime resolution.
+**Status:** Completed.
 
 ### V2.1-2A — Generate the source-to-target Mapping Contract
 

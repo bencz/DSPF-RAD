@@ -10,6 +10,7 @@ export { buildConvertedScreen } from './convertedScreen.js';
 export { resolvePfDdReferences } from './pfDdResolver.js';
 export { buildSflRuntime } from './sflRuntime.js';
 export { normalizeIndicators } from './indicators.js';
+export { buildActionGraph } from './actionGraph.js';
 export { resolveRecordRelations } from './recordRelations.js';
 export { generateRpgle } from './rpgle.js';
 export { generateCobol } from './cobol.js';
