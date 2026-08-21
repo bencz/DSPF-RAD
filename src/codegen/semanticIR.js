@@ -3,6 +3,7 @@
 // it never mutates or emits the design document.
 
 import { MODELS } from '../model/constants.js';
+import { buildIdentityGraph } from './identityGraph.js';
 
 const SCHEMA_VERSION = '2.1.0';
 const CONVERTER_VERSION = 'dspf-rad-semantic-ir-1';
@@ -75,6 +76,7 @@ export function buildDspfSemanticIR (doc) {
     const snapshot = doc.toJSON();
     const resolvedProfile = resolveDisplayProfile(snapshot);
     const { source: profileSource, ...displayProfile } = resolvedProfile;
+    const identityGraph = buildIdentityGraph(snapshot);
     const records = [];
     const fields = [];
     const constants = [];
@@ -171,12 +173,12 @@ export function buildDspfSemanticIR (doc) {
         displayProfile,
         displayProfileSource: profileSource,
         recordFormats: records,
-        recordRelations: [],
+        identities: identityGraph.identities,
         constants,
         systemValues,
         fields,
         symbols: [],
-        references: [],
+        references: identityGraph.references,
         indicators: [],
         aids: [],
         windows: [],
@@ -185,6 +187,6 @@ export function buildDspfSemanticIR (doc) {
         messages: [],
         cursor: null,
         capabilities,
-        diagnostics,
+        diagnostics: [...diagnostics, ...identityGraph.diagnostics],
     };
 }

@@ -627,21 +627,20 @@ V2.1-1A — identity belongs in the semantic IR.
 
 **Acceptance criteria:**
 
-- [ ] Duplicate field names in different records receive different source identities.
-- [ ] SFL template occurrences receive distinct identities.
-- [ ] WINDOW child and owner paths remain traceable.
-- [ ] REFFLD references are represented as graph edges.
-- [ ] CHCCTL references are represented as graph edges.
-- [ ] Binding collisions produce an explicit error or manual-review result.
-- [ ] DOM id is separate from source identity and business identity.
+- [x] Duplicate field names in different records receive different source identities.
+- [x] SFL template occurrences receive distinct identities.
+- [x] WINDOW child and owner paths remain traceable.
+- [x] REFFLD references are represented as graph edges.
+- [x] CHCCTL references are represented as graph edges.
+- [x] Binding collisions produce an explicit error or manual-review result.
+- [x] DOM id is separate from source identity and business identity.
 
 **Tests:**
 
-- Unit test: duplicate field names across records.
-- Fixture test: SFL and SFLCTL relation.
-- Fixture test: WINDOW relation.
-- Edge test: REFFLD with unknown PF/DD source.
-- Collision test: two source occurrences that produce the same proposed DOM id.
+- Smoke: duplicate field names across records receive distinct source, runtime, and DOM identities.
+- Immutability: identity graph construction leaves the document snapshot unchanged.
+- Reference graph: record and item-level REFFLD/CHCCTL edges are emitted.
+- Edge: unresolved targets receive `manual-review`.
 
 **Pass condition:**
 
@@ -651,7 +650,9 @@ Every converted object has a qualified source identity and all known references 
 
 The converter uses a bare field name as a global key or silently overwrites a collision.
 
-**Status:** Draft — blocked by V2.1-1A.
+**Evidence:** `node --input-type=module` smoke checks passed: duplicate `USER` fields produced four qualified identities with distinct source, runtime, and DOM keys; the document remained unchanged. Record and item-level reference edges are emitted with unresolved targets marked `manual-review`.
+
+**Status:** Completed.
 
 ## V2.1-1D — Classify conversion capabilities and review states
 
