@@ -229,3 +229,13 @@ describe('V2.1 conversion completeness', () => {
         expect(JSON.parse(packageFile).scripts.build).toBe('vite build');
         expect(packageFile).toContain('react');
     });
+
+    it('declares the MUI peer dependency closure for a clean build', () => {
+        const files = generateReactApp({ version: '2.1.0', displayProfile: { modelKey: '24x80' }, mappings: [], diagnostics: [] });
+        const manifest = JSON.parse(files['package.json']);
+        expect(manifest.dependencies).toMatchObject({
+            '@emotion/cache': expect.any(String),
+            'prop-types': expect.any(String),
+        });
+        expect(files['vite.config.js']).toContain('@vitejs/plugin-react');
+    });

@@ -1104,3 +1104,15 @@ The previous audit error came from treating the repository's example `python -m 
 `usage H` fields such as `SHWREC`, `SFIELD`, and `RECNAM` are valid hidden controls. They must remain traceable, non-editable, and non-visible in Modern React output. `REFFLD` fields must retain their target and resolved PF/DD metadata; when the source is unavailable, emit `manual-review` with the source identity and reason instead of guessing a length.
 
 **Evidence:** `pnpm test -- --run` passed 22 tests across 3 files, including hidden-control output and missing PF/DD evidence.
+
+## Pulled Custom-Account verification
+
+Source:
+
+```text
+https://github.com/Raymondycp/ibmi-react/tree/jwors/INPUT/Cuustom-Account
+```
+
+Pulled with sparse checkout into `.tmp/ibmi-react-jwors`. Parsed all five display files and generated `ACCTMA@.DSPF` output with 65 mappings and 23 diagnostics. After completing the generated MUI peer dependency closure, the generated app was written to `.tmp/generated-custom-account`, installed with npm, and built successfully with Vite. The generated app served at `http://127.0.0.1:5174/` and rendered the Mapping Contract plus binding map in a real browser.
+
+The reported `usage H` and unresolved `REFFLD` cases remain explicit conversion evidence, not silent omissions. H fields are hidden-control output; missing PF/DD metadata remains manual-review.

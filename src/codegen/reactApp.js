@@ -17,7 +17,8 @@ export function generateReactApp (contract = {}) {
         { runtimeBindingKey: mapping.runtimeBindingKey, domId: mapping.domId, status: mapping.status },
     ]));
     return {
-        'package.json': json({ private: true, type: 'module', scripts: { dev: 'vite', build: 'vite build', preview: 'vite preview' }, dependencies: { '@vitejs/plugin-react': '^4.3.4', '@mui/material': '^6.4.0', react: '^19.0.0', 'react-dom': '^19.0.0' }, devDependencies: { vite: '^6.0.0' } }),
+        'package.json': json({ private: true, type: 'module', scripts: { dev: 'vite', build: 'vite build', preview: 'vite preview' }, dependencies: { '@vitejs/plugin-react': '^5.0.0', '@emotion/cache': '^11.14.0', '@emotion/react': '^11.14.0', '@emotion/styled': '^11.14.0', '@mui/material': '^6.4.0', 'prop-types': '^15.8.1', react: '^19.0.0', 'react-dom': '^19.0.0' }, devDependencies: { vite: '^7.0.0' } }),
+        'vite.config.js': "import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\nexport default defineConfig({ plugins: [react()] });\n",
         'index.html': '<div id="root"></div><script type="module" src="/src/main.jsx"></script>\n',
         'src/main.jsx': "import { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport App from './App.jsx';\ncreateRoot(document.getElementById('root')).render(<StrictMode><App /></StrictMode>);\n",
         'src/App.jsx': "import { Typography } from '@mui/material';\nimport { routeManifest } from './routeManifest.js';\nimport { bindings } from './bindings.js';\nexport default function App () { return <main><Typography variant=\"h4\">Mapping Contract</Typography><Typography>{routeManifest.routes[0].screen}</Typography><pre>{JSON.stringify(bindings, null, 2)}</pre></main>; }\n",
