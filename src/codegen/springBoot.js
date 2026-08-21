@@ -10,6 +10,12 @@ export function generateSpringBootApp (contract = {}) {
         'src/main/java/com/example/runtime/RuntimeApplication.java': 'package com.example.runtime;\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n@SpringBootApplication\npublic class RuntimeApplication { public static void main(String[] args) { SpringApplication.run(RuntimeApplication.class, args); } }\n',
         'src/main/java/com/example/runtime/api/ScreenController.java': 'package com.example.runtime.api;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.RestController;\n@RestController\npublic class ScreenController { @GetMapping("/api/screen") public String screen() { return "{\\"status\\":\\"contract-only\\"}"; } }\n',
         'src/main/java/com/example/runtime/api/TransactionController.java': 'package com.example.runtime.api;\nimport org.springframework.web.bind.annotation.PostMapping;\nimport org.springframework.web.bind.annotation.RestController;\n@RestController\npublic class TransactionController { @PostMapping("/api/transaction") public String transaction() { return "{\\"status\\":\\"contract-only\\"}"; } }\n',
+        'src/main/java/com/example/runtime/domain/ScreenState.java': 'package com.example.runtime.domain;\npublic record ScreenState(String status) {}\n',
+        'src/main/java/com/example/runtime/domain/TransactionCommand.java': 'package com.example.runtime.domain;\npublic record TransactionCommand(String screen, String aid) {}\n',
+        'src/main/java/com/example/runtime/application/IdempotencyService.java': 'package com.example.runtime.application;\npublic class IdempotencyService {}\n',
+        'src/main/java/com/example/runtime/security/SecurityConfig.java': 'package com.example.runtime.security;\npublic class SecurityConfig {}\n',
+        'src/main/java/com/example/runtime/audit/AuditEventService.java': 'package com.example.runtime.audit;\npublic class AuditEventService {}\n',
+        'src/test/java/com/example/runtime/ScreenControllerContractTest.java': 'package com.example.runtime;\nclass ScreenControllerContractTest {}\n',
         'README.generated.txt': 'Generated runtime contract. Implement session, authorization, idempotency, validation, and audit before production use.\n',
     };
 }

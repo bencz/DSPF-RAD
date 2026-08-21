@@ -16,3 +16,15 @@ describe('Spring Boot generator', () => {
         expect(files['src/main/java/com/example/runtime/RuntimeApplication.java']).toContain('@SpringBootApplication');
     });
 });
+
+    it('generates the complete Spring runtime project boundary', () => {
+        const files = generateSpringBootApp({ version: '3.5', displayProfile: { modelKey: '24x80' }, mappings: [] });
+        expect(Object.keys(files)).toEqual(expect.arrayContaining([
+            'src/main/java/com/example/runtime/domain/ScreenState.java',
+            'src/main/java/com/example/runtime/domain/TransactionCommand.java',
+            'src/main/java/com/example/runtime/application/IdempotencyService.java',
+            'src/main/java/com/example/runtime/security/SecurityConfig.java',
+            'src/main/java/com/example/runtime/audit/AuditEventService.java',
+            'src/test/java/com/example/runtime/ScreenControllerContractTest.java',
+        ]));
+    });
