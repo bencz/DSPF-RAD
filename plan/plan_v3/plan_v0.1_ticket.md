@@ -433,3 +433,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run` passed 43 tests across 12 files. A WCUSTSD2 conversion produced 188 mappings and passed `validateMappingContract()` with `valid: true`.
 
 **Status:** V3.2A schema-validation boundary complete.
+
+## V3.2B execution evidence
+
+`src/codegen/completeness.js` provides `assessObjectCompleteness(inventory, contract)`. The gate compares inventory identities with mapping identities and explicit diagnostic identities. Any uncovered source object is returned as a dropped object and fails the gate.
+
+**Test:** `pnpm test -- --run src/codegen/completeness.test.js` passed 45 tests across 13 files. The tests prove both zero-drop pass and dropped-object failure behavior.
+
+**Status:** V3.2B zero-drop gate complete.
