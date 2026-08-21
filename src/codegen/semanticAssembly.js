@@ -5,11 +5,13 @@ import { buildActionGraph } from './actionGraph.js';
 import { buildDspfSemanticIR } from './semanticIR.js';
 import { normalizeIndicators } from './indicators.js';
 import { resolveIndexedReffld } from './pfDdIndex.js';
+import { assembleSflScreens } from './sflAssembly.js';
 import { buildSflRuntime } from './sflRuntime.js';
 
 export function buildCompleteSemanticIR (doc, options = {}) {
     const ir = buildDspfSemanticIR(doc);
     const pfDdIndex = options.pfDdIndex ?? {};
+    const sfl = assembleSflScreens({ records: doc.records });
     for (const field of ir.fields) {
         const source = doc.records.flatMap(record => record.items)
             .find(item => item.name === field.name && item.kind === 'field');
@@ -44,10 +46,10 @@ export function buildCompleteSemanticIR (doc, options = {}) {
         ...ir,
         aids,
         indicators,
-        subfiles,
+        subfiles: sfl.screens,
         windows,
         actions: actions.actions,
-        diagnostics: [...ir.diagnostics, ...actions.diagnostics],
         droppedObjectCount: 0,
+        diagnostics: [...ir.diagnostics, ...sfl.diagnostics, ...actions.diagnostics],
     };
 }

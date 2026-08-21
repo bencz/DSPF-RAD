@@ -409,3 +409,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/semanticAssembly.test.js` passed 34 tests across 9 files. The test proves `CUSTMAST.CUSTID` metadata reaches the Semantic IR field.
 
 **Status:** V3.1B integration boundary complete for supplied PF/DD metadata. External `XAN4CDEM` references remain actionable manual-review until their source or approved alias is supplied.
+
+## V3.1C execution evidence
+
+`src/codegen/sflAssembly.js` provides `assembleSflScreens()` and preserves SFL control/template records, page and total sizes, indicators, end mode, control items, and template items. `buildCompleteSemanticIR()` now exposes these assemblies through `subfiles`.
+
+**Test:** `pnpm test -- --run src/codegen/sflAssembly.test.js src/codegen/semanticAssembly.test.js` passed 35 tests across 10 files.
+
+**Status:** V3.1C SFL control/template assembly boundary complete. External runtime rows and scroll execution remain contract-only.
