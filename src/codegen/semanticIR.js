@@ -179,6 +179,7 @@ export function buildDspfSemanticIR (doc) {
             converterVersion: CONVERTER_VERSION,
         },
         displayProfile,
+        recordRelations: identityGraph.references,
         displayProfileSource: profileSource,
         recordFormats: records,
         identities: identityGraph.identities,
