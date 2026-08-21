@@ -2,9 +2,13 @@
 
 ## 1. System purpose
 
+
+
 DSPF·RAD converts an IBM i DSPF design into a reviewable Modern React application. The system also keeps the existing 5250 design experience unchanged.
 
 ## 2. System boundaries
+
+
 
 ```mermaid
 flowchart LR
@@ -22,6 +26,8 @@ flowchart LR
 
 ## 3. Responsibility boundaries
 
+
+
 | Area | Responsibility | Must not do |
 |---|---|---|
 | Existing parser/model/writer | Parse, edit, and round-trip DSPF | Infer business workflow |
@@ -34,6 +40,8 @@ flowchart LR
 | Optional Node service | Wrap shared conversion core for batch/API use | Become a second conversion core |
 
 ## 4. Main functions
+
+
 
 ### F-01 Parse and preserve
 
@@ -86,6 +94,8 @@ receive next screen state
 
 ## 5. State ownership
 
+
+
 | State | Owner |
 |---|---|
 | DSPF design | `DspfDocument` |
@@ -99,6 +109,8 @@ receive next screen state
 | Approval state | Server-side governance store |
 
 ## 6. Release gates
+
+
 
 ### Gate 0: Legacy safety
 
@@ -131,3 +143,5 @@ receive next screen state
 - Audit events are append-only.
 - Session, authorization, idempotency, and reconciliation are tested.
 - A checker approves the conversion revision before deployment.
+
+---

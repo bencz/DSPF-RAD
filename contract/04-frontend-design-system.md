@@ -2,22 +2,25 @@
 
 ## 1. Design tokens
 
-Use `design/target_design.md` as the token source.
 
-| Token | Value |
-|---|---|
-| Primary | `#0F3460` |
-| Base font | 16px |
-| Font family | Inter |
-| Main scale | 16px / 24px / 36px |
-| Grid | 12 columns |
-| Spacing unit | 4px |
-| Card radius | 8px |
-| Control radius | 4px |
 
-Apply these tokens to the converted pane and generated app. Do not apply them to the 5250 faithful preview.
+Use `contract/target_design.md` as the only token source because all converted UI and generated app consumers must use one value set.
+
+Use token references instead of copying token values:
+
+```text
+{colors.primary}
+{typography.body}
+{spacing.md}
+{rounded.sm}
+```
+
+Apply the tokens to the converted pane and generated app. Do not apply the converted token system to the 5250 faithful preview.
+
 
 ## 2. Frontend interface boundaries
+
+
 
 ### Conversion input
 
@@ -43,6 +46,17 @@ buildBindingMap(ir, overrides) -> bindingMap
 
 The binding map separates source identity, runtime key, DOM id, and business name.
 
+Identity boundary:
+
+```text
+contract/schemas/identity.schema.json
+    = generic identity fields
+frontend/field-binding.schema.json
+    = field value, usage, validation, and UI binding fields
+```
+
+Do not redefine `sourceIdentity`, `runtimeBindingKey`, or `domId` in the frontend contract. The frontend contract consumes the generic identity contract and adds field behavior.
+
 ### Converted pane interface
 
 ```jsx
@@ -58,11 +72,14 @@ The pane is read-only during the first visual slice.
 
 ## 3. React state ownership
 
+
+
 | State | Owner |
 |---|---|
 | `DspfDocument` | Existing external document store |
 | Converted model | Derived pure result |
 | MUI theme | Theme provider |
+| Icons | @mui/icons-material |
 | URL route | TanStack Router |
 | Backend screen data | TanStack Query |
 | Form draft | Local React/form state |
@@ -71,6 +88,8 @@ The pane is read-only during the first visual slice.
 Do not put `DspfDocument` into TanStack Query cache.
 
 ## 4. Navigation interface
+
+
 
 ```text
 AppShell
@@ -84,6 +103,8 @@ Use a Sidebar for parent sections. Use a dropdown for a small child group. Use a
 Use route transitions instead of modal navigation. Add dirty-state guards before leaving an edited page.
 
 ## 5. Component contracts
+
+
 
 ### Field component
 
@@ -130,6 +151,8 @@ Use route transitions instead of modal navigation. Add dirty-state guards before
 
 ## 6. Accessibility contract
 
+
+
 - Give each field a visible label.
 - Give each icon action an accessible name.
 - Preserve keyboard focus order.
@@ -137,3 +160,5 @@ Use route transitions instead of modal navigation. Add dirty-state guards before
 - Do not use color as the only state signal.
 - Test 100% and 200% zoom.
 - Keep the faithful preview in its existing terminal style.
+
+---

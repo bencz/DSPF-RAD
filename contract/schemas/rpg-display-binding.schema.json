@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/rpg-display-binding.schema.json",
+  "title": "RPG Display Binding",
+  "type": "object",
+  "required": ["sourceIdentity", "runtimeSource", "role", "status"],
+  "properties": {
+    "sourceIdentity": { "type": "string" },
+    "runtimeSource": { "type": "string" },
+    "sourceLocation": { "type": ["string", "null"] },
+    "displayFile": { "type": ["string", "null"] },
+    "record": { "type": ["string", "null"] },
+    "field": { "type": ["string", "null"] },
+    "role": { "type": "string", "enum": ["display-value", "hidden-control", "indicator", "message", "workflow-hint", "unknown"] },
+    "value": {},
+    "operation": { "type": ["string", "null"], "enum": ["DCL-F", "DCL-S", "DCL-DS", "ASSIGNMENT", "EXFMT", "WRITE", "MESSAGE", "null"] },
+    "status": { "type": "string", "enum": ["converted", "converted-with-warning", "manual-review", "unsupported", "error"] },
+    "reason": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

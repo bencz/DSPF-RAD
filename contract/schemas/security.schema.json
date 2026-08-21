@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/security.schema.json",
+  "title": "Generated Runtime Security Context",
+  "type": "object",
+  "required": ["actorId", "sessionId", "roles", "correlationId"],
+  "properties": {
+    "actorId": { "type": "string" },
+    "sessionId": { "type": "string" },
+    "roles": { "type": "array", "items": { "type": "string" } },
+    "permissions": { "type": "array", "items": { "type": "string" } },
+    "correlationId": { "type": "string" },
+    "authenticationMethod": { "type": "string" },
+    "sessionExpiresAt": { "type": "string", "format": "date-time" },
+    "csrfRequired": { "type": "boolean" }
+  },
+  "additionalProperties": false
+}

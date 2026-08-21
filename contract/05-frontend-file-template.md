@@ -2,6 +2,8 @@
 
 ## 1. Generated React app
 
+
+
 ```text
 generated-react-app/
 ├── package.json
@@ -27,6 +29,8 @@ generated-react-app/
 │   │   └── localClient.js
 │   ├── conversion/
 │   │   ├── bindings.js
+│   │   ├── runtimeBindings.js
+│   │   ├── workflowHints.js
 │   │   ├── screens.js
 │   │   └── manifest.js
 │   ├── components/
@@ -53,9 +57,45 @@ generated-react-app/
 ├── binding-map.json
 ├── traceability.json
 └── conversion-report.md
+
+## 1.1 Standalone build contract
+The generated React app must build outside the designer repository.
+
+```text
+generated-react-app/
+├── package.json
+├── package-lock.json or pnpm-lock.yaml
+├── .env.example
+├── vite.config.js
+└── src/
+```
+
+The generated package must pin the React, Vite, MUI, TanStack Router, and TanStack Query versions used by the generated source.
+
+The generated app must provide:
+
+```text
+npm run dev
+npm run build
+npm run preview
+npm test
+npx playwright test
+```
+
+Use `.env.example` for:
+
+```text
+VITE_API_BASE_URL
+VITE_RUNTIME_MODE=local|http
+VITE_ENABLE_LOCAL_MODE
+```
+
+Use a Vite development proxy for `/api` when the Spring Boot server uses a separate local port. Do not embed production secrets in the generated app.
 ```
 
 ## 2. Existing designer additions
+
+
 
 ```text
 react-app/src/
@@ -77,6 +117,8 @@ react-app/src/
 
 ## 3. File ownership
 
+
+
 | File group | Owner |
 |---|---|
 | `conversion/` | Pure conversion logic |
@@ -89,6 +131,8 @@ react-app/src/
 
 ## 4. Generated app rules
 
+
+
 - Generated app code must build without the original designer.
 - Generated app must not import the designer's mutable `DspfDocument`.
 - Generated app must use the generated binding map.
@@ -96,3 +140,5 @@ react-app/src/
 - Generated app must show unsupported and manual-review states.
 - Generated app must keep local demo mode separate from production mode.
 - Generated app must not include secrets from the conversion source.
+
+---

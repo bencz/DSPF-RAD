@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "conversion-diagnostics/1.0",
+  "statuses": [
+    {
+      "status": "converted",
+      "meaning": "The source object has a supported target representation.",
+      "releaseEffect": "No manual review is required."
+    },
+    {
+      "status": "converted-with-warning",
+      "meaning": "The target representation is available with a recorded loss.",
+      "releaseEffect": "The warning must remain in the conversion report."
+    },
+    {
+      "status": "manual-review",
+      "meaning": "The converter needs an owner decision or missing source data.",
+      "releaseEffect": "The generated result is not production-ready."
+    },
+    {
+      "status": "unsupported",
+      "meaning": "The converter has no safe representation.",
+      "releaseEffect": "Do not generate executable behavior."
+    },
+    {
+      "status": "error",
+      "meaning": "The conversion cannot continue for the object or revision.",
+      "releaseEffect": "Stop the affected conversion and report the cause."
+    }
+  ],
+  "diagnosticShape": {
+    "code": "SOURCE_REFFLD_MISSING",
+    "severity": "manual-review",
+    "sourceIdentity": "project:R1:record:CUST:field:DSCUSNO:occurrence:12",
+    "message": "The referenced PF or DDS source is not available.",
+    "reason": "The converter cannot resolve the field type and length.",
+    "action": "Provide the referenced source or set an approved override."
+  }
+}

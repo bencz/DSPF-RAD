@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/sfl-runtime.schema.json",
+  "title": "DSPF Subfile Runtime Description",
+  "type": "object",
+  "required": ["controlRecord", "templateRecord", "status"],
+  "properties": {
+    "controlRecord": { "type": "string" },
+    "templateRecord": { "type": "string" },
+    "messageRecord": { "type": ["string", "null"] },
+    "pageSize": { "type": ["integer", "string", "null"] },
+    "totalSize": { "type": ["integer", "string", "null"] },
+    "relativeRow": { "type": ["integer", "null"] },
+    "currentRrn": { "type": ["integer", "null"] },
+    "displayIndicator": { "type": ["string", "null"] },
+    "displayControlIndicator": { "type": ["string", "null"] },
+    "clearIndicator": { "type": ["string", "null"] },
+    "endMode": { "type": ["string", "null"] },
+    "scrollState": { "type": ["string", "null"] },
+    "rows": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+    "status": { "type": "string", "enum": ["resolved", "contract-only", "manual-review", "unsupported", "error"] },
+    "reason": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

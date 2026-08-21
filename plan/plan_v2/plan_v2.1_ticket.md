@@ -6,6 +6,24 @@
 
 **Status:** Completed — owner authorized execution without another approval round.
 
+## Contract references
+
+All Semantic Layout tickets from V2.1-1A through V2.1-1G must read and preserve these contract files:
+
+```text
+contract/semantic-layout-design.md
+contract/schemas/semantic-ir.schema.json
+contract/schemas/semantic-diagnostics.json
+contract/schemas/layout-policy.json
+contract/schemas/traceability.schema.json
+```
+
+Use `semantic-layout-design.md` for the conversion boundary and ownership rules. Use `semantic-ir.schema.json` for the Semantic IR shape. Use `semantic-diagnostics.json` for conversion status and review state. Use `layout-policy.json` for source profile and target grid mapping. Use `traceability.schema.json` for source-to-target evidence.
+
+If a ticket needs to change one of these contracts, update the contract file, the affected ticket acceptance criteria, and the verification evidence in the same change because the ticket must not implement a different contract from the plan.
+
+**Evidence:** Contract paths were checked and the four JSON contract files parsed successfully.
+
 ## Ticket index
 
 | ID | Title | Blocked by | Outcome |
@@ -21,7 +39,8 @@
 | V2.1-1C | Build qualified identity and reference graph | V2.1-1A | Prevent binding collisions across records and references |
 | V2.1-1D | Classify conversion capabilities and review states | V2.1-1B, V2.1-1C | Classify supported, warning, manual-review, unsupported, and error semantics |
 | V2.1-1E | Build profile-based semantic layout mapper | V2.1-1B, V2.1-1C | Preserve source geometry while producing target 12-grid layout |
-| V2.1-1F | Show the complete semantic converted screen | V2.1-1D, V2.1-1E | Show the full active record with traceability and lossiness warnings |
+| V2.1-1G | Define the RPGLE display binding adapter | V2.1-1A, V2.1-1C | Bind RPGLE runtime values and EXFMT workflow hints to DSPF fields |
+| V2.1-1F | Show the complete semantic converted screen | V2.1-1D, V2.1-1E, V2.1-1G | Show the full active record with traceability and lossiness warnings |
 
 ---
 
@@ -171,7 +190,7 @@ V2.1-0B — the pane must consume the read-only visual model because it must not
 
 **Decision contract:**
 
-- Use the target design tokens from `design/target_design.md`.
+- Use the target design tokens from `contract/target_design.md`.
 - Use `#0F3460` as the primary accent.
 - Use a 16px base font.
 - Use the selected single font family.
@@ -752,9 +771,76 @@ V2.1-1A DspfSemanticIR
 
 ## Semantic layout owner questions
 
-1. Is the six-ticket decomposition correct?
+1. Is the seven-ticket decomposition correct?
 2. Must SFL runtime state be rendered in V2.1-1F, or must V2.1-1F show only the runtime contract and review state?
 3. Should a source row with total target span greater than 12 wrap deterministically, or stop with manual review?
 4. Should unresolved REFFLD stop the whole record, or mark only the affected field for manual review?
+5. Should V2.1-1G support only explicit external runtime assignment and display-workflow patterns in the first release?
 
-**Semantic layout status:** Draft — do not start V2.1-1A until the owner approves the ticket order and the four questions.
+## V2.1-1G — Define the external runtime binding contract
+
+**Plan source:** `plan/plan_v2/plan_v2.1_ticket_comment.md` feedback item 3 and `updating_plan_v2.1.md` Sections 15, 18, and 25.
+
+**What to build:**
+
+Define a generic binding contract for runtime source code that supplies DSPF field values, control values, indicators, messages, and display-workflow hints. The first implementation can use RPGLE as one input example, but the contract must not depend on one program name, record name, or syntax pattern.
+
+**Blocked by:**
+
+V2.1-1A and V2.1-1C — the binding contract needs Semantic IR fields and qualified source references.
+
+**Input examples:**
+
+```text
+INPUT/IBM-i-RPG-Free-CLP-Code/Z_Exp1/B2.DSPF
+INPUT/IBM-i-RPG-Free-CLP-Code/Z_Exp1/B2R.RPGLE
+```
+
+These files are examples for the generic contract. They are not the contract scope.
+
+**Acceptance criteria:**
+
+- [ ] The contract identifies the display source and runtime source separately.
+- [ ] The contract maps runtime assignments to qualified DSPF field identities.
+- [ ] The contract distinguishes display values, hidden control values, indicators, messages, and workflow hints.
+- [ ] The contract represents display operations such as `EXFMT` without claiming that the display file defines business workflow.
+- [ ] The contract supports external runtime source types through an adapter boundary.
+- [ ] Unknown runtime syntax receives `manual-review` instead of false converted status.
+- [ ] The binding result includes source path, source location when available, target identity, value role, and status.
+- [ ] The binding adapter does not mutate `DspfDocument`.
+
+**Tests:**
+
+- Contract test: validate a generic display binding example against the contract shape.
+- Fixture test: use B2.DSPF/B2R.RPGLE as one example of field values, control values, and display workflow.
+- Role test: distinguish visible field, hidden control field, indicator, message, and workflow hint.
+- Unknown syntax test: produce a manual-review diagnostic.
+- Immutability test: compare `DspfDocument.toJSON()` before and after binding.
+- Regression test: run the existing parser, writer, Canvas, faithful preview, and source-sync tests.
+
+**Pass condition:**
+
+The generic contract maps known runtime values to qualified source identities and reports unknown runtime behavior without changing the existing document.
+
+**Failure condition:**
+
+The contract names one example program as a required implementation, treats a runtime value as static DSPF design data, loses a control field, or changes the existing document.
+
+**Non-goals:**
+
+Do not implement a complete RPGLE compiler. Do not execute external runtime source. Do not decide banking permissions or business transaction results.
+
+**Status:** Draft — blocked by V2.1-1A and V2.1-1C.
+## Updated Semantic Layout dependency graph
+
+```text
+V2.1-1A DspfSemanticIR
+    ├── V2.1-1B DSPSIZ profiles
+    └── V2.1-1C identity and references
+             ├── V2.1-1D capability matrix
+             └── V2.1-1G external runtime binding
+                    ↓
+                 V2.1-1F complete semantic screen
+```
+
+**Reason:** The complete Modern React screen must combine static DSPF layout, external source bindings, and runtime display hints. The screen must not show a runtime value as static design data without a traceable source.

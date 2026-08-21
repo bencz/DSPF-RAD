@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/semantic-ir.schema.json",
+  "title": "DSPF Semantic IR",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "sourceRevision",
+    "displayProfile",
+    "recordFormats",
+    "diagnostics"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "sourceRevision": {
+      "type": "object",
+      "required": ["sourceHash", "converterVersion"],
+      "properties": {
+        "sourceHash": { "type": "string" },
+        "converterVersion": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "displayProfile": {
+      "type": "object",
+      "required": ["rows", "cols", "modelKey", "status"],
+      "properties": {
+        "modelKey": { "type": "string", "enum": ["24x80", "27x132", "unknown"] },
+        "rows": { "type": ["integer", "null"], "minimum": 1 },
+        "cols": { "type": ["integer", "null"], "minimum": 1 },
+        "status": { "type": "string", "enum": ["resolved", "manual-review", "error"] }
+      },
+      "additionalProperties": false
+    },
+    "recordFormats": { "type": "array", "items": { "$ref": "#/$defs/recordFormat" } },
+    "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } },
+    "references": { "type": "array", "items": { "$ref": "#/$defs/reference" } },
+    "capabilities": { "type": "array", "items": { "$ref": "#/$defs/capability" } },
+    "diagnostics": { "type": "array", "items": { "$ref": "#/$defs/diagnostic" } }
+  },
+  "$defs": {
+    "recordFormat": {
+      "type": "object",
+      "required": ["sourceIdentity", "name", "type"],
+      "properties": {
+        "sourceIdentity": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "relations": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "field": {
+      "type": "object",
+      "required": ["sourceIdentity", "record", "name", "row", "col", "length", "usage", "status"],
+      "properties": {
+        "sourceIdentity": { "type": "string" },
+        "record": { "type": "string" },
+        "name": { "type": "string" },
+        "row": { "type": "integer", "minimum": 1 },
+        "col": { "type": "integer", "minimum": 1 },
+        "length": { "type": "integer", "minimum": 1 },
+        "usage": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "reference": {
+      "type": "object",
+      "required": ["from", "relation", "to", "status"],
+      "properties": {
+        "from": { "type": "string" },
+        "relation": { "type": "string" },
+        "to": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "capability": {
+      "type": "object",
+      "required": ["sourceIdentity", "status"],
+      "properties": {
+        "sourceIdentity": { "type": "string" },
+        "status": { "type": "string", "enum": ["converted", "converted-with-warning", "manual-review", "unsupported", "error"] },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "code": { "type": "string" },
+        "severity": { "type": "string", "enum": ["info", "warning", "manual-review", "unsupported", "error"] },
+        "message": { "type": "string" },
+        "sourceIdentity": { "type": "string" },
+        "action": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

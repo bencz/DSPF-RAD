@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/component-state.schema.json",
+  "title": "Generated React Component State",
+  "type": "object",
+  "required": ["state", "visible", "disabled", "readOnly", "reviewState"],
+  "properties": {
+    "state": { "type": "string", "enum": ["default", "hover", "focus", "active", "disabled", "loading", "error", "empty"] },
+    "visible": { "type": "boolean" },
+    "disabled": { "type": "boolean" },
+    "readOnly": { "type": "boolean" },
+    "reviewState": { "type": "string", "enum": ["converted", "converted-with-warning", "manual-review", "unsupported", "error"] },
+    "errorCode": { "type": ["string", "null"] },
+    "errorMessage": { "type": ["string", "null"] },
+    "disabledReason": { "type": ["string", "null"] },
+    "loadingLabel": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

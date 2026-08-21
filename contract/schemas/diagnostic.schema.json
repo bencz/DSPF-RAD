@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/diagnostic.schema.json",
+  "title": "Conversion Diagnostic",
+  "type": "object",
+  "required": ["code", "severity", "message", "status"],
+  "properties": {
+    "code": { "type": "string" },
+    "severity": { "type": "string", "enum": ["info", "warning", "manual-review", "unsupported", "error"] },
+    "status": { "type": "string", "enum": ["converted", "converted-with-warning", "manual-review", "unsupported", "error"] },
+    "message": { "type": "string" },
+    "reason": { "type": ["string", "null"] },
+    "action": { "type": ["string", "null"] },
+    "sourceIdentity": { "type": ["string", "null"] },
+    "sourceLocation": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

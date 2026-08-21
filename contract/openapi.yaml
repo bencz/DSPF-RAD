@@ -1,0 +1,333 @@
+openapi: 3.1.0
+info:
+  title: DSPF·RAD Conversion and Runtime API
+  version: 1.0.0
+  description: Contract for conversion metadata and generated React runtime screens.
+servers:
+  - url: /api
+security:
+  - sessionCookie: []
+paths:
+  /conversions:
+    post:
+      operationId: createConversion
+      summary: Create a conversion job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversionRequest'
+      responses:
+        '201':
+          description: Conversion job created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionJob'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /conversions/{conversionId}:
+    parameters:
+      - $ref: '#/components/parameters/ConversionId'
+    get:
+      operationId: getConversion
+      summary: Read conversion status
+      responses:
+        '200':
+          description: Conversion status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionJob'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /conversions/{conversionId}/report:
+    parameters:
+      - $ref: '#/components/parameters/ConversionId'
+    get:
+      operationId: getConversionReport
+      summary: Read conversion report
+      responses:
+        '200':
+          description: Conversion report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionReport'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /conversions/{conversionId}/code:
+    parameters:
+      - $ref: '#/components/parameters/ConversionId'
+    get:
+      operationId: getGeneratedCode
+      summary: Read generated file manifest
+      responses:
+        '200':
+          description: Generated file manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactManifest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /screens/{screenName}:
+    parameters:
+      - $ref: '#/components/parameters/ScreenName'
+      - $ref: '#/components/parameters/Revision'
+    get:
+      operationId: getScreen
+      summary: Read a runtime screen contract
+      responses:
+        '200':
+          description: Runtime screen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScreenState'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /transaction:
+    post:
+      operationId: submitTransaction
+      summary: Submit an AID and field payload
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '200':
+          description: Next runtime screen state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '440':
+          $ref: '#/components/responses/SessionExpired'
+  /health:
+    get:
+      operationId: getHealth
+      summary: Read service health
+      security: []
+      responses:
+        '200':
+          description: Service is available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: DSPF_SESSION
+      description: Secure server-managed session cookie. Spring Security controls authentication and CSRF.
+    csrfHeader:
+      type: apiKey
+      in: header
+      name: X-CSRF-TOKEN
+      description: CSRF token required for state-changing requests when the session policy requires it.
+  parameters:
+    ConversionId:
+      name: conversionId
+      in: path
+      required: true
+      schema: { type: string }
+    ScreenName:
+      name: screenName
+      in: path
+      required: true
+      schema: { type: string }
+    Revision:
+      name: revision
+      in: query
+      required: false
+      schema: { type: string }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 1 }
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: true
+      schema: { type: string, minLength: 1 }
+  responses:
+    BadRequest:
+      description: Invalid request shape
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    ValidationError:
+      description: Validation error
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    Unauthorized:
+      description: Authentication is missing or invalid
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    Forbidden:
+      description: Authorization is denied
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    NotFound:
+      description: Resource does not exist
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    Conflict:
+      description: Revision or concurrency conflict
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    RateLimited:
+      description: Request rate or duplicate limit reached
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    SessionExpired:
+      description: Session expired
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+  schemas:
+    CreateConversionRequest:
+      type: object
+      required: [projectId, sourceName, sourceRevision, sourceText, conversionProfile]
+      properties:
+        projectId: { type: string }
+        sourceName: { type: string }
+        sourceRevision: { type: string }
+        sourceText: { type: string }
+        conversionProfile: { type: string }
+    ConversionJob:
+      type: object
+      required: [conversionId, sourceRevision, converterVersion, status]
+      properties:
+        conversionId: { type: string }
+        sourceRevision: { type: string }
+        converterVersion: { type: string }
+        status: { type: string, enum: [draft, generated, manual-review, approved, rejected, superseded, error] }
+        counts: { type: object, additionalProperties: { type: integer, minimum: 0 } }
+    ConversionReport:
+      type: object
+      required: [conversionId, sourceRevision, converterVersion, items]
+      properties:
+        conversionId: { type: string }
+        sourceRevision: { type: string }
+        converterVersion: { type: string }
+        items: { type: array, items: { $ref: '#/components/schemas/Diagnostic' } }
+    ArtifactManifest:
+      type: object
+      required: [conversionId, files]
+      properties:
+        conversionId: { type: string }
+        files: { type: array, items: { $ref: '#/components/schemas/ArtifactFile' } }
+    ArtifactFile:
+      type: object
+      required: [path, sha256, bytes]
+      properties:
+        path: { type: string }
+        sha256: { type: string }
+        bytes: { type: integer, minimum: 0 }
+    ScreenState:
+      type: object
+      required: [screen, revision, modelKey, record, fields, messages, actions, subfiles, cursor]
+      properties:
+        screen: { type: string }
+        revision: { type: string }
+        modelKey: { type: string, enum: [24x80, 27x132] }
+        record: { type: string }
+        fields: { type: array, items: { $ref: '#/components/schemas/FieldState' } }
+        messages: { type: array, items: { type: object, additionalProperties: true } }
+        actions: { type: array, items: { $ref: '#/components/schemas/Action' } }
+        subfiles: { type: object, additionalProperties: true }
+        cursor: { $ref: '#/components/schemas/Cursor' }
+    FieldState:
+      type: object
+      required: [runtimeBindingKey, domId, value, usage]
+      properties:
+        runtimeBindingKey: { type: string }
+        domId: { type: string }
+        value: {}
+        usage: { type: string }
+        readOnly: { type: boolean }
+        mask: { type: boolean }
+    Action:
+      type: object
+      required: [id, kind, enabled]
+      properties:
+        id: { type: string }
+        kind: { type: string }
+        enabled: { type: boolean }
+        destructive: { type: boolean }
+        permission: { type: string }
+    Cursor:
+      type: object
+      properties:
+        field: { type: [string, 'null'] }
+        row: { type: [integer, 'null'] }
+        col: { type: [integer, 'null'] }
+    TransactionRequest:
+      type: object
+      required: [sessionId, screen, screenRevision, aid, fields, cursor, subfiles]
+      properties:
+        sessionId: { type: string }
+        screen: { type: string }
+        screenRevision: { type: string }
+        aid: { $ref: '#/components/schemas/Aid' }
+        fields: { type: object, additionalProperties: true }
+        cursor: { $ref: '#/components/schemas/Cursor' }
+        subfiles: { type: object, additionalProperties: true }
+    Aid:
+      type: object
+      required: [kind]
+      properties:
+        kind: { type: string }
+        number: { type: [integer, 'null'] }
+    TransactionResponse:
+      type: object
+      required: [screen, screenRevision, messages, fieldValues, indicators, cursor, subfiles, nextActions]
+      properties:
+        screen: { type: string }
+        screenRevision: { type: string }
+        messages: { type: array, items: { type: object, additionalProperties: true } }
+        fieldValues: { type: object, additionalProperties: true }
+        indicators: { type: object, additionalProperties: { type: boolean } }
+        cursor: { $ref: '#/components/schemas/Cursor' }
+        subfiles: { type: object, additionalProperties: true }
+        nextActions: { type: array, items: { $ref: '#/components/schemas/Action' } }
+    Diagnostic:
+      type: object
+      required: [code, severity, message]
+      properties:
+        code: { type: string }
+        severity: { type: string, enum: [info, warning, manual-review, unsupported, error] }
+        message: { type: string }
+        sourceIdentity: { type: [string, 'null'] }
+    ErrorResponse:
+      type: object
+      required: [code, message, correlationId, details]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        correlationId: { type: string }
+        details: { type: array, items: { type: object, additionalProperties: true } }
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [ok, degraded] }

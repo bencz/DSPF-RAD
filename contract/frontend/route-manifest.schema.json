@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/route-manifest.schema.json",
+  "title": "Generated React Route Manifest",
+  "type": "object",
+  "required": ["version", "routes"],
+  "properties": {
+    "version": { "type": "string" },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "path", "screen", "permission", "loader", "error", "notFound"],
+        "properties": {
+          "id": { "type": "string" },
+          "path": { "type": "string" },
+          "screen": { "type": "string" },
+          "parentId": { "type": ["string", "null"] },
+          "permission": { "type": ["string", "null"] },
+          "loader": { "type": "string" },
+          "error": { "type": "string" },
+          "notFound": { "type": "string" },
+          "dirtyGuard": { "type": "boolean" },
+          "children": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

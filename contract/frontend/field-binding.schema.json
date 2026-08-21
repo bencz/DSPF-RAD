@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/field-binding.schema.json",
+  "title": "Generated React Field Binding",
+  "type": "object",
+  "required": ["sourceIdentity", "runtimeBindingKey", "domId", "valueType", "usage", "readOnly", "status"],
+  "properties": {
+    "sourceIdentity": { "type": "string" },
+    "runtimeBindingKey": { "type": "string" },
+    "domId": { "type": "string" },
+    "businessName": { "type": ["string", "null"] },
+    "valueType": { "type": "string", "enum": ["string", "integer", "decimal", "date", "time", "boolean", "choice", "unknown"] },
+    "rawValue": {},
+    "displayValue": {},
+    "usage": { "type": "string" },
+    "readOnly": { "type": "boolean" },
+    "mask": { "type": "boolean" },
+    "required": { "type": "boolean" },
+    "validation": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+    "status": { "type": "string", "enum": ["converted", "converted-with-warning", "manual-review", "unsupported", "error"] },
+    "sourceLocation": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

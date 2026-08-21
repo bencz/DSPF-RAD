@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/traceability.schema.json",
+  "title": "DSPF Conversion Traceability",
+  "type": "object",
+  "required": ["sourceIdentity", "source", "target", "status", "lossiness"],
+  "properties": {
+    "sourceIdentity": { "type": "string" },
+    "source": {
+      "type": "object",
+      "required": ["record", "row", "col", "length"],
+      "properties": {
+        "record": { "type": "string" },
+        "row": { "type": "integer", "minimum": 1 },
+        "col": { "type": "integer", "minimum": 1 },
+        "length": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": true
+    },
+    "target": {
+      "type": ["object", "null"],
+      "properties": {
+        "file": { "type": "string" },
+        "component": { "type": "string" },
+        "targetRow": { "type": "integer", "minimum": 1 },
+        "targetCol": { "type": "integer", "minimum": 1 },
+        "span": { "type": "integer", "minimum": 1 },
+        "domId": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "status": {
+      "type": "string",
+      "enum": ["converted", "converted-with-warning", "manual-review", "unsupported", "error"]
+    },
+    "lossiness": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

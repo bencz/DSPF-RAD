@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "layout-policy/1.0",
+  "targetColumns": 12,
+  "profiles": {
+    "24x80": { "sourceRows": 24, "sourceColumns": 80 },
+    "27x132": { "sourceRows": 27, "sourceColumns": 132 }
+  },
+  "mapping": {
+    "sourceColumn": "floor((sourceCol - 1) / sourceColumns * targetColumns) + 1",
+    "plannedSpan": "clamp(round(sourceLength / sourceColumns * targetColumns), 1, targetColumns)",
+    "actualSpan": "clamp(plannedSpan, 1, targetColumns - targetCol + 1)"
+  },
+  "preserve": [
+    "sourceRecord",
+    "sourceRow",
+    "sourceCol",
+    "sourceLength",
+    "windowOffset",
+    "targetRow",
+    "targetCol",
+    "plannedSpan",
+    "actualSpan",
+    "lossiness"
+  ],
+  "overflowPolicy": {
+    "sameRowOverflow": "manual-review",
+    "overlap": "manual-review",
+    "crop": "manual-review",
+    "readingOrderChange": "manual-review",
+    "unknownDisplayProfile": "manual-review"
+  }
+}

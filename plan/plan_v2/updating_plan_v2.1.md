@@ -506,6 +506,8 @@ DspfSemanticIR
 
 IR 不直接決定 business transaction。它只描述 DSPF 語意與可轉換能力。
 
+V2.1-1 的 Semantic Layout tickets include `V2.1-1G`：external runtime binding adapter。此 adapter 只提供 display field、runtime value、indicator 與 display-workflow hint 的 traceability，不執行外部 runtime source，也不決定 business transaction。
+
 ## 16. Revised implementation waves
 
 | Wave | Scope | Gate |
@@ -582,7 +584,7 @@ IR 不直接決定 business transaction。它只描述 DSPF 語意與可轉換�
 
 以下仍需業主在實作前確認：
 
-- `Z=XMG3tX` 的 token 生成規則與 namespace。
+- DOM id 使用 `Z-XMG3tX` 格式。它由 qualified source identity 產生，並與 runtime binding key、business name 分開。
 - FUNCTION 例外清單與每項 action 的 permission/destructive policy。
 - icon pack：Material Symbols 或其他 pack。
 - 12-grid overflow 的 deterministic packing 細節。
@@ -1039,3 +1041,74 @@ Modern React visual preview
 ```
 
 完成 V2.1-0A 至 V2.1-0D 後，才開始 V2.1-1 Semantic IR。
+
+## 25. Semantic conversion contract references
+
+The Semantic Layout implementation must use the contract files in `contract/`:
+
+| Contract | Purpose |
+|---|---|
+| `contract/semantic-layout-design.md` | Semantic IR boundary, identity, record relations, layout, regression, and external runtime rationale |
+| `contract/schemas/semantic-ir.schema.json` | Versioned JSON Schema for `DspfSemanticIR` |
+| `contract/schemas/semantic-diagnostics.json` | Conversion statuses, severity, reason and action contract |
+| `contract/schemas/layout-policy.json` | 24x80/27x132 profile mapping and 12-column lossiness rules |
+| `contract/schemas/traceability.schema.json` | Source object to generated target traceability contract |
+| `contract/schemas/identity.schema.json` | Source identity, runtime key, DOM id, and business name |
+| `contract/schemas/record-relation.schema.json` | WINDOW, SFL, menu, REFFLD, and CHCCTL relations |
+| `contract/schemas/sfl-runtime.schema.json` | First-release SFL runtime contract and manual-review boundary |
+| `contract/schemas/runtime-binding.schema.json` | Generic external runtime display binding |
+| `contract/schemas/security.schema.json` | Runtime actor, session, role, permission, and CSRF context |
+| `contract/schemas/diagnostic.schema.json` | Conversion diagnostic shape |
+Implementation order:
+
+```text
+read contract/semantic-layout-design.md
+validate DspfSemanticIR with contract/schemas/semantic-ir.schema.json
+resolve display profile with contract/schemas/layout-policy.json
+classify conversion status with contract/schemas/semantic-diagnostics.json
+write source-to-target links that satisfy contract/schemas/traceability.schema.json
+run legacy regression gates
+```
+
+The contract files are normative for V2.1-1A through V2.1-1G. A code change that conflicts with a contract file must update the contract, the affected ticket, and the verification evidence before implementation continues.
+
+The contract files do not replace `DspfDocument`. They define the read-only conversion boundary because the existing parser, model, writer, Canvas, React faithful preview, Inspector, and source synchronization must remain unchanged.
+
+## 26. Preview and generation workflow
+
+Use `contract/09-preview-generation-methodology.md` as the repeatable preview and generation workflow.
+
+```text
+requirements brief
+    ↓
+DspfDocument and external source selection
+    ↓
+DspfSemanticIR
+    ↓
+versioned Mapping Contract
+    ↓
+deterministic React output
+    ↓
+Vite HMR or full reload
+    ↓
+fixed-viewport browser preview
+    ↓
+production build and Playwright audit
+    ↓
+conversion receipt and report
+```
+
+Classify every change before selecting the preview action:
+
+```text
+token/layout/content → HMR
+route/asset/provider → full reload
+runtime configuration → server restart
+Semantic IR change → regenerate output
+```
+
+Store layout semantics, tokens, component mapping, bindings, routes, and acceptance conditions in the Mapping Contract. Do not repair generated CSS directly when the problem belongs to the mapping or token source.
+
+The converted pane is a fast observation loop. The generated React app, production preview, and Playwright audit are the delivery evidence.
+
+The workflow must preserve the existing parser, model, writer, Canvas, React faithful preview, Inspector, source sync, and selection behavior.

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/workflow-hint.schema.json",
+  "title": "External Runtime Display Workflow Hint",
+  "type": "object",
+  "required": ["sourceIdentity", "operation", "status"],
+  "properties": {
+    "sourceIdentity": { "type": "string" },
+    "runtimeSource": { "type": "string" },
+    "sourceLocation": { "type": ["string", "null"] },
+    "operation": { "type": "string", "enum": ["EXFMT", "WRITE", "MESSAGE", "INDICATOR", "UNKNOWN"] },
+    "displayFile": { "type": ["string", "null"] },
+    "record": { "type": ["string", "null"] },
+    "aid": { "type": ["string", "null"] },
+    "indicator": { "type": ["string", "null"] },
+    "status": { "type": "string", "enum": ["converted", "converted-with-warning", "manual-review", "unsupported", "error"] },
+    "reason": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

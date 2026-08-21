@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/record-relation.schema.json",
+  "title": "DSPF Record Relation",
+  "type": "object",
+  "required": ["from", "relation", "status"],
+  "properties": {
+    "from": { "type": "string" },
+    "relation": {
+      "type": "string",
+      "enum": ["WINDOW_CHILD", "SFL_TEMPLATE", "SFL_CONTROL", "MENU_PULLDOWN", "REFFLD", "CHCCTL", "MESSAGE_RECORD"]
+    },
+    "to": { "type": ["string", "null"] },
+    "owner": { "type": ["string", "null"] },
+    "status": { "type": "string", "enum": ["resolved", "manual-review", "unsupported", "error"] },
+    "reason": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

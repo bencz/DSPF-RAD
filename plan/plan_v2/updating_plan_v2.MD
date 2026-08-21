@@ -96,11 +96,11 @@ flowchart LR
 
 ## 6. Data binding（#5 / V2-3）
 
-- 每個轉換欄位有穩定 DOM id，格式如 `id="Z=XMG3tX"`。
-- 預設由 field name 產生；Inspector 新區可逐欄編輯（V2-3）。
-- 集中管理 binding map：`{ fieldName → domId, recordName, dataType, usage }`。
-- 生成 code 用該 id 綁定（如 `<TextField id="Z=…" />` + `data-bind`）。
-- id 跨 parse/adopt 穩定（依 field name，不依 item id；item id 每次 parse 重生）。
+- 每個轉換欄位有穩定 DOM id，格式如 `id="Z-XMG3tX"`。
+- 預設由 qualified source identity 產生；Inspector 新區可逐欄編輯。
+- 集中管理 binding map：`{ sourceIdentity → runtimeBindingKey → domId }`。
+- 生成 code 用該 id 綁定（如 `<TextField id="Z-XMG3tX" />` + `data-bind`）。
+- id 跨 parse/adopt 穩定，不依賴會重生的 item id。
 
 ## 7. OPTION vs FUNCTION 顯示模式（#11 / D-6）
 
@@ -166,7 +166,7 @@ icon packs：Material Symbols/Icons（隨 MUI），或指定 pack（待細化）
 
 ## 附錄：待細化項目（實作前確認）
 
-- `Z=XMG3tX` id 的確切產生規則（field name → token 的轉換函數）。
+- `Z-XMG3tX` 的 token 生成規則與 namespace。
 - FUNCTION 功能類型例外清單（哪些 key/button 屬哪類、各怎麼轉）。
 - icon pack 選擇（Material Symbols vs 其他）。
 - converted pane 是第 4 欄還是既有區域內的 tab。

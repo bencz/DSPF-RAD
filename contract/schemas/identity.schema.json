@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dspf-rad.example/contracts/identity.schema.json",
+  "title": "DSPF Conversion Identity",
+  "type": "object",
+  "required": ["sourceIdentity", "runtimeBindingKey", "domId"],
+  "properties": {
+    "sourceIdentity": { "type": "string", "minLength": 1 },
+    "runtimeBindingKey": { "type": "string", "minLength": 1 },
+    "domId": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_:-]*$" },
+    "businessName": { "type": ["string", "null"] },
+    "project": { "type": "string" },
+    "revision": { "type": "string" },
+    "record": { "type": "string" },
+    "field": { "type": ["string", "null"] },
+    "occurrence": { "type": ["integer", "null"], "minimum": 0 },
+    "role": { "type": "string" }
+  },
+  "additionalProperties": false
+}

@@ -2,6 +2,8 @@
 
 ## 1. Generated backend contract package
 
+
+
 ```text
 backend-contract/
 ├── openapi.yaml
@@ -19,6 +21,8 @@ backend-contract/
 
 ## 2. Optional Node conversion service
 
+
+
 ```text
 conversion-service/
 ├── package.json
@@ -30,10 +34,12 @@ conversion-service/
 │   ├── application/
 │   │   ├── createConversion.js
 │   │   ├── readConversion.js
-│   │   └── readReport.js
+│   │   ├── readReport.js
+│   │   └── readRuntimeBinding.js
 │   ├── adapters/
 │   │   ├── sharedCoreAdapter.js
-│   │   └── artifactStore.js
+│   │   ├── artifactStore.js
+│   │   └── externalRuntimeBindingAdapter.js
 │   └── errors.js
 ├── test/
 │   ├── contract.test.js
@@ -42,6 +48,8 @@ conversion-service/
 ```
 
 ## 3. Spring Boot runtime template
+
+
 
 ```text
 spring-runtime/
@@ -80,6 +88,8 @@ spring-runtime/
 ```
 
 ## 4. Optional SQLite metadata template
+
+
 
 ```text
 conversion-metadata/

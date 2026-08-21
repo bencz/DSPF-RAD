@@ -1,8 +1,12 @@
 # 01 Backend Interfaces
 
+The normative endpoint and schema contract is `contract/openapi.yaml`. This document explains ownership and implementation boundaries.
+
 ## 1. Interface layers
 
-Keep conversion API and generated runtime API separate.
+
+
+Keep the conversion API and generated runtime API separate.
 
 ```text
 /api/conversions/*     conversion-time API
@@ -11,7 +15,11 @@ Keep conversion API and generated runtime API separate.
 /api/health            service health
 ```
 
+Generated React clients must consume the OpenAPI contract. Spring Boot controllers must implement the same contract because client and server must not invent different request shapes.
+
 ## 2. Conversion API
+
+
 
 ### Create conversion
 
@@ -79,6 +87,8 @@ GET /api/conversions/{conversionId}/report
 Return the report, manifest hash, source hash, converter version, warnings, errors, and review items.
 
 ## 3. Runtime screen API
+
+
 
 ### Read screen
 
@@ -148,6 +158,8 @@ Response:
 
 ## 4. Error contract
 
+
+
 | Status | Meaning |
 |---|---|
 | 400 | Invalid request shape |
@@ -172,6 +184,8 @@ Every error response includes:
 ```
 
 ## 5. Backend interface classes
+
+
 
 ### Spring Boot conversion classes
 
@@ -214,9 +228,13 @@ The Node wrapper must call the same shared conversion core as the browser and CL
 
 ## 6. Runtime security rules
 
+
+
 - Keep authentication and authorization in Spring Boot.
 - Keep idempotency enforcement in Spring Boot.
 - Do not use local mode to bypass production authentication.
 - Do not place secrets or sensitive field values in DOM ids.
 - Do not write sensitive field values to conversion logs.
 - Record correlation IDs in server logs and audit events.
+
+---
