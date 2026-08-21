@@ -1099,3 +1099,9 @@ http://localhost:8000/ → template reference application; not DSPF-RAD runtime
 The port mapping must be confirmed again after a server restart. Browser tab names are labels only and are not evidence. A successful server-start message is not proof that the browser reached that process.
 
 The previous audit error came from treating the repository's example `python -m http.server 8000` command as port ownership, without checking title, entry module, DOM markers, process ownership, and working directory. Future audit evidence must include all of those checks.
+
+## Legacy output semantic regression
+
+`usage H` fields such as `SHWREC`, `SFIELD`, and `RECNAM` are valid hidden controls. They must remain traceable, non-editable, and non-visible in Modern React output. `REFFLD` fields must retain their target and resolved PF/DD metadata; when the source is unavailable, emit `manual-review` with the source identity and reason instead of guessing a length.
+
+**Evidence:** `pnpm test -- --run` passed 22 tests across 3 files, including hidden-control output and missing PF/DD evidence.

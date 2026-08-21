@@ -1,7 +1,9 @@
 // Pure versioned source-to-target Mapping Contract builder.
 // Every generated target remains traceable to Semantic IR evidence.
+import { buildFieldOutput, collectReffldEvidence } from './outputSemantics.js';
 
 function componentFor (item) {
+    if (item.kind === 'field' && item.value?.usage === 'H') return 'HiddenControl';
     if (item.kind === 'field') return 'ConvertedField';
     if (item.kind === 'constant') return 'ConvertedLabel';
     if (item.kind === 'sysvalue') return 'ConvertedSystemValue';
@@ -22,15 +24,13 @@ export function buildMappingContract (ir) {
             ?? [...identities.values()].find(candidate =>
                 candidate.record === value.record && candidate.field === value.name);
         const status = target?.status ?? value.status ?? 'manual-review';
+        const output = kind === 'field'
+            ? buildFieldOutput(value)
+            : { role: kind, editable: false, visible: true, status };
         return {
             sourceIdentity: value.sourceIdentity,
-            targetComponent: componentFor({ kind }),
-            source: {
-                record: value.record,
-                row: value.row,
-                col: value.col,
-                length: value.length,
-            },
+            targetComponent: componentFor({ kind, value }),
+            source: { record: value.record, row: value.row, col: value.col, length: value.length },
             target: target ? {
                 row: target.targetRow,
                 col: target.targetCol,
@@ -41,6 +41,8 @@ export function buildMappingContract (ir) {
             domId: identity?.domId ?? null,
             status,
             lossiness: target?.lossiness ?? ['missing-layout'],
+            output,
+            references: kind === 'field' ? collectReffldEvidence(value, {}) : [],
             traceability: {
                 sourceIdentity: value.sourceIdentity,
                 sourceRevision: ir.sourceRevision.sourceHash,
