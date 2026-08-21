@@ -53,6 +53,13 @@ If a ticket needs to change one of these contracts, update the contract file, th
 | V2.1-2E | Approve a conversion revision before deployment | V2.1-2D | Enforce review, audit, SoD, and revision approval |
 | V2.1-2F | Add optional conversion service metadata | V2.1-2E | Add Node/SQLite metadata only when operational needs exist |
 | V2.1-2G | Integrate generated React with Spring Boot | V2.1-2D, V2.1-2E | Prove runtime API, session, auth, idempotency, and errors |
+| V2.1-1H.1 | Index PF/DD source files | V2.1-1H | Build deterministic PF/LF field metadata index |
+| V2.1-1H.2 | Resolve REFFLD against PF/DD index | V2.1-1H.1 | Replace avoidable length review with resolved metadata |
+| V2.1-1I.1 | Assemble complete SFL control/template screen | V2.1-1I, V2.1-1J | Keep SFL control, template, RRN, and owner context together |
+| V2.1-1J.1 | Render SFL runtime metadata | V2.1-1J | Show page, scroll, cursor, indicator, and message state |
+| V2.1-2D.1 | Render mapping and provenance evidence | V2.1-2A, V2.1-2D | Show source/target geometry, status, lossiness, and source path |
+| V2.1-2D.2 | Render field roles and hidden controls | V2.1-1K, V2.1-2D | Render H as hidden-control and preserve non-editability |
+| V2.1-2G.1 | Bind generated React to Spring Boot screen API | V2.1-2G | Connect generated screen, session, AID, and transaction contracts |
 
 ---
 
@@ -1122,3 +1129,76 @@ The reported `usage H` and unresolved `REFFLD` cases remain explicit conversion 
 The React preview warning collector must not classify valid DSPF `usage H` hidden controls (`SHWREC`, `SFIELD`, `RECNAM`) as manual-review errors. They remain hidden/non-editable and traceable. `usage P` remains manual-review until its runtime semantics are resolved. `REFFLD` length remains manual-review only when PF/DD metadata is unavailable.
 
 **Evidence:** `react-app` Vitest passed 109 tests in 16 files and Playwright passed 24 tests. The new regression test proves a hidden `H` control does not add a manual-review warning.
+
+## Completeness tickets from Custom-Account verification
+
+### V2.1-1H.1 — Index PF/DD source files
+
+**Blocked by:** V2.1-1H.
+
+**Acceptance:** PF and LF files are indexed by qualified source and field. Type, length, decimals, usage, validation, and source location are retained. Duplicate definitions produce a conflict diagnostic. No DSPF document mutation.
+
+**Tests:** `CUSTMAST.PF`, `ACCTMAST.PF`, both LF files, duplicate field, malformed definition, and deterministic index tests.
+
+### V2.1-1H.2 — Resolve REFFLD against PF/DD index
+
+**Blocked by:** V2.1-1H.1.
+
+**Acceptance:** `REFFLD` resolves against the index and removes avoidable length review. Missing or ambiguous sources retain the field, target, reason, and `manual-review` status.
+
+**Tests:** `ZWE0NB`, `ZWJUN0`, `PNAME`, `ZWGIVA`, ZZFT02 fields, missing source, and ambiguous source cases.
+
+### V2.1-1I.1 — Assemble complete SFL control/template screen
+
+**Blocked by:** V2.1-1I and V2.1-1J.
+
+**Acceptance:** `ZZCT01`, `ZZSF01`, `ZZFT01`, and `ZZFT02` remain related and all source-order items are present. Control/template, RRN, owner, and relation evidence are visible.
+
+**Tests:** `CBCUSTSD.DSPF`, `WCUSTSD.DSPF`, `WCUSTSD2.DSPF`, and multi-format SFL fixtures.
+
+### V2.1-1J.1 — Render SFL runtime metadata
+
+**Blocked by:** V2.1-1J.
+
+**Acceptance:** Preview exposes page size, total size, end mode, RRN, scroll state, display indicators, and message state without pretending to execute IBM i runtime.
+
+**Tests:** SFL page/size, `SFLRCDNBR(CURSOR)`, `SFLEND`, indicator, and message-subfile fixtures.
+
+### V2.1-2D.1 — Render mapping and provenance evidence
+
+**Blocked by:** V2.1-2A and V2.1-2D.
+
+**Acceptance:** Every visible item can show source path, record, field, row, column, length, target span, status, lossiness, and review reason.
+
+**Tests:** source/target evidence, crop, overlap, unresolved REFFLD, and generated artifact traceability.
+
+### V2.1-2D.2 — Render field roles and hidden controls
+
+**Blocked by:** V2.1-1K and V2.1-2D.
+
+**Acceptance:** H fields are hidden and non-editable; visible I/O fields use their correct role; P fields remain explicitly reviewed; no hidden field becomes a visible editable input.
+
+**Tests:** `SHWREC`, `SFIELD`, `RECNAM`, input, output, both, and protected field fixtures.
+
+### V2.1-2G.1 — Bind generated React to Spring Boot screen API
+
+**Blocked by:** V2.1-2G.
+
+**Acceptance:** Generated React consumes the OpenAPI screen and transaction contracts with session, AID, cursor, subfiles, messages, idempotency, correlation ID, and defined HTTP errors.
+
+**Tests:** mock contract server for 200, 401, 403, 404, 409, 422, 429, 440, 500 and browser transaction flow.
+
+### Required output completeness gate
+
+Do not mark the Custom-Account output complete until all of the following are true:
+
+```text
+PF/DD source index available
+REFFLD metadata resolved or evidenced
+SFL control/template complete
+H fields hidden and non-editable
+mapping/provenance inspectable
+Vite build passes
+Browser output passes
+Spring Boot contract integration passes
+```
