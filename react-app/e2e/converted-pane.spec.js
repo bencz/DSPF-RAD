@@ -1,6 +1,7 @@
-// V2.1-0C/0D converted pane acceptance.
-// Confirm the modern pane shows the demo without changing the legacy document.
+// V2.1-0C/0D converted pane acceptance and Custom-Account fixture audit.
+// Confirm the modern pane shows the demo and keeps hidden DSPF controls out of visible output.
 
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 
 test.describe('Modern React converted pane', () => {
@@ -56,4 +57,20 @@ test.describe('Modern React converted pane', () => {
         const after = await page.evaluate(() => JSON.stringify(window.dspfRad.doc.toJSON()));
         expect(after).toBe(before);
     });
+});
+
+test('loads WCUSTSD2 and preserves SFL/hidden-control semantics', async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 1200 });
+    await page.goto('/');
+    const source = readFileSync('../QDDSSRC/WCUSTSD2.DSPF', 'utf8');
+    await page.evaluate((text) => window.dspfRad.load(text), source);
+    const sflValue = await page.locator('#recordSel option', { hasText: 'ZZSF01' }).getAttribute('value');
+    await page.locator('#recordSel').selectOption(sflValue);
+    await expect(page.locator('#convertedPane')).toBeVisible();
+    await expect(page.locator('#convertedPane')).toContainText('ZZSF01');
+    await expect(page.locator('#convertedPane')).toContainText('Modern React');
+    await expect(page.locator('#convertedPane [data-testid="converted-item"]')).not.toHaveCount(0);
+    await expect(page.locator('#convertedPane [data-testid="converted-item"]', { hasText: 'SFIELD' })).toHaveCount(0);
+    await expect(page.locator('#convertedPane [data-testid="converted-item"]', { hasText: 'RECNAM' })).toHaveCount(0);
+    await expect(page.locator('#convertedPane [data-testid="converted-warnings"]')).toContainText('REFFLD');
 });

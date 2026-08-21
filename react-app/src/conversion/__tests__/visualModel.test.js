@@ -72,4 +72,12 @@ describe('buildVisualModel', () => {
         const model = buildVisualModel(doc);
         expect(model.warnings.some(warning => warning.message.includes('SFIELD'))).toBe(false);
     });
+
+    it('keeps H fields in the model but marks them hidden and non-editable', () => {
+        const doc = makeDocument();
+        doc.records[0].items.push({ kind: 'field', name: 'SFIELD', row: 1, col: 1, length: 10, usage: 'H' });
+        const model = buildVisualModel(doc);
+        const hidden = model.records[0].items.find(item => item.name === 'SFIELD');
+        expect(hidden).toMatchObject({ usage: 'H', hidden: true, editable: false });
+    });
 });

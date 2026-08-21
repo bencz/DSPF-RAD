@@ -1202,3 +1202,16 @@ Vite build passes
 Browser output passes
 Spring Boot contract integration passes
 ```
+
+## WCUSTSD2 full-stack output evidence
+
+The `jwors` branch input was pulled from `https://github.com/Raymondycp/ibmi-react/tree/jwors/INPUT/Cuustom-Account`. `WCUSTSD2.DSPF` parsed into 9 records and 188 generated mappings. Outputs were written to `.tmp/output-WCUSTSD2-react` and `.tmp/output-WCUSTSD2-spring`.
+
+```text
+root Vitest: 4 files, 24 tests passed
+generated React: npm install + npm run build succeeded
+generated Spring Boot: mvn -q -DskipTests package succeeded
+browser E2E: WCUSTSD2 test passed 4/4
+```
+
+The generated Spring output is a contract scaffold. It is not a production runtime until session, authorization, idempotency, validation, audit, and business transaction implementations are supplied.

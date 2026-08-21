@@ -38,6 +38,7 @@ function toVisualItem (item, cols) {
     const colorName = keywordArg(item, 'COLOR');
     const attrs = keywordArgs(item, 'DSPATR');
 
+    const hidden = item.kind === 'field' && item.usage === 'H';
     return {
         sourceId: item.id,
         kind: item.kind,
@@ -50,6 +51,8 @@ function toVisualItem (item, cols) {
         length,
         span,
         usage: item.usage ?? '',
+        hidden,
+        editable: !hidden && ['I', 'B'].includes(item.usage),
         dataType: item.dataType ?? '',
         decimals: item.decimals ?? 0,
         sourceIndicators: [...(item.indicators ?? [])],
