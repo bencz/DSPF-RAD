@@ -18,11 +18,19 @@ export function buildMappingContract (ir) {
         ...(ir.systemValues ?? []).map(value => ({ kind: 'sysvalue', value })),
     ];
     const layout = new Map((ir.layout?.items ?? []).map(value => [value.sourceIdentity, value]));
+    const layoutValues = [...layout.values()];
     const mappings = sourceItems.map(({ kind, value }) => {
-        const target = layout.get(value.sourceIdentity);
+        const target = layout.get(value.sourceIdentity)
+            ?? layoutValues.find(candidate => candidate.sourceRecord === value.record
+                && candidate.sourceRow === value.row && candidate.sourceCol === value.col);
         const identity = identities.get(value.sourceIdentity)
-            ?? [...identities.values()].find(candidate =>
-                candidate.record === value.record && candidate.field === value.name);
+            ?? [...identities.values()].find(candidate => candidate.record === value.record
+                && (candidate.field === value.name || candidate.businessName === value.name
+                    || candidate.businessName === value.text));
+        const fallbackIdentity = identity ?? {
+            runtimeBindingKey: `source.${value.sourceIdentity.replace(/[^A-Za-z0-9]+/g, '_')}`,
+            domId: `dspf-${value.sourceIdentity.replace(/[^A-Za-z0-9]+/g, '-')}`,
+        };
         const status = target?.status ?? value.status ?? 'manual-review';
         const output = kind === 'field'
             ? buildFieldOutput(value)
@@ -31,20 +39,19 @@ export function buildMappingContract (ir) {
             sourceIdentity: value.sourceIdentity,
             targetComponent: componentFor({ kind, value }),
             source: { record: value.record, row: value.row, col: value.col, length: value.length },
-            target: target ? {
-                row: target.targetRow,
-                col: target.targetCol,
-                plannedSpan: target.plannedSpan,
-                actualSpan: target.actualSpan,
-            } : null,
-            runtimeBindingKey: identity?.runtimeBindingKey ?? null,
-            domId: identity?.domId ?? null,
+            target: target ? { row: target.targetRow, col: target.targetCol, plannedSpan: target.plannedSpan, actualSpan: target.actualSpan } : null,
+            runtimeBindingKey: fallbackIdentity.runtimeBindingKey,
+            domId: fallbackIdentity.domId,
             status,
             lossiness: target?.lossiness ?? ['missing-layout'],
             output,
             references: kind === 'field' ? collectReffldEvidence(value, {}) : [],
             traceability: {
                 sourceIdentity: value.sourceIdentity,
+                source: { record: value.record, row: value.row, col: value.col, length: value.length },
+                target: target ? { component: componentFor({ kind, value }), domId: fallbackIdentity.domId, row: target.targetRow, col: target.targetCol, span: target.actualSpan } : null,
+                status,
+                lossiness: target?.lossiness ?? ['missing-layout'],
                 sourceRevision: ir.sourceRevision.sourceHash,
             },
         };

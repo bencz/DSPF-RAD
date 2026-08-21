@@ -425,3 +425,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run` passed 41 tests across 11 files. H, P, I, O, B roles and positive/negative indicators are covered.
 
 **Status:** V3.1D role and indicator boundary complete.
+
+## V3.2A execution evidence
+
+`src/codegen/mappingValidation.js` validates required mapping and traceability fields. `buildMappingContract()` now supplies deterministic fallback runtime and DOM identities when a source identity has no direct graph match, and traceability includes source, target, component, DOM id, status, lossiness, and revision.
+
+**Test:** `pnpm test -- --run` passed 43 tests across 12 files. A WCUSTSD2 conversion produced 188 mappings and passed `validateMappingContract()` with `valid: true`.
+
+**Status:** V3.2A schema-validation boundary complete.

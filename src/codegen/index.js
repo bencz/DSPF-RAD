@@ -24,4 +24,5 @@ export { resolveRecordRelations } from './recordRelations.js';
 export { generateRpgle } from './rpgle.js';
 export { assembleSflScreens } from './sflAssembly.js';
 export { normalizeFieldSemantics } from './fieldRoles.js';
+export { validateMappingContract } from './mappingValidation.js';
 export { generateCobol } from './cobol.js';
