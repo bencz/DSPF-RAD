@@ -75,11 +75,11 @@ function collectWarnings (doc) {
                     message: `REFFLD length for ${record.name}.${item.name || item.kind} needs review.`,
                 });
             }
-            if ((item.usage === 'P' || item.usage === 'H') && item.kind === 'field') {
+            if (item.usage === 'P' && item.kind === 'field') {
                 warnings.push({
                     sourceId: item.id,
                     severity: 'manual-review',
-                    message: `${record.name}.${item.name} uses non-editable usage ${item.usage}.`,
+                    message: `${record.name}.${item.name} uses non-editable usage P.`,
                 });
             }
         }

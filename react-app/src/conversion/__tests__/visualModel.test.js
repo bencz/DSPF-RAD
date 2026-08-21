@@ -65,4 +65,11 @@ describe('buildVisualModel', () => {
         ]);
         expect(doc.records[0].items[1].refField).toBe(true);
     });
+
+    it('does not treat hidden H controls as manual-review warnings', () => {
+        const doc = makeDocument();
+        doc.records[0].items.push({ kind: 'field', name: 'SFIELD', row: 1, col: 1, length: 10, usage: 'H' });
+        const model = buildVisualModel(doc);
+        expect(model.warnings.some(warning => warning.message.includes('SFIELD'))).toBe(false);
+    });
 });

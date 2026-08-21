@@ -1116,3 +1116,9 @@ https://github.com/Raymondycp/ibmi-react/tree/jwors/INPUT/Cuustom-Account
 Pulled with sparse checkout into `.tmp/ibmi-react-jwors`. Parsed all five display files and generated `ACCTMA@.DSPF` output with 65 mappings and 23 diagnostics. After completing the generated MUI peer dependency closure, the generated app was written to `.tmp/generated-custom-account`, installed with npm, and built successfully with Vite. The generated app served at `http://127.0.0.1:5174/` and rendered the Mapping Contract plus binding map in a real browser.
 
 The reported `usage H` and unresolved `REFFLD` cases remain explicit conversion evidence, not silent omissions. H fields are hidden-control output; missing PF/DD metadata remains manual-review.
+
+## Custom-Account manual-review correction
+
+The React preview warning collector must not classify valid DSPF `usage H` hidden controls (`SHWREC`, `SFIELD`, `RECNAM`) as manual-review errors. They remain hidden/non-editable and traceable. `usage P` remains manual-review until its runtime semantics are resolved. `REFFLD` length remains manual-review only when PF/DD metadata is unavailable.
+
+**Evidence:** `react-app` Vitest passed 109 tests in 16 files and Playwright passed 24 tests. The new regression test proves a hidden `H` control does not add a manual-review warning.
