@@ -1221,3 +1221,9 @@ The generated Spring output is a contract scaffold. It is not a production runti
 `src/codegen/pfDdIndex.js` now indexes PF/LF field definitions by qualified file and field name, preserving data type, length, decimals, and source path. `resolveIndexedReffld()` resolves matching metadata and returns explicit `manual-review` for external or missing sources such as `XAN4CDEM/CUSTS`.
 
 **Evidence:** `pnpm test -- --run` passed 26 tests in 5 files, including PF field metadata extraction, resolved `CUSTMAST.CUSTID`, and unresolved `XAN4CDEM/CUSTS.XWE0NB`.
+
+## WCUSTSD2 REFFLD source boundary
+
+`WCUSTSD2.DSPF` references `XAN4CDEM/CUSTS` and `XAN4CDEM/SLMEN`. The pulled Custom-Account source provides `CUSTMAST.PF`, `ACCTMAST.PF`, `CUSTMASTL1.LF`, and `ACCTMASTL1.LF`; no matching `XAN4CDEM` PF/DD source exists in the input. Therefore `ZWE0NB`, `ZWJUN0`, `PNAME`, `ZWGIVA`, and the ZZFT02/ZZCNF1 REFFLD fields must remain `manual-review`. The resolver must not substitute a same-named local file without an explicit mapping contract.
+
+**Evidence:** Pulled source search found no `XWE0NB`, `ZWJUN0`, `XWGIVA`, `XWIDV0`, or `XAN4CDEM` definitions. The source index resolves available local fields and correctly returns `manual-review` for `XAN4CDEM/CUSTS.XWE0NB`.
