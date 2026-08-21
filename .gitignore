@@ -60,3 +60,7 @@ react-app/e2e/playwright-report/
 react-app/e2e/*.png
 react-app/test-results/
 react-app/playwright-report/
+
+
+# Embedded reference worktrees are not part of this repository.
+contract/target-react-admin/
