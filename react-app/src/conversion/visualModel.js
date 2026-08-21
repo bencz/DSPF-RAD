@@ -74,8 +74,9 @@ function collectWarnings (doc) {
             if (item.refField || item._lengthInferred) {
                 warnings.push({
                     sourceId: item.id,
-                    severity: 'manual-review',
-                    message: `REFFLD length for ${record.name}.${item.name || item.kind} needs review.`,
+                    severity: 'inferred',
+                    confidence: 'low',
+                    message: `REFFLD length for ${record.name}.${item.name || item.kind} inferred from DSPF geometry.`,
                 });
             }
             if (item.usage === 'P' && item.kind === 'field') {

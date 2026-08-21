@@ -50,19 +50,16 @@ describe('buildVisualModel', () => {
         expect(doc.toJSON()).toEqual(before);
     });
 
-    it('reports inferred reference fields for manual review', () => {
+    it('reports inferred REFFLD length without calling it manual review', () => {
         const doc = makeDocument();
         doc.records[0].items[1].refField = true;
         doc.records[0].items[1]._lengthInferred = true;
 
         const model = buildVisualModel(doc);
-
         expect(model.warnings).toEqual([
-            expect.objectContaining({
-                severity: 'manual-review',
-                sourceId: doc.records[0].items[1].id,
-            }),
+            expect.objectContaining({ severity: 'inferred', sourceId: doc.records[0].items[1].id }),
         ]);
+        expect(model.warnings[0].message).toContain('inferred');
         expect(doc.records[0].items[1].refField).toBe(true);
     });
 

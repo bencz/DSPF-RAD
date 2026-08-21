@@ -32,6 +32,8 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
 
     const semantic = buildSemanticPreview(doc);
     const model = buildVisualModel(doc);
+    const reviewTitle = model.warnings.some((warning) => warning.severity === 'manual-review')
+        ? 'Manual review' : 'Inferred output';
     const selectedId = bus?.current ?? null;
     const active = model.records[model.activeRecordIndex] ?? model.records[0];
     return (
@@ -79,7 +81,7 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
                     {model.warnings.length > 0 && (
                         <Paper variant="outlined" sx={{ p: 1.5 }} data-testid="converted-warnings">
                             <Typography variant="subtitle2" color="warning.main">
-                                Manual review
+                                {reviewTitle}
                             </Typography>
                             <Stack spacing={0.5} sx={{ mt: 1 }} data-testid="converted-review">
                                 {model.warnings.map((warning) => (
