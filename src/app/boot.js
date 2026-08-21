@@ -18,6 +18,7 @@ import { seedDemo }       from './demoSeed.js';
 import { setupMenubar }   from './menubar.js';
 import { makeChromeSync } from './chromeSync.js';
 import { bindSourceSync } from './sourceSync.js';
+import { bindConvertedPreview } from './convertedPreview.js';
 import { bindPanelResize } from './panelResize.js';
 import { bindFileIO, downloadText } from './fileIO.js';
 import { initTheme }      from './Theme.js';
@@ -68,11 +69,7 @@ function main () {
         sourceStatusEl: $('sourceStatus'),
     });
 
-    bindPanelResize({
-        designer,
-        handle:      $('resizeHandle'),
-        collapseBtn: $('sourceCollapse'),
-    });
+    bindConvertedPreview({ doc, pane: els.convertedPane, content: els.convertedContent });
 
     bindColumnMarkerPref(sourceEditor, $('cursorColToggle'));
 
@@ -115,6 +112,8 @@ function collectDomRefs () {
         sbRecord:     $('sbRecord'),
         sbItems:      $('sbItems'),
         sbCursor:     $('sbCursor'),
+        convertedPane: $('convertedPane'),
+        convertedContent: $('convertedContent'),
     };
 }
 

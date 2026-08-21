@@ -1364,3 +1364,19 @@ body.source-collapsed .source-editor { display: none; }
    off but remain functional.  Accepted (matches 98.css ecosystem
    behavior — most 98.css dark forks ignore the scrollbar). */
 
+
+/* ---- integrated converted preview ------------------------ */
+.converted-pane {
+    overflow: auto;
+    min-width: 260px;
+    padding: 8px;
+    background: var(--bg-input, #fff);
+    color: var(--fg-text, #111);
+    border-left: 2px inset var(--w98-face, #c0c0c0);
+}
+.converted-title { font-weight: bold; margin-bottom: 8px; }
+.converted-content h3 { margin: 0 0 6px; }
+.converted-content p { margin: 0 0 8px; color: var(--fg-muted, #666); }
+.converted-item { margin: 3px 0; padding: 3px; font-family: monospace; font-size: 12px; }
+.converted-item.status-manual-review { border-left: 3px solid var(--status-warn, #a60); }
+.converted-item.status-unsupported { border-left: 3px solid var(--status-error, #c00); }

@@ -1077,3 +1077,6 @@ The converted preview must never render stale Semantic IR. Canvas edits and sour
 - [ ] Browser: edit source and assert converted preview follows the parsed document.
 - [ ] Integration: assert current document data, Semantic IR, Mapping Contract, and preview content agree after refresh.
 - [ ] Regression: assert legacy Canvas and faithful React preview remain unchanged.
+**Implementation progress:** Added `src/app/convertedPreview.js`, integrated `DspfDocument.emit()` refresh wiring in `src/app/boot.js`, and added the `#convertedPane` markup in `index.html`.
+**Test evidence:** `pnpm test -- --run` passed 17 conversion tests.
+**Browser evidence:** `http://localhost:5173/` is serving a different Vite React application (`/src/main.jsx`, title `Posters Galore Administration`), not this DSPF-RAD workspace. A separate static server attempt on port 8000 also resolved to an unrelated page. Main-controller browser acceptance remains open until the DSPF-RAD app is served from the checked-out workspace.
