@@ -393,3 +393,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/readiness.test.js` passed 31 tests across 8 files.
 
 **Status:** V3.0D readiness boundary complete.
+
+## V3.1A execution evidence
+
+`src/codegen/semanticAssembly.js` provides `buildCompleteSemanticIR(doc)`. The assembly attaches AIDs, normalized indicators, SFL relations, WINDOW metadata, action review entries, diagnostics, and `droppedObjectCount` to the read-only Semantic IR result.
+
+**Test:** `pnpm test -- --run src/codegen/semanticAssembly.test.js` passed 32 tests across 9 files. The test proves CA03, indicator 31, SFLCTL→SFL metadata, H field source status, and zero dropped objects.
+
+**Status:** V3.1A core assembly complete.

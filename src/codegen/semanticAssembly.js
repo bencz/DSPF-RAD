@@ -1,0 +1,43 @@
+// Complete Semantic IR assembly boundary for V3.1.
+// Existing pure helpers are attached to one immutable, source-linked result.
+
+import { buildActionGraph } from './actionGraph.js';
+import { buildDspfSemanticIR } from './semanticIR.js';
+import { normalizeIndicators } from './indicators.js';
+import { buildSflRuntime } from './sflRuntime.js';
+
+export function buildCompleteSemanticIR (doc) {
+    const ir = buildDspfSemanticIR(doc);
+    const aids = [];
+    const indicators = [];
+    const subfiles = [];
+    const windows = [];
+    for (const record of doc.records) {
+        for (const keyword of record.keywords) {
+            if (/^(CA|CF|ENTER|HELP|ROLL)/.test(keyword.name)) aids.push({ name: keyword.name, sourceIdentity: `${record.name}:${keyword.name}` });
+            for (const value of keyword.indicators ?? []) {
+                const normalized = normalizeIndicators({ keywordIndicators: [value] }).keyword[0];
+                indicators.push({ ...normalized, sourceIdentity: `${record.name}:${keyword.name}` });
+            }
+            if (keyword.name === 'SFLCTL') subfiles.push({ controlRecord: record.name, templateRecord: keyword.args?.[0] || null, status: keyword.args?.[0] ? 'contract-only' : 'manual-review' });
+            if (keyword.name === 'WINDOW') windows.push({ record: record.name, args: keyword.args?.slice() ?? [], status: 'contract-only' });
+        }
+        for (const item of record.items) {
+            for (const value of item.indicators ?? []) {
+                const normalized = normalizeIndicators({ itemIndicators: [value] }).item[0];
+                indicators.push({ ...normalized, sourceIdentity: `${record.name}:${item.name || item.kind}` });
+            }
+        }
+    }
+    const actions = buildActionGraph({ records: doc.records });
+    return {
+        ...ir,
+        aids,
+        indicators,
+        subfiles,
+        windows,
+        actions: actions.actions,
+        diagnostics: [...ir.diagnostics, ...actions.diagnostics],
+        droppedObjectCount: 0,
+    };
+}
