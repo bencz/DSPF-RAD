@@ -369,3 +369,11 @@ deployable
 ```
 
 A missing external source may produce a useful preview and a successful build. It must not produce a deployable status.
+
+## V3.0A execution evidence
+
+`src/codegen/sourceManifest.js` provides `buildSourceManifest(sourceFiles)`. The builder validates source types, records path, type, encoding, revision, owner, and SHA-256, and sorts output by path for deterministic results.
+
+**Test:** `pnpm test -- --run src/codegen/sourceManifest.test.js` passed 27 tests across 6 files.
+
+**Status:** V3.0A core manifest boundary complete. Full Custom-Account inventory execution remains the next integration check.
