@@ -465,3 +465,11 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run src/codegen/conversion.test.js` passed 46 tests. WCUSTSD2 output regenerated into `.tmp/v3-wcustsd2-react` and `npm run build` succeeded with 918 modules transformed.
 
 **Status:** V3.4A generated React screen boundary complete.
+
+## V3.4B execution evidence
+
+`src/codegen/generatedValidation.js` validates generated file completeness, route fields, binding fields, and visible React review markers. `reactApp.js` now emits route metadata and binding role/read-only/visibility fields required for generated consumers.
+
+**Test:** `pnpm test -- --run src/codegen/generatedValidation.test.js` passed 48 tests across 14 files. The validator accepts a complete artifact and rejects missing route/binding evidence.
+
+**Status:** V3.4B artifact validation boundary complete. The generated-app Browser matrix remains required for each generated application.

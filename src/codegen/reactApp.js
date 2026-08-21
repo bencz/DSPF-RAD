@@ -11,10 +11,10 @@ export function generateReactApp (contract = {}) {
         diagnostics: contract.diagnostics ?? [],
         status: (contract.diagnostics ?? []).length ? 'manual-review' : 'generated',
     };
-    const routeManifest = { routes: [{ path: '/', screen: 'converted' }] };
+    const routeManifest = { version: '3.4', routes: [{ id: 'converted', path: '/', screen: 'converted', permission: null, loader: 'loadScreen', error: 'renderError', notFound: 'renderNotFound', dirtyGuard: true }] };
     const bindingMap = Object.fromEntries((contract.mappings ?? []).map(mapping => [
         mapping.sourceIdentity,
-        { runtimeBindingKey: mapping.runtimeBindingKey, domId: mapping.domId, status: mapping.status },
+        { runtimeBindingKey: mapping.runtimeBindingKey, domId: mapping.domId, status: mapping.status, role: mapping.output?.role ?? 'unknown', readOnly: mapping.output?.editable !== true, visible: mapping.output?.visible !== false, valueType: mapping.source?.dataType ?? 'string', usage: mapping.output?.role ?? 'unknown' },
     ]));
     return {
         'package.json': json({ private: true, type: 'module', scripts: { dev: 'vite', build: 'vite build', preview: 'vite preview' }, dependencies: { '@vitejs/plugin-react': '^5.0.0', '@emotion/cache': '^11.14.0', '@emotion/react': '^11.14.0', '@emotion/styled': '^11.14.0', '@mui/material': '^6.4.0', 'prop-types': '^15.8.1', react: '^19.0.0', 'react-dom': '^19.0.0' }, devDependencies: { vite: '^7.0.0' } }),
