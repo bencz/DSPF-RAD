@@ -1047,3 +1047,33 @@ Semantic IR → Mapping Contract → generated React → Spring Boot API client
 ```
 
 Prioritize typed models for `DspfSemanticIR`, `DisplayProfile`, identities, references, capabilities, diagnostics, layout mappings, runtime bindings, route manifests, and API errors. Until that pipeline exists, keep the conversion core in pure JS with JSON Schema and Vitest contract tests. A migration must preserve the existing static browser deployment and must not mix a second runtime document into the editor.
+
+## Converted preview refresh contract
+
+The main controller at `http://localhost:5173/` owns the single `DspfDocument`. Every document change must rebuild the read-only conversion chain:
+
+```text
+DspfDocument.emit()
+    → buildDspfSemanticIR(doc)
+    → buildMappingContract(ir)
+    → buildConvertedScreen(contract, activeRecord)
+    → refresh integrated converted preview
+```
+
+The converted preview must never render stale Semantic IR. Canvas edits and source-editor edits must both refresh it while preserving Canvas, faithful React preview, selection, source synchronization, and the single-document invariant.
+
+### V2.1-2D additional acceptance criteria
+
+- [ ] Canvas mutation refreshes the converted preview.
+- [ ] Source-editor mutation refreshes the converted preview after parsing.
+- [ ] Field row, column, length, constant text, DSPSIZ, SFL, and indicator changes appear in the converted preview.
+- [ ] Each refresh rebuilds Semantic IR from the current `DspfDocument`.
+- [ ] Refresh preserves Canvas, faithful preview, selection, and source synchronization.
+- [ ] Browser evidence records the before/after converted preview state at `http://localhost:5173/`.
+
+### V2.1-2D tests
+
+- [ ] Browser: edit a field on Canvas and assert converted preview geometry changes.
+- [ ] Browser: edit source and assert converted preview follows the parsed document.
+- [ ] Integration: assert current document data, Semantic IR, Mapping Contract, and preview content agree after refresh.
+- [ ] Regression: assert legacy Canvas and faithful React preview remain unchanged.

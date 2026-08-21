@@ -1124,3 +1124,17 @@ Semantic IR → Mapping Contract → generated React → Spring Boot API client
 ```
 
 The first typed models should cover Semantic IR, display profiles, identities, references, capabilities, diagnostics, layout mappings, runtime bindings, route manifests, and API errors. Until then, pure JavaScript plus JSON Schema and Vitest contract tests is the compatibility path. Any migration must preserve static deployment and the single `DspfDocument` source of truth.
+
+## Converted preview refresh contract
+
+The main controller at `http://localhost:5173/` owns the single `DspfDocument`. Every `DspfDocument.emit()` must rebuild the read-only conversion chain and refresh the integrated converted preview:
+
+```text
+DspfDocument.emit()
+    → DspfSemanticIR
+    → Mapping Contract
+    → converted screen model
+    → integrated preview
+```
+
+Canvas and source-editor mutations must produce the same current preview result. The refresh must not create a second document, write generated code back to the source editor, or change Canvas, faithful React preview, selection, or source-sync behavior. Browser verification must compare before/after states for field geometry, constant text, DSPSIZ, SFL, and indicator changes.
