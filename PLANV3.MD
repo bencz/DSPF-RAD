@@ -1,5 +1,7 @@
 # DSPF·RAD V3 Execution Plan
 
+> Refined plan: `plan/plan_v3/plan_v0.1.md`. Draft: `plan/plan_v3/plan_v0.md`. Expert reports: `plan/plan_v3/plan_v0_expert1.md`, `plan/plan_v3/plan_v0_expert2.md`, and `plan/plan_v3/plan_v0_expert3.md`.
+
 ## 1. Goal
 
 Deliver a source-complete DSPF conversion pipeline that can produce:
