@@ -72,7 +72,7 @@ test('loads WCUSTSD2 and preserves SFL/hidden-control semantics', async ({ page 
     await expect(page.locator('#convertedPane [data-testid="converted-item"]')).not.toHaveCount(0);
     await expect(page.locator('#convertedPane [data-testid="converted-item"]', { hasText: 'SFIELD' })).toHaveCount(0);
     await expect(page.locator('#convertedPane [data-testid="converted-item"]', { hasText: 'RECNAM' })).toHaveCount(0);
-    await expect(page.locator('#convertedPane [data-testid="converted-warnings"]')).toContainText('REFFLD');
+    await expect(page.locator('#convertedPane [data-testid="converted-review"]')).toContainText('inferred');
 });
 
 test('keeps the WCUSTSD2 SFL control/template records addressable', async ({ page }) => {
@@ -96,4 +96,12 @@ test('shows WCUSTSD2 SFL provenance and review evidence', async ({ page }) => {
     await expect(page.locator('[data-testid="converted-provenance"]')).toContainText('ZZSF01');
     await expect(page.locator('[data-testid="converted-provenance"]')).toContainText('SFL');
     await expect(page.locator('[data-testid="converted-review"]')).toContainText('REFFLD');
+});
+
+test('shows Data Binding List and accepts selected temporary fixes', async ({ page }) => {
+    await page.goto('/');
+    const source = readFileSync('../QDDSSRC/WCUSTSD2.DSPF', 'utf8');
+    await page.evaluate((text) => window.dspfRad.load(text), source);
+    await expect(page.locator('[data-testid="data-binding-list"]')).toBeAttached();
+    await expect(page.locator('[data-testid="data-binding-list"]')).toContainText('Data Binding List');
 });

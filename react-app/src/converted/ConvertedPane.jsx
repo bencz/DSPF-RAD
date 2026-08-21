@@ -13,6 +13,7 @@ import {
     Typography,
 } from '@mui/material';
 
+import { ReviewList } from './ReviewList.jsx';
 import { buildSemanticPreview } from '../conversion/semanticPreview.js';
 import { buildVisualModel } from '../conversion/visualModel.js';
 import { convertedTheme } from './convertedTheme.js';
@@ -61,6 +62,7 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
                         <Typography variant="caption" component="div">Items: {active?.items?.length ?? 0}</Typography>
                         {active?.type === 'SFL' && <Typography variant="caption" component="div">SFL template · control relation requires runtime metadata</Typography>}
                     </Paper>
+                    <ReviewList doc={doc} warnings={model.warnings} mappings={semantic.contract.mappings} />
 
                     <Divider />
 
@@ -78,20 +80,7 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
                         ))}
                     </Box>
 
-                    {model.warnings.length > 0 && (
-                        <Paper variant="outlined" sx={{ p: 1.5 }} data-testid="converted-warnings">
-                            <Typography variant="subtitle2" color="warning.main">
-                                {reviewTitle}
-                            </Typography>
-                            <Stack spacing={0.5} sx={{ mt: 1 }} data-testid="converted-review">
-                                {model.warnings.map((warning) => (
-                                    <Typography key={`${warning.sourceId}-${warning.message}`} variant="caption">
-                                        {warning.message}
-                                    </Typography>
-                                ))}
-                            </Stack>
-                        </Paper>
-                    )}
+                    <Divider />
                 </Stack>
             </Box>
         </ThemeProvider>

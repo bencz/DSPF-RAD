@@ -71,7 +71,7 @@ function collectWarnings (doc) {
     const warnings = [];
     for (const record of doc.records) {
         for (const item of record.items) {
-            if (item.refField || item._lengthInferred) {
+            if ((item.refField || item._lengthInferred) && !item._lengthApproved) {
                 warnings.push({
                     sourceId: item.id,
                     severity: 'inferred',

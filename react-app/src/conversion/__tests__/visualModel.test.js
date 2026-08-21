@@ -78,3 +78,11 @@ describe('buildVisualModel', () => {
         expect(hidden).toMatchObject({ usage: 'H', hidden: true, editable: false });
     });
 });
+
+    it('removes only approved inferred REFFLD warnings', () => {
+        const doc = makeDocument();
+        doc.records[0].items[1].refField = true;
+        doc.records[0].items[1]._lengthInferred = true;
+        doc.records[0].items[1]._lengthApproved = true;
+        expect(buildVisualModel(doc).warnings).toEqual([]);
+    });
