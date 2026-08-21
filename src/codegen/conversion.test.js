@@ -6,6 +6,7 @@ import { DspfDocument } from '../model/DspfDocument.js';
 import {
     buildConvertedScreen,
     resolvePfDdReferences,
+    resolveRecordRelations,
     buildDspfSemanticIR,
     buildRuntimeBindings,
     mapSemanticLayout,
@@ -106,5 +107,18 @@ describe('V2.1 conversion completeness', () => {
         expect(result.references[0]).toMatchObject({ status: 'converted', dataType: 'A', length: 12 });
         expect(result.references[1]).toMatchObject({ status: 'manual-review', target: 'MISSING.CODE' });
         expect(result.diagnostics[0].sourceIdentity).toContain('CODE');
+    });
+
+    it('resolves record relations and marks unknown targets for review', () => {
+        const result = resolveRecordRelations({ records: [
+            { name: 'CTL', type: 'SFLCTL', keywords: [{ name: 'SFLCTL', args: ['ROWS'] }] },
+            { name: 'ROWS', type: 'SFL', keywords: [] },
+            { name: 'BAD', type: 'WINDOW', keywords: [{ name: 'WINDOW', args: ['MISSING'] }] },
+        ] });
+        expect(result.relations).toEqual(expect.arrayContaining([
+            expect.objectContaining({ relation: 'SFL_CONTROL', status: 'resolved' }),
+            expect.objectContaining({ relation: 'WINDOW_CHILD', status: 'manual-review' }),
+        ]));
+        expect(result.diagnostics[0].status).toBe('manual-review');
     });
 });

@@ -6,6 +6,7 @@ import { MODELS } from '../model/constants.js';
 import { buildIdentityGraph } from './identityGraph.js';
 import { classifyCapabilities } from './capabilities.js';
 import { mapSemanticLayout } from './layoutMapper.js';
+import { resolveRecordRelations } from './recordRelations.js';
 
 const SCHEMA_VERSION = '2.1.0';
 const CONVERTER_VERSION = 'dspf-rad-semantic-ir-1';
@@ -80,6 +81,7 @@ export function buildDspfSemanticIR (doc) {
     const { source: profileSource, ...displayProfile } = resolvedProfile;
     const identityGraph = buildIdentityGraph(snapshot);
     const classified = classifyCapabilities(snapshot, identityGraph.identities);
+    const recordRelations = resolveRecordRelations(snapshot);
     const layout = mapSemanticLayout(snapshot, displayProfile);
     const records = [];
     const fields = [];
@@ -179,10 +181,10 @@ export function buildDspfSemanticIR (doc) {
             converterVersion: CONVERTER_VERSION,
         },
         displayProfile,
-        recordRelations: identityGraph.references,
         displayProfileSource: profileSource,
         recordFormats: records,
         identities: identityGraph.identities,
+        recordRelations: recordRelations.relations,
         constants,
         systemValues,
         fields,
@@ -197,6 +199,6 @@ export function buildDspfSemanticIR (doc) {
         cursor: null,
         capabilities: [...capabilities, ...classified.capabilities],
         layout,
-        diagnostics: [...diagnostics, ...identityGraph.diagnostics, ...classified.diagnostics, ...layout.diagnostics],
+        diagnostics: [...diagnostics, ...identityGraph.diagnostics, ...recordRelations.diagnostics, ...classified.diagnostics, ...layout.diagnostics],
     };
 }

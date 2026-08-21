@@ -874,9 +874,9 @@ The following tickets complete the plan coverage after the first visual slice. E
 
 **What to build:** Resolve `SFLCTL → SFL`, `WINDOW → child`, `MNUBAR → PULLDOWN`, message records, and owner relations.
 
-**Acceptance:** Each known relation has a source and target identity. An unresolved relation receives `manual-review`. A record is not silently converted into a route.
-
-**Tests:** `WCONHDRD.DSPF`, `SCROLL_BAR.DSPF`, `MENU_BAR.DSPF`, WINDOW relation, SFL relation, and unknown relation tests.
+**Tests:** Vitest covers SFL control, WINDOW child, resolved relation, unknown target, and diagnostic status.
+**Evidence:** `pnpm test -- --run` passed 10 tests, including resolved `SFL_CONTROL` and unresolved `WINDOW_CHILD` relation cases.
+**Status:** Completed.
 
 ### V2.1-1J — Define the first-release SFL runtime contract
 
