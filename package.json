@@ -6,6 +6,8 @@
 		"vitest": "^4.1.11"
 	},
 	"scripts": {
-		"test": "vitest run"
+		"test": "vitest run",
+		"generate:react": "node scripts/generate-react-app.mjs",
+		"generate:spring": "node scripts/generate-spring-app.mjs"
 	}
 }

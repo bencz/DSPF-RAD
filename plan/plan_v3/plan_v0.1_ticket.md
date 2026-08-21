@@ -521,3 +521,16 @@ A missing external source may produce a useful preview and a successful build. I
 **Test:** `pnpm test -- --run` passed 60 tests across 19 files. Approval and deployment cases cover success, blocker, self-approval, and stale revision paths.
 
 **Status:** V3.6B local deployment-gate boundary complete. Persistent audit storage and live production enforcement remain deployment integration work.
+
+## Direct output workflow evidence
+
+The root package now provides direct commands:
+
+```text
+npm run generate:react -- <DSPF path> <output directory>
+npm run generate:spring -- <DSPF path> <output directory>
+```
+
+Running both commands with `QDDSSRC/WCUSTSD2.DSPF` generated 10 React files and 13 Spring files with 188 mappings. The generated React output passed `npm install` and `npm run build`. The generated Spring output passed `mvn -q -DskipTests package`.
+
+The output report contains 80 diagnostics because the DSPF references external `XAN4CDEM` PF/DD members that are not present in the checked source set. The commands still produce runnable/buildable artifacts, but the readiness gate keeps the conversion review-required and not deployable.
