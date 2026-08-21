@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { DspfDocument } from '../model/DspfDocument.js';
 import {
     buildConvertedScreen,
+    resolvePfDdReferences,
     buildDspfSemanticIR,
     buildRuntimeBindings,
     mapSemanticLayout,
@@ -90,5 +91,20 @@ describe('V2.1 conversion completeness', () => {
         expect(screen.items[0].target.actualSpan).toBeGreaterThan(0);
         expect(screen.actions).toEqual([]);
         expect(JSON.stringify(doc.toJSON())).toBe(before);
+    });
+
+    it('resolves PF/DD references and reports missing sources', () => {
+        const result = resolvePfDdReferences({
+            references: [
+                { sourceIdentity: 'dspf:MAIN:field:USER:occurrence:1', target: 'CUSTOMER.USER' },
+                { sourceIdentity: 'dspf:MAIN:field:CODE:occurrence:2', target: 'MISSING.CODE' },
+            ],
+            sources: {
+                'CUSTOMER.USER': { dataType: 'A', length: 12, decimals: 0, validation: 'none' },
+            },
+        });
+        expect(result.references[0]).toMatchObject({ status: 'converted', dataType: 'A', length: 12 });
+        expect(result.references[1]).toMatchObject({ status: 'manual-review', target: 'MISSING.CODE' });
+        expect(result.diagnostics[0].sourceIdentity).toContain('CODE');
     });
 });

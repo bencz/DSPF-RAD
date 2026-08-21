@@ -1112,3 +1112,15 @@ Store layout semantics, tokens, component mapping, bindings, routes, and accepta
 The converted pane is a fast observation loop. The generated React app, production preview, and Playwright audit are the delivery evidence.
 
 The workflow must preserve the existing parser, model, writer, Canvas, React faithful preview, Inspector, source sync, and selection behavior.
+
+## TypeScript adoption boundary
+
+Keep the existing DSPF-RAD editor in vanilla JavaScript: its parser, writer, Canvas, Designer, Inspector, boot sequence, and source synchronization depend on static browser ES modules and have no build step.
+
+Use TypeScript for new conversion and generated-application boundaries once the build pipeline is introduced:
+
+```text
+Semantic IR → Mapping Contract → generated React → Spring Boot API client
+```
+
+The first typed models should cover Semantic IR, display profiles, identities, references, capabilities, diagnostics, layout mappings, runtime bindings, route manifests, and API errors. Until then, pure JavaScript plus JSON Schema and Vitest contract tests is the compatibility path. Any migration must preserve static deployment and the single `DspfDocument` source of truth.

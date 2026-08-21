@@ -7,5 +7,6 @@ export { classifyKeyword, classifyCapabilities } from './capabilities.js';
 export { mapSemanticLayout } from './layoutMapper.js';
 export { buildRuntimeBindings } from './runtimeBinding.js';
 export { buildConvertedScreen } from './convertedScreen.js';
+export { resolvePfDdReferences } from './pfDdResolver.js';
 export { generateRpgle } from './rpgle.js';
 export { generateCobol } from './cobol.js';

@@ -859,10 +859,14 @@ The following tickets complete the plan coverage after the first visual slice. E
 **Blocked by:** V2.1-1A and V2.1-1C.
 
 **What to build:** Resolve `REFFLD` references from available PF/DD sources. Return resolved type, length, decimals, validation, source location, and reference status.
+**Implementation:** `src/codegen/pfDdResolver.js` provides `resolvePfDdReferences()` as a pure adapter over supplied PF/DD metadata.
 
 **Acceptance:** Existing PF/DD resolves without warning. Missing PF/DD returns `manual-review`. Multiple matches return a conflict diagnostic. The document snapshot remains unchanged.
+**Tests:** Vitest validates resolved metadata, missing-source `manual-review`, diagnostic source identity, and no source mutation.
 
 **Tests:** PF/DD fixture test, missing-source test, multiple-match test, immutability test, and full legacy regression.
+**Evidence:** `pnpm test -- --run` passed 9 tests, including a PF/DD reference with resolved type/length and a missing source with `manual-review` diagnostic.
+**Status:** Completed.
 
 ### V2.1-1I — Resolve DSPF record-format relations
 
@@ -1012,3 +1016,15 @@ V2.1-1A DspfSemanticIR
 ```
 
 **Reason:** The complete Modern React screen must combine static DSPF layout, external source bindings, and runtime display hints. The screen must not show a runtime value as static design data without a traceable source.
+
+## TypeScript adoption boundary
+
+The existing DSPF-RAD editor remains vanilla JavaScript because it is a browser-served, no-build ES module application. Do not convert the parser, writer, Canvas, Designer, Inspector, boot sequence, or source synchronization only to introduce types.
+
+Use TypeScript for new conversion boundaries when a build pipeline exists:
+
+```text
+Semantic IR → Mapping Contract → generated React → Spring Boot API client
+```
+
+Prioritize typed models for `DspfSemanticIR`, `DisplayProfile`, identities, references, capabilities, diagnostics, layout mappings, runtime bindings, route manifests, and API errors. Until that pipeline exists, keep the conversion core in pure JS with JSON Schema and Vitest contract tests. A migration must preserve the existing static browser deployment and must not mix a second runtime document into the editor.
