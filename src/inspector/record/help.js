@@ -10,12 +10,17 @@ const HLP_NAMES = [
 ];
 
 export function renderHelp (pane, rec, ctx) {
-    const present = rec.keywords.filter(k => HLP_NAMES.includes(k.name));
+    const helpSpecs = rec.helpSpecs ?? [];
+    const present = [
+        ...rec.keywords.filter(k => HLP_NAMES.includes(k.name)),
+        ...helpSpecs.flatMap(spec => spec.keywords ?? [])
+            .filter(k => HLP_NAMES.includes(k.name)),
+    ];
     if (!present.length) return;
 
     const sec = sectionStart(pane, 'Help references');
     renderHlpTitle(sec, rec, ctx);
-    renderHlpArea(sec, rec, ctx);
+    renderHlpArea(sec, rec, helpSpecs, ctx);
     renderRemainingReadOnly(sec, present);
 }
 
@@ -38,8 +43,10 @@ function renderHlpTitle (sec, rec, ctx) {
     sec.appendChild(row('HLPTITLE', inp));
 }
 
-function renderHlpArea (sec, rec, ctx) {
-    const haKw   = rec.keywords.find(k => k.name === 'HLPARA');
+function renderHlpArea (sec, rec, helpSpecs, ctx) {
+    const owner = helpSpecs.find(spec =>
+        spec.keywords?.some(k => k.name === 'HLPARA')) ?? rec;
+    const haKw   = owner.keywords.find(k => k.name === 'HLPARA');
     const haArgs = haKw?.args ?? [];
 
     const grid = document.createElement('div');
@@ -57,9 +64,9 @@ function renderHlpArea (sec, rec, ctx) {
         inp.value       = haArgs[i] ?? '';
         inp.addEventListener('change', () => {
             const vals = inputs.map(x => x.value.trim()).filter(Boolean);
-            removeKeyword(rec, 'HLPARA');
+            removeKeyword(owner, 'HLPARA');
             if (vals.length) {
-                rec.keywords.push({ name: 'HLPARA', args: vals, indicators: [] });
+                owner.keywords.push({ name: 'HLPARA', args: vals, indicators: [] });
             }
             ctx.onChange?.();
         });

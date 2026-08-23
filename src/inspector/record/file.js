@@ -23,7 +23,8 @@ const FILE_MISC_INTERESTING = ['MSGLOC','DSPMOD','SETOF','MAXDEV','UBUFFER'];
 
 export function renderFileOptions (pane, rec, ctx) {
     const sec = sectionStart(pane, 'File-level options');
-    renderPresenceChips(sec, rec, FILE_OPTION_NAMES, FILE_OPTION_TIPS, ctx.onChange);
+    renderPresenceChips(
+        sec, rec, FILE_OPTION_NAMES, FILE_OPTION_TIPS, ctx.onChange, 'file');
 
     if (rec.keywords.some(k => k.name === 'INDARA')) {
         const warn = document.createElement('p');
@@ -72,7 +73,9 @@ function renderMsgLoc (sec, rec, ctx) {
         removeKeyword(rec, 'MSGLOC');
         const v = parseInt(inp.value, 10);
         if (Number.isFinite(v)) {
-            rec.keywords.push({ name: 'MSGLOC', args: [String(v)], indicators: [] });
+            rec.keywords.push({
+                name: 'MSGLOC', args: [String(v)], indicators: [], scope: 'file',
+            });
         }
         ctx.onChange?.();
     });

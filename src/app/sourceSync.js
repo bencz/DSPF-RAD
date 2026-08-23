@@ -16,6 +16,7 @@
 
 import { parseDspf }        from '../parser/parseDspf.js';
 import { writeDspfWithMap } from '../writer/writeDspf.js';
+import { validateDspf }      from '../validation/validateDspf.js';
 
 const PARSE_DEBOUNCE_MS  = 300;
 const CURSOR_DEBOUNCE_MS = 80;
@@ -39,7 +40,7 @@ export function bindSourceSync ({ doc, designer, sourceEditor, sourceStatusEl })
 
     // Source → canvas + cursor reciprocity.
     sourceEditor._onUserChange = (text) =>
-        scheduleParse(text, state, doc, setStatus, applyHighlight);
+        scheduleParse(text, state, doc, designer, setStatus, applyHighlight);
     sourceEditor._onCursorChange = (line) =>
         scheduleCursorSync(line, state, designer, doc);
 
@@ -47,11 +48,20 @@ export function bindSourceSync ({ doc, designer, sourceEditor, sourceStatusEl })
     // control of the latest mutation.
     doc.onChange(() => {
         if (state.sourceIsAuthoritative) return;
-        const { text, map } = writeDspfWithMap(doc);
-        state.lineMap = map;
-        sourceEditor.setValue(text);
-        applyHighlight();
-        setStatus('ok', 'sync');
+        // A canvas/inspector mutation supersedes any source snapshot still
+        // waiting in the debounce queue.  Otherwise the stale timer can
+        // overwrite the newer visual edit a fraction of a second later.
+        clearTimeout(state.parseTimer);
+        state.parseTimer = null;
+        try {
+            const { text, map } = writeDspfWithMap(doc);
+            state.lineMap = map;
+            sourceEditor.setValue(text);
+            applyHighlight();
+            setStatus('ok', 'sync');
+        } catch (error) {
+            setStatus('error', error.message || 'invalid DDS model');
+        }
     });
 
     // First paint.
@@ -77,35 +87,75 @@ function makeStatusSetter (el) {
     };
 }
 
-function scheduleParse (text, state, doc, setStatus, applyHighlight) {
+function scheduleParse (text, state, doc, designer, setStatus, applyHighlight) {
     setStatus('warn', 'parsing…');
     clearTimeout(state.parseTimer);
     state.parseTimer = setTimeout(() =>
-        runParse(text, state, doc, setStatus, applyHighlight),
+        runParse(text, state, doc, designer, setStatus, applyHighlight),
         PARSE_DEBOUNCE_MS);
 }
 
-function runParse (text, state, doc, setStatus, applyHighlight) {
+function runParse (text, state, doc, designer, setStatus, applyHighlight) {
     try {
         const parsed = parseDspf(text);
         if (!parsed || !parsed.records?.length) {
             setStatus('error', 'no records parsed');
             return;
         }
+        const selection = selectionLocator(doc, designer.selectedId);
         state.sourceIsAuthoritative = true;
         try { doc.adopt(parsed); }
         finally { state.sourceIsAuthoritative = false; }
+        const replacement = findLocatedItem(doc, selection);
+        state.suppressCursorSync = true;
+        try { designer.selectItem(replacement?.id ?? null); }
+        finally { state.suppressCursorSync = false; }
         // doc.adopt → emit fired our other listeners, but the canvas→
         // source listener skipped because of the flag.  Recompute the
         // line map so cursor↔item reflects the adopted doc.
         state.lineMap = writeDspfWithMap(doc).map;
         applyHighlight();
-        setStatus('ok', 'sync');
+        const diagnostics = validateDspf(doc);
+        const errors = diagnostics.filter(item => item.severity === 'error').length;
+        const warnings = diagnostics.filter(item => item.severity === 'warning').length;
+        if (errors) setStatus('error', `${errors} DDS error${errors === 1 ? '' : 's'}`);
+        else if (warnings) setStatus('warn', `${warnings} DDS warning${warnings === 1 ? '' : 's'}`);
+        else setStatus('ok', 'sync');
     } catch (err) {
         state.sourceIsAuthoritative = false;
         setStatus('error', err.message || 'parse error');
         console.error('[dspf·rad] source parse failed:', err);
     }
+}
+
+function selectionLocator (doc, id) {
+    if (!id) return null;
+    for (let recordIndex = 0; recordIndex < doc.records.length; recordIndex++) {
+        const record = doc.records[recordIndex];
+        const itemIndex = record.items.findIndex(item => item.id === id);
+        if (itemIndex < 0) continue;
+        const item = record.items[itemIndex];
+        return {
+            recordName: record.name, recordIndex, itemIndex,
+            kind: item.kind, name: item.name || '', row: item.row, col: item.col,
+        };
+    }
+    return null;
+}
+
+function findLocatedItem (doc, locator) {
+    if (!locator) return null;
+    const record = doc.records.find(candidate => candidate.name === locator.recordName) ??
+        doc.records[locator.recordIndex];
+    if (!record) return null;
+    if (locator.name) {
+        const named = record.items.find(item =>
+            item.kind === locator.kind && item.name === locator.name);
+        if (named) return named;
+    }
+    const positional = record.items.find(item =>
+        item.kind === locator.kind && item.row === locator.row && item.col === locator.col);
+    return positional ?? record.items[locator.itemIndex] ?? null;
 }
 
 function scheduleCursorSync (line, state, designer, doc) {

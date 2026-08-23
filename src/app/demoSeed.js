@@ -5,11 +5,12 @@ import { makeItem } from '../model/factories.js';
 import { keywordsFromShortcuts } from '../model/keywords.js';
 
 export function seedDemo (doc) {
+    doc.sourceName = 'SIGNOND';
     const r = doc.activeRecord;
     r.name = 'SIGNON';
     r.type = 'RECORD';
     r.keywords = [
-        { name: 'DSPSIZ',  args: ['24', '80', '*DS3'], indicators: [] },
+        { name: 'DSPSIZ',  args: ['24', '80', '*DS3'], indicators: [], scope: 'file' },
         { name: 'CA03',    args: ['03'],               indicators: [] },
         { name: 'CA12',    args: ['12'],               indicators: [] },
         { name: 'PRINT',   args: [],                   indicators: [] },

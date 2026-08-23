@@ -5,11 +5,36 @@
 import { keywordsFromShortcuts } from '../model/keywords.js';
 
 export function specToItem (spec, cell) {
+    return specToItems(spec, cell)[0];
+}
+
+export function specToItems (spec, cell, usedNames = []) {
     const at = { row: cell.row, col: cell.col };
     const baseKws = keywordsFromShortcuts(spec);
 
     const builder = BUILDERS[spec.kind] ?? defaultField;
-    return builder(spec, at, baseKws);
+    const primary = builder(spec, at, baseKws);
+    const names = new Set(usedNames.map(name => String(name).toUpperCase()));
+    if (primary.kind === 'field' && primary.name) {
+        primary.name = uniqueFieldName(primary.name, names);
+    }
+    if (!primary.keywords?.some(kw => kw.name === 'MLTCHCFLD')) return [primary];
+
+    const companions = [];
+    for (const choice of primary.keywords.filter(kw => kw.name === 'CHOICE')) {
+        const choiceNo = String(choice.args?.[0] ?? companions.length + 1);
+        const controlName = uniqueFieldName(`${primary.name || 'CHK'}C${choiceNo}`, names);
+        primary.keywords.push({
+            name: 'CHCCTL', args: [choiceNo, `&${controlName};`], indicators: [],
+        });
+        companions.push({
+            kind: 'field', row: 1, col: 1,
+            name: controlName, length: 1,
+            usage: 'H', dataType: 'Y', decimals: 0,
+            keywords: [],
+        });
+    }
+    return [primary, ...companions];
 }
 
 const BUILDERS = {
@@ -94,7 +119,7 @@ function singleChoice (head, spec, at, kws, defaultName) {
     return {
         kind: 'field', ...at,
         name: spec.name ?? defaultName,
-        length: 1, usage: 'B', dataType: 'Y', decimals: 0,
+        length: 2, usage: 'B', dataType: 'Y', decimals: 0,
         keywords: [
             { name: head,     args: [],                       indicators: [] },
             { name: 'CHOICE', args: ['1', "'Option'"],         indicators: [] },
@@ -107,7 +132,7 @@ function groupChoice (head, spec, at, kws, defaultName) {
     return {
         kind: 'field', ...at,
         name: spec.name ?? defaultName,
-        length: 1, usage: 'B', dataType: 'Y', decimals: 0,
+        length: 2, usage: 'B', dataType: 'Y', decimals: 0,
         keywords: [
             { name: head,     args: [],                          indicators: [] },
             { name: 'CHOICE', args: ['1', "'Option 1'"],          indicators: [] },
@@ -116,6 +141,20 @@ function groupChoice (head, spec, at, kws, defaultName) {
             ...kws,
         ],
     };
+}
+
+function uniqueFieldName (candidate, used) {
+    const base = String(candidate).toUpperCase()
+        .replace(/[^A-Z0-9_]/g, '').slice(0, 10) || 'CTL';
+    let name = base;
+    let suffix = 1;
+    while (used.has(name)) {
+        suffix++;
+        const tail = String(suffix);
+        name = base.slice(0, 10 - tail.length) + tail;
+    }
+    used.add(name);
+    return name;
 }
 
 function defaultField (spec, at, kws) {

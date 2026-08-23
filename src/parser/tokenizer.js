@@ -32,6 +32,14 @@ export function tokenizeKeywords (text) {
     return out;
 }
 
+// Tokenize the contents of a keyword's argument editor.  Unlike a plain
+// whitespace split, this preserves quoted text and nested parameter groups.
+export function tokenizeArguments (text) {
+    const args = [];
+    readArgList(String(text ?? ''), 0, args);
+    return args;
+}
+
 // Reads arg tokens up to the matching ')'.  Returns the index just past
 // the closing paren.  Tracks nested parens and quoted strings so spaces
 // inside them stay glued to their arg.

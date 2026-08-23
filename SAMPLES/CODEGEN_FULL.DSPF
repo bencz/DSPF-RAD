@@ -1,0 +1,58 @@
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      INDARA
+
+     A**************************************************************************
+     A* ORDSFL  -  SFL                                                         *
+     A**************************************************************************
+     A          R ORDSFL                    SFL
+     A            OPTION         1A  B  6  3
+     A            ORDERNO        7S 0O  6  6
+     A            CUSTOMER      20A  O  6 16
+
+     A**************************************************************************
+     A* ORDSFLC  -  SFLCTL                                                     *
+     A**************************************************************************
+     A          R ORDSFLC                   SFLCTL(ORDSFL)
+     A                                      SFLPAG(0010)
+     A                                      SFLSIZ(0011)
+     A N30                                  SFLCLR
+     A  31                                  SFLDSP
+     A  32                                  SFLDSPCTL
+     A                                      CF03(03 'Exit')
+     A                                      CF05(05 'Refresh')
+     A                                      MNUBARDSP(MENUBAR &MNUCHC; +
+     A                                      &PULLCHC;)
+     A            MNUCHC         2Y 0H
+     A            PULLCHC        2S 0H
+     A            BTNS           2Y 0B  2  2
+     A                                      PSHBTNFLD
+     A                                      PSHBTNCHC(1 'Approve')
+     A                                      PSHBTNCHC(2 'Reject')
+     A            RADIO          2Y 0B  3  2
+     A                                      SNGCHCFLD
+     A                                      CHOICE(1 'Open')
+     A                                      CHOICE(2 'Closed')
+     A            CHECKS         2Y 0B  3 25
+     A                                      MLTCHCFLD
+     A                                      CHOICE(1 'Urgent')
+     A                                      CHOICE(2 'Gift')
+     A                                      CHCCTL(1 &CHKC1;)
+     A                                      CHCCTL(2 &CHKC2;)
+     A            CHKC1          1Y 0H
+     A            CHKC2          1Y 0H
+
+     A**************************************************************************
+     A* MENUBAR  -  MNUBAR                                                     *
+     A**************************************************************************
+     A          R MENUBAR                   MNUBAR
+     A            MENU           2Y 0B  1  2
+     A                                      MNUBARCHC(1 PULL1 'Actions')
+
+     A**************************************************************************
+     A* PULL1  -  PULLDOWN                                                     *
+     A**************************************************************************
+     A          R PULL1                     PULLDOWN
+     A            ACTION         2Y 0B  1  1
+     A                                      SNGCHCFLD
+     A                                      CHOICE(1 'Details')
+     A                                      CHOICE(2 'History')

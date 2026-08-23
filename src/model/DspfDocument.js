@@ -3,11 +3,12 @@
 // — see ./keywords.js for the manipulation helpers.
 
 import { MODELS, RECORD_TYPES } from './constants.js';
-import { makeItem, makeRecord, uniqueRecordName } from './factories.js';
+import { makeItem, makeRecord, uniqueRecordName, ibmiName } from './factories.js';
 
 export class DspfDocument {
     constructor () {
         this.modelKey = '24x80';
+        this.sourceName = 'DSPFILE';
         this.records = [makeRecord({ name: 'MAIN' })];
         this.activeRecordIndex = 0;
         this.showOverlay = false;
@@ -30,6 +31,11 @@ export class DspfDocument {
     setModel (key) {
         if (!MODELS[key] || key === this.modelKey) return;
         this.modelKey = key;
+        for (const record of this.records) {
+            record.keywords = (record.keywords ?? []).filter(
+                keyword => keyword.name !== 'DSPSIZ');
+        }
+        this.records[0]?.keywords.unshift(modelSizeKeyword(key));
         // Clamp items that no longer fit the new geometry.
         for (const r of this.records) {
             for (const it of r.items) {
@@ -55,7 +61,10 @@ export class DspfDocument {
     }
 
     reset () {
-        this.records = [makeRecord({ name: 'MAIN' })];
+        this.sourceName = 'DSPFILE';
+        this.records = [makeRecord({
+            name: 'MAIN', keywords: [modelSizeKeyword(this.modelKey)],
+        })];
         this.activeRecordIndex = 0;
         this.emit();
     }
@@ -63,11 +72,15 @@ export class DspfDocument {
     // Copy state from another DspfDocument in place so existing references
     // to `this` stay valid after a parser round-trip.
     adopt (other) {
-        this.modelKey          = other.modelKey;
-        this.records           = other.records;
-        this.activeRecordIndex = other.activeRecordIndex ?? 0;
-        this.showOverlay       = other.showOverlay ?? false;
-        if (!this.records.length) this.records = [makeRecord({ name: 'MAIN' })];
+        this.modelKey = MODELS[other?.modelKey] ? other.modelKey : '24x80';
+        this.records = Array.isArray(other?.records) && other.records.length
+            ? other.records
+            : [makeRecord({ name: 'MAIN' })];
+        this.activeRecordIndex = clampRecordIndex(
+            other?.activeRecordIndex, this.records.length);
+        // Overlay and conditioning visibility are workspace preferences,
+        // not DSPF source data.  Preserve them while source edits adopt a
+        // freshly parsed document.
         this.emit();
     }
 
@@ -116,7 +129,10 @@ export class DspfDocument {
 
     renameRecord (idx, name) {
         if (idx < 0 || idx >= this.records.length) return;
-        this.records[idx].name = uniqueRecordName(this.records, name, idx);
+        const oldName = this.records[idx].name;
+        const newName = uniqueRecordName(this.records, name, idx);
+        this.records[idx].name = newName;
+        if (newName !== oldName) updateRecordReferences(this.records, oldName, newName);
         this.emit();
     }
 
@@ -124,14 +140,31 @@ export class DspfDocument {
         if (idx < 0 || idx >= this.records.length) return;
         if (!RECORD_TYPES[type]) return;
         if (this.records[idx].type === type) return;
-        this.records[idx].type = type;
+        const record = this.records[idx];
+        record.type = type;
+        record.keywords = (record.keywords ?? []).filter(keyword =>
+            !Object.hasOwn(RECORD_TYPES, keyword.name));
+        if (type !== 'RECORD') {
+            record.keywords.unshift({ name: type, args: [], indicators: [] });
+        }
         this.emit();
     }
 
     deleteRecord (idx) {
         if (this.records.length === 1) return;
+        const fileKeywords = (this.records[idx]?.keywords ?? []).filter(
+            keyword => keyword.scope === 'file');
         this.records.splice(idx, 1);
-        if (this.activeRecordIndex >= this.records.length)
+        if (fileKeywords.length) {
+            const first = this.records[0];
+            const existing = new Set(first.keywords
+                .filter(keyword => keyword.scope === 'file')
+                .map(keyword => `${keyword.name}\0${keyword.args.join('\0')}`));
+            first.keywords.unshift(...fileKeywords.filter(keyword =>
+                !existing.has(`${keyword.name}\0${keyword.args.join('\0')}`)));
+        }
+        if (idx < this.activeRecordIndex) this.activeRecordIndex--;
+        else if (this.activeRecordIndex >= this.records.length)
             this.activeRecordIndex = this.records.length - 1;
         this.emit();
     }
@@ -148,6 +181,14 @@ export class DspfDocument {
         this.activeRecord.items.push(it);
         this.emit();
         return it;
+    }
+
+    addItems (items) {
+        const created = (items ?? []).map(overrides => makeItem(overrides));
+        if (!created.length) return [];
+        this.activeRecord.items.push(...created);
+        this.emit();
+        return created;
     }
 
     removeItem (id) {
@@ -186,8 +227,10 @@ export class DspfDocument {
     toJSON () {
         return {
             modelKey: this.modelKey,
+            sourceName: this.sourceName,
             activeRecordIndex: this.activeRecordIndex,
             showOverlay: this.showOverlay,
+            hideConditioned: this.hideConditioned,
             records: this.records.map(r => ({
                 name: r.name,
                 type: r.type,
@@ -195,13 +238,26 @@ export class DspfDocument {
                     ...kw,
                     args: kw.args.slice(),
                     indicators: kw.indicators.slice(),
+                    conditionLines: cloneConditionLines(kw.conditionLines),
+                })),
+                helpSpecs: (r.helpSpecs ?? []).map(spec => ({
+                    keywords: (spec.keywords ?? []).map(kw => ({
+                        ...kw,
+                        args: kw.args.slice(),
+                        indicators: kw.indicators.slice(),
+                        conditionLines: cloneConditionLines(kw.conditionLines),
+                    })),
                 })),
                 items: r.items.map(it => ({
                     ...it,
+                    conditionLines: cloneConditionLines(it.conditionLines),
+                    alternateLocations: (it.alternateLocations ?? []).map(
+                        location => ({ ...location })),
                     keywords:   it.keywords.map(kw => ({
                         ...kw,
                         args: kw.args.slice(),
                         indicators: kw.indicators.slice(),
+                        conditionLines: cloneConditionLines(kw.conditionLines),
                     })),
                     indicators: it.indicators.slice(),
                 })),
@@ -210,16 +266,70 @@ export class DspfDocument {
     }
 
     static fromJSON (data) {
+        data = data && typeof data === 'object' ? data : {};
         const doc = new DspfDocument();
-        doc.modelKey    = data.modelKey ?? '24x80';
+        doc.modelKey    = MODELS[data.modelKey] ? data.modelKey : '24x80';
+        doc.sourceName  = ibmiName(data.sourceName, 'DSPFILE');
         doc.showOverlay = !!data.showOverlay;
-        const recs = (data.records ?? []).map(r => makeRecord({
+        doc.hideConditioned = !!data.hideConditioned;
+        const usedIds = new Set();
+        const recs = (Array.isArray(data.records) ? data.records : []).map(r => makeRecord({
             name: r.name, type: r.type, keywords: r.keywords,
-            items: (r.items ?? []).map(it => makeItem(it)),
+            helpSpecs: r.helpSpecs,
+            items: (Array.isArray(r.items) ? r.items : []).map(raw => {
+                const overrides = { ...raw };
+                if (!overrides.id || usedIds.has(overrides.id)) overrides.id = null;
+                const item = makeItem(overrides);
+                usedIds.add(item.id);
+                return item;
+            }),
         }));
         doc.records = recs.length ? recs : [makeRecord({ name: 'MAIN' })];
-        doc.activeRecordIndex = Math.min(
-            data.activeRecordIndex ?? 0, doc.records.length - 1);
+        doc.activeRecordIndex = clampRecordIndex(
+            data.activeRecordIndex, doc.records.length);
         return doc;
     }
+}
+
+function cloneConditionLines (lines) {
+    return (lines ?? []).map(line => ({
+        conditionOp: line.conditionOp ?? '',
+        indicators: (line.indicators ?? []).slice(),
+    }));
+}
+
+function modelSizeKeyword (key) {
+    return key === '27x132'
+        ? { name: 'DSPSIZ', args: ['27', '132', '*DS4'], indicators: [], scope: 'file' }
+        : { name: 'DSPSIZ', args: ['24', '80', '*DS3'], indicators: [], scope: 'file' };
+}
+
+function updateRecordReferences (records, oldName, newName) {
+    const updateKeyword = keyword => {
+        const refIndex = keyword.name === 'MNUBARCHC' ? 1 : 0;
+        const recordRefKeywords = new Set([
+            'SFLCTL', 'MNUBARDSP', 'MNUBARCHC', 'HLPRCD',
+        ]);
+        if (recordRefKeywords.has(keyword.name) && keyword.args?.[refIndex] === oldName) {
+            keyword.args[refIndex] = newName;
+        }
+        if (keyword.name === 'WINDOW' && keyword.args?.length === 1 &&
+            keyword.args[0] === oldName) {
+            keyword.args[0] = newName;
+        }
+    };
+    for (const record of records) {
+        for (const keyword of record.keywords ?? []) updateKeyword(keyword);
+        for (const spec of record.helpSpecs ?? []) {
+            for (const keyword of spec.keywords ?? []) updateKeyword(keyword);
+        }
+        for (const item of record.items ?? []) {
+            for (const keyword of item.keywords ?? []) updateKeyword(keyword);
+        }
+    }
+}
+
+function clampRecordIndex (value, length) {
+    const n = Number.isInteger(value) ? value : 0;
+    return Math.min(Math.max(n, 0), Math.max(0, length - 1));
 }

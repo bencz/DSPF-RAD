@@ -61,6 +61,44 @@ A*%%TS  SD  20260513  144732  CLAUDE      REL-V7R5M0  5770-WDS
      A            C3             1Y 0H
      A            C5             1Y 0H
      A***************************************************************
+     A*  Pull-down Edit (opcao 2)                                   *
+     A***************************************************************
+     A          R PEDIT                     PULLDOWN
+     A            PE1            2Y 0B  1  2SNGCHCFLD((*NUMCOL 1))
+     A                                      CHOICE(1 'Copy')
+     A                                      CHOICE(2 'Edit selected')
+     A                                      CHOICE(3 'Delete selected')
+     A***************************************************************
+     A*  Pull-down View (opcao 3)                                   *
+     A***************************************************************
+     A          R PVIEW                     PULLDOWN
+     A            PV1            2Y 0B  1  2SNGCHCFLD((*NUMCOL 1))
+     A                                      CHOICE(1 'Customer details')
+     A                                      CHOICE(2 'Order history')
+     A                                      CHOICE(3 'Refresh')
+     A***************************************************************
+     A*  Pull-down Tools (opcao 4)                                  *
+     A***************************************************************
+     A          R PTOOLS                    PULLDOWN
+     A            PT1            2Y 0B  1  2SNGCHCFLD((*NUMCOL 1))
+     A                                      CHOICE(1 'Customer inquiry')
+     A                                      CHOICE(2 'Stock movement')
+     A                                      CHOICE(3 'New order')
+     A***************************************************************
+     A*  Pull-down Reports (opcao 5)                                *
+     A***************************************************************
+     A          R PREPRT                    PULLDOWN
+     A            PR1            2Y 0B  1  2SNGCHCFLD((*NUMCOL 1))
+     A                                      CHOICE(1 'Customer list')
+     A                                      CHOICE(2 'Invoice print')
+     A***************************************************************
+     A*  Pull-down Help (opcao 6)                                   *
+     A***************************************************************
+     A          R PHELP                     PULLDOWN
+     A            PH1            2Y 0B  1  2SNGCHCFLD((*NUMCOL 1))
+     A                                      CHOICE(1 'Help contents')
+     A                                      CHOICE(2 'About')
+     A***************************************************************
      A*  Cabecalho com banner FIGlet e identificacao do sistema     *
      A***************************************************************
      A          R FMTHDR                    OVERLAY

@@ -1,18 +1,34 @@
 // Helpers around the canonical keywords[] list carried by every item and
 // record.  A keyword is { name, args:[...], indicators:[...] }.
 //
-// Indicator tokens are raw: '33' = on, 'N34' = off.  Real DSPF allows up
-// to 5 per keyword; we don't enforce that — the parser can drop overflow
-// when needed.
+// Indicator tokens are raw: '33' = on, 'N34' = off.  This model represents
+// the three condition slots available on one DDS source line.  Compound
+// AND/OR condition lines require a richer expression model and must never
+// be simulated by silently dropping tokens.
 
 export function normalize (kw) {
-    return {
+    const normalized = {
         name: kw.name,
         args: Array.isArray(kw.args)
             ? kw.args.slice()
             : (kw.args != null ? [String(kw.args)] : []),
         indicators: Array.isArray(kw.indicators) ? kw.indicators.slice() : [],
     };
+    if (kw.conditionOp === 'A' || kw.conditionOp === 'O') {
+        normalized.conditionOp = kw.conditionOp;
+    }
+    if (Array.isArray(kw.conditionLines) && kw.conditionLines.length) {
+        normalized.conditionLines = kw.conditionLines.map(line => ({
+            conditionOp: line.conditionOp === 'A' || line.conditionOp === 'O'
+                ? line.conditionOp
+                : '',
+            indicators: Array.isArray(line.indicators)
+                ? line.indicators.slice()
+                : [],
+        }));
+    }
+    if (kw.scope === 'file') normalized.scope = 'file';
+    return normalized;
 }
 
 export function ensureList (target) {
@@ -121,11 +137,17 @@ export function keywordsFromShortcuts (s) {
 // into the canonical token list ['33', 'N34', '34'].
 export function parseIndicatorTokens (s) {
     if (!s) return [];
-    return s.toUpperCase().split(/[\s,]+/).filter(Boolean).map(tok => {
-        if (tok.startsWith('+')) return tok.slice(1);
-        if (tok.startsWith('-')) return 'N' + tok.slice(1);
-        return tok;
-    });
+    const out = [];
+    for (let token of s.toUpperCase().split(/[\s,]+/).filter(Boolean)) {
+        if (token.startsWith('+')) token = token.slice(1);
+        else if (token.startsWith('-')) token = 'N' + token.slice(1);
+        const match = /^N?(\d{1,2})$/.exec(token);
+        if (!match) continue;
+        const value = parseInt(match[1], 10);
+        if (value < 1 || value > 99) continue;
+        out.push((token.startsWith('N') ? 'N' : '') + String(value).padStart(2, '0'));
+    }
+    return out;
 }
 
 export function formatIndicatorTokens (arr) {

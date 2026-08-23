@@ -3,6 +3,7 @@
 // arg uses (<field> <file> | <lib>/<file>/<field>).
 
 import { sectionStart, row, emptyNote } from '../dom.js';
+import { tokenizeArguments } from '../../parser/tokenizer.js';
 
 export function renderRefFld (pane, item, ctx) {
     const sec = sectionStart(pane, 'Referenced field (REFFLD)');
@@ -18,7 +19,7 @@ export function renderRefFld (pane, item, ctx) {
     inp.placeholder = '<field> <file>  or  <lib>/<file>/<field>';
     inp.title       = 'IBM REFFLD: which PF/LF + field this entry inherits from';
     inp.addEventListener('change', () => {
-        kw.args = inp.value.trim().split(/\s+/).filter(Boolean);
+        kw.args = tokenizeArguments(inp.value);
         ctx.onChange?.();
     });
     sec.appendChild(row('REFFLD', inp));

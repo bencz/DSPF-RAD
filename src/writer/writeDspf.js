@@ -14,6 +14,11 @@ import { pushLine, formatKeyword } from './line.js';
 import { pushRecordHeader }        from './header.js';
 
 const TYPE_KEYWORDS = new Set(['SFL', 'SFLCTL', 'MNUBAR', 'PULLDOWN', 'WINDOW']);
+const DISPLAY_DATA_TYPES = new Set([
+    'A', 'S', 'Y', 'N', 'I', 'D', 'X', 'F', 'M', 'L', 'T', 'Z',
+    'W', 'E', 'J', 'O', 'G',
+]);
+const DISPLAY_USAGES = new Set(['I', 'O', 'B', 'H', 'P', 'M']);
 
 export function writeDspf (doc) {
     return writeDspfWithMap(doc).text;
@@ -25,6 +30,18 @@ export function writeDspf (doc) {
 export function writeDspfWithMap (doc) {
     const lines = [];
     const map   = { records: [], items: [] };
+
+    const fileKeywords = doc.records.flatMap(record =>
+        (record.keywords ?? []).filter(kw => kw.scope === 'file'));
+    for (const kw of fileKeywords) {
+        writeConditionPrefix(kw, lines);
+        pushLine(lines, {
+            keywordText: formatKeyword(kw),
+            indicators: kw.indicators,
+            conditionOp: kw.conditionOp,
+        });
+    }
+    if (fileKeywords.length && doc.records.length) lines.push('');
 
     for (let i = 0; i < doc.records.length; i++) {
         if (i > 0) lines.push('');
@@ -46,19 +63,38 @@ export function writeDspfWithMap (doc) {
 function writeRecord (rec, out, map) {
     const { typeKw, restKws } = splitTypeKeyword(rec);
 
+    if (typeKw) writeConditionPrefix(typeKw, out);
     pushLine(out, {
         nameType:    'R',
         name:        rec.name,
         keywordText: typeKw ? formatKeyword(typeKw) : '',
         indicators:  typeKw?.indicators ?? [],
+        conditionOp: typeKw?.conditionOp ?? '',
     });
     for (const kw of restKws) {
+        writeConditionPrefix(kw, out);
         pushLine(out, {
             keywordText: formatKeyword(kw),
             indicators:  kw.indicators,
+            conditionOp: kw.conditionOp,
         });
     }
+    for (const spec of rec.helpSpecs ?? []) writeHelpSpec(spec, out);
     for (const item of rec.items) writeItem(item, out, map);
+}
+
+function writeHelpSpec (spec, out) {
+    const keywords = spec.keywords ?? [];
+    for (let i = 0; i < keywords.length; i++) {
+        const kw = keywords[i];
+        writeConditionPrefix(kw, out);
+        pushLine(out, {
+            nameType: i === 0 ? 'H' : '',
+            keywordText: formatKeyword(kw),
+            indicators: kw.indicators,
+            conditionOp: kw.conditionOp,
+        });
+    }
 }
 
 // Pull the keyword that names the record type (SFL, WINDOW, …) to the
@@ -68,6 +104,7 @@ function splitTypeKeyword (rec) {
     let typeKw = null;
     const restKws = [];
     for (const kw of rec.keywords) {
+        if (kw.scope === 'file') continue;
         if (!typeKw && kw.name === rec.type && TYPE_KEYWORDS.has(rec.type)) {
             typeKw = kw;
         } else {
@@ -94,59 +131,109 @@ function writeItem (item, out, map) {
 
 function writeConstant (item, out) {
     const text = `'${(item.text ?? '').replace(/'/g, "''")}'`;
+    writeConditionPrefix(item, out);
     pushLine(out, {
         row: item.row, col: item.col,
         keywordText: text,
         indicators:  item.indicators ?? [],
+        conditionOp: item.conditionOp,
     });
+    writeAlternateLocations(item, out);
     for (const kw of item.keywords ?? []) {
+        writeConditionPrefix(kw, out);
         pushLine(out, {
             keywordText: formatKeyword(kw),
             indicators:  kw.indicators,
+            conditionOp: kw.conditionOp,
         });
     }
 }
 
 function writeSysvalue (item, out) {
     const kws     = item.keywords ?? [];
-    const headIdx = kws.findIndex(kw => kw.name === item.sysName);
+    const namedHeadIdx = kws.findIndex(kw => kw.name === item.sysName);
+    const headIdx = namedHeadIdx >= 0 ? namedHeadIdx : (kws.length ? 0 : -1);
     const head    = headIdx >= 0
         ? kws[headIdx]
-        : { name: item.sysName || 'DATE', args: [], indicators: [] };
+        : (kws[0] ?? { name: item.sysName || 'DATE', args: [], indicators: [] });
     const rest = kws.filter((_, i) => i !== headIdx);
 
+    writeConditionPrefix(item, out);
     pushLine(out, {
         row: item.row, col: item.col,
         keywordText: formatKeyword(head),
         indicators:  item.indicators ?? [],
+        conditionOp: item.conditionOp,
     });
+    writeAlternateLocations(item, out);
     for (const kw of rest) {
+        writeConditionPrefix(kw, out);
         pushLine(out, {
             keywordText: formatKeyword(kw),
             indicators:  kw.indicators,
+            conditionOp: kw.conditionOp,
         });
     }
 }
 
 function writeField (item, out) {
-    // Hidden fields (usage 'H') are positionless at runtime; elide row/col
-    // on emit so we round-trip with the typical DSPF convention.
-    const hidden = item.usage === 'H';
+    // Hidden, program-to-system and message fields are positionless.
+    const positionless = ['H', 'P', 'M'].includes(item.usage);
+    // A REFFLD definition can inherit length/type from the referenced file.
+    // The canvas keeps a display placeholder, but the writer must not turn
+    // that placeholder into an explicit DDS override.
+    const inherited = item.refField && item._lengthInferred;
+    if (!inherited && !DISPLAY_DATA_TYPES.has(String(item.dataType).toUpperCase())) {
+        throw new Error(`Invalid display-file data type ${item.dataType} on ${item.name}`);
+    }
+    if (!DISPLAY_USAGES.has(String(item.usage).toUpperCase())) {
+        throw new Error(`Invalid display-file usage ${item.usage} on ${item.name}`);
+    }
+    writeConditionPrefix(item, out);
     pushLine(out, {
         name:       item.name,
         refFlag:    item.refField ? 'R' : '',
-        length:     item.length,
-        dataType:   item.dataType,
-        decimals:   item.decimals,
+        length:     inherited ? null : item.length,
+        dataType:   inherited ? '' : item.dataType,
+        decimals:   inherited
+            ? null
+            : (decimalCapable(item.dataType) ? item.decimals : null),
         usage:      item.usage,
-        row:        hidden ? null : item.row,
-        col:        hidden ? null : item.col,
+        row:        positionless ? null : item.row,
+        col:        positionless ? null : item.col,
         indicators: item.indicators ?? [],
+        conditionOp: item.conditionOp,
     });
+    writeAlternateLocations(item, out);
     for (const kw of item.keywords ?? []) {
+        writeConditionPrefix(kw, out);
         pushLine(out, {
             keywordText: formatKeyword(kw),
             indicators:  kw.indicators,
+            conditionOp: kw.conditionOp,
         });
     }
+}
+
+function writeAlternateLocations (item, out) {
+    for (const location of item.alternateLocations ?? []) {
+        pushLine(out, {
+            indicators: [location.conditionName],
+            row: location.row,
+            col: location.col,
+        });
+    }
+}
+
+function writeConditionPrefix (target, out) {
+    for (const line of target.conditionLines ?? []) {
+        pushLine(out, {
+            conditionOp: line.conditionOp,
+            indicators: line.indicators ?? [],
+        });
+    }
+}
+
+function decimalCapable (dataType) {
+    return ['S', 'Y', 'F'].includes(String(dataType).toUpperCase());
 }

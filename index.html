@@ -32,7 +32,7 @@
     <meta name="twitter:card"        content="summary_large_image">
     <meta name="twitter:title"       content="DSPF·RAD · Browser-based IBM i display file designer">
     <meta name="twitter:description" content="Drag-and-drop RAD designer for DSPF on IBM i / AS/400. Two-way sync between canvas and source.">
-    <meta name="twitter:image"       content="https://github.com/user-attachments/assets/0ece6fdb-8651-4c0f-9ca9-1dc545fc8b5b>
+    <meta name="twitter:image"       content="https://github.com/user-attachments/assets/0ece6fdb-8651-4c0f-9ca9-1dc545fc8b5b">
     <meta name="twitter:image:alt"   content="DSPF·RAD designer showing a 5250 sign-on screen with palette, canvas, inspector and live DSPF source.">
 
     <!-- Structured data for search engines (schema.org SoftwareApplication) -->
@@ -72,7 +72,7 @@
          primitives.  Loaded BEFORE our styles.css so we can override what doesn't
          fit (compact menubar buttons, the dark embedded canvas, the dark CodeMirror
          editor inside its Win98 frame, the custom palette items, etc.). -->
-    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <link rel="stylesheet" href="https://unpkg.com/98.css@0.1.21">
     <link rel="stylesheet" href="styles.css">
 
     <!-- No-FOUC theme application — runs BEFORE styles.css paints.
@@ -173,6 +173,12 @@
                     <li><button class="menu-item" data-cmd="genCobol">
                         <span class="menu-label">Generate <u>C</u>OBOL skeleton…</span>
                     </button></li>
+                    <li><button class="menu-item" data-cmd="regenRpgle">
+                        <span class="menu-label">Regenerate RPGLE, preserve regions…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="regenCobol">
+                        <span class="menu-label">Regenerate COBOL, preserve regions…</span>
+                    </button></li>
                     <li class="menu-separator"></li>
                     <li><button class="menu-item" data-cmd="exportJson">
                         <span class="menu-label">Copy model as <u>J</u>SON (debug)</span>
@@ -245,6 +251,8 @@
 
             <button id="genRpgle" title="Generate RPGLE skeleton with protected regions">↗ RPGLE</button>
             <button id="genCobol" title="Generate COBOL skeleton with protected regions">↗ COBOL</button>
+            <button id="regenRpgle" hidden>Regenerate RPGLE</button>
+            <button id="regenCobol" hidden>Regenerate COBOL</button>
             <button id="exportJson" title="Copy internal model as JSON (debug)">{·}</button>
         </div>
 

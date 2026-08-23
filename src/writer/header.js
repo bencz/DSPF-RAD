@@ -10,7 +10,7 @@
 
 export function pushRecordHeader (rec, out) {
     const border = '     A' + '*'.repeat(74);
-    const title  = `${rec.name}  ·  ${rec.type}`.padEnd(70);
+    const title  = `${rec.name}  -  ${rec.type}`.padEnd(70);
     const middle = '     A* ' + title + ' *';
     out.push(border);
     out.push(middle);

@@ -21,6 +21,9 @@ import { bindSourceSync } from './sourceSync.js';
 import { bindPanelResize } from './panelResize.js';
 import { bindFileIO, downloadText } from './fileIO.js';
 import { initTheme }      from './Theme.js';
+import { usesIndara }     from '../codegen/analysis.js';
+import { validateDspf }   from '../validation/validateDspf.js';
+import { ibmiName }       from '../model/factories.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -94,6 +97,7 @@ function main () {
         doc, designer, palette,
         parse: (s) => parseDspf(s),
         write: () => writeDspf(doc),
+        validate: (options) => validateDspf(doc, options),
         load:  (s) => { doc.adopt(parseDspf(s)); designer.selectItem(null); },
     };
 }
@@ -181,23 +185,73 @@ function bindToolbarActions ({ doc, designer, palette, modelSel, recordSel, els,
 }
 
 function bindExportActions ({ doc, flash }) {
-    $('genRpgle')?.addEventListener('click', () => {
-        const dspfName = (doc.records[0]?.name || 'DSPF').toUpperCase().slice(0, 10);
-        const prog = prompt('Program name (max 10 chars, RPGLE):', dspfName + 'R')?.toUpperCase().slice(0, 10);
-        if (!prog) return;
-        const src = generateRpgle(doc, { programName: prog, dspfName });
-        downloadText(prog + '.RPGLE', src);
-        flash(`Generated ${prog}.RPGLE skeleton.`, 'ok');
-    });
+    $('genRpgle')?.addEventListener('click', () => exportRpgle(false));
+    $('regenRpgle')?.addEventListener('click', () => exportRpgle(true));
+    $('genCobol')?.addEventListener('click', () => exportCobol(false));
+    $('regenCobol')?.addEventListener('click', () => exportCobol(true));
 
-    $('genCobol')?.addEventListener('click', () => {
-        const dspfName = (doc.records[0]?.name || 'DSPF').toUpperCase().slice(0, 10);
-        const prog = prompt('Program name (max 10 chars, COBOL):', dspfName + 'C')?.toUpperCase().slice(0, 10);
+    async function exportRpgle (mergeExisting) {
+        if (!confirmValidGeneration(doc, 'rpgle', flash)) return;
+        const dspfName = ibmiName(doc.sourceName, 'DSPFILE');
+        const prog = ibmiName(
+            prompt('Program name (max 10 chars, RPGLE):', dspfName + 'R'), '');
         if (!prog) return;
-        const src = generateCobol(doc, { programName: prog, dspfName });
-        downloadText(prog + '.CBLLE', src);
-        flash(`Generated ${prog}.CBLLE skeleton.`, 'ok');
-    });
+        const previousSource = mergeExisting
+            ? await selectSourceFile('.rpgle,.sqlrpgle,.txt')
+            : null;
+        if (mergeExisting && previousSource == null) {
+            flash('RPGLE regeneration cancelled.', 'error');
+            return;
+        }
+        try {
+            const src = generateRpgle(doc, {
+                programName: prog, dspfName, previousSource,
+            });
+            downloadText(prog + '.RPGLE', src);
+            flash(`${mergeExisting ? 'Regenerated' : 'Generated'} ${prog}.RPGLE.`, 'ok');
+        } catch (err) {
+            console.error('[dspf·rad] RPGLE generation failed:', err);
+            flash(`RPGLE generation failed: ${err.message}`, 'error', 5000);
+        }
+    }
+
+    async function exportCobol (mergeExisting) {
+        if (!usesIndara(doc)) {
+            const add = confirm(
+                'ILE COBOL needs a stable separate indicator area. ' +
+                'Add the file-level INDARA keyword before generating?');
+            if (!add) {
+                flash('COBOL generation cancelled: INDARA is required.', 'error', 4000);
+                return;
+            }
+            doc.records[0].keywords.unshift({
+                name: 'INDARA', args: [], indicators: [], scope: 'file',
+            });
+            doc.emit();
+        }
+        if (!confirmValidGeneration(doc, 'cobol', flash)) return;
+        const dspfName = ibmiName(doc.sourceName, 'DSPFILE');
+        const prog = ibmiName(
+            prompt('Program name (max 10 chars, COBOL):', dspfName + 'C'), '');
+        if (!prog) return;
+        const previousSource = mergeExisting
+            ? await selectSourceFile('.cblle,.cobol,.cbl,.txt')
+            : null;
+        if (mergeExisting && previousSource == null) {
+            flash('COBOL regeneration cancelled.', 'error');
+            return;
+        }
+        try {
+            const src = generateCobol(doc, {
+                programName: prog, dspfName, previousSource,
+            });
+            downloadText(prog + '.CBLLE', src);
+            flash(`${mergeExisting ? 'Regenerated' : 'Generated'} ${prog}.CBLLE.`, 'ok');
+        } catch (err) {
+            console.error('[dspf·rad] COBOL generation failed:', err);
+            flash(`COBOL generation failed: ${err.message}`, 'error', 5000);
+        }
+    }
 
     $('exportJson').addEventListener('click', async () => {
         const json = JSON.stringify(doc.toJSON(), null, 2);
@@ -209,6 +263,44 @@ function bindExportActions ({ doc, flash }) {
             flash('Internal model dumped to console.', 'ok');
         }
     });
+}
+
+function selectSourceFile (accept) {
+    return new Promise(resolve => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = accept;
+        input.hidden = true;
+        document.body.appendChild(input);
+        let settled = false;
+        const finish = async file => {
+            if (settled) return;
+            settled = true;
+            input.remove();
+            resolve(file ? await file.text() : null);
+        };
+        input.addEventListener('change', () => finish(input.files?.[0] ?? null),
+            { once: true });
+        input.addEventListener('cancel', () => finish(null), { once: true });
+        input.click();
+    });
+}
+
+function confirmValidGeneration (doc, language, flash) {
+    const diagnostics = validateDspf(doc, { language });
+    const errors = diagnostics.filter(item => item.severity === 'error');
+    if (errors.length) {
+        const detail = errors.slice(0, 8)
+            .map(item => `${item.code}: ${item.message}`).join('\n');
+        alert(`Code generation stopped: ${errors.length} DSPF error(s).\n\n${detail}`);
+        flash(`Generation stopped: ${errors.length} DSPF error(s).`, 'error', 5000);
+        return false;
+    }
+    const warnings = diagnostics.filter(item => item.severity === 'warning');
+    if (!warnings.length) return true;
+    const detail = warnings.slice(0, 8)
+        .map(item => `${item.code}: ${item.message}`).join('\n');
+    return confirm(`Generate with ${warnings.length} warning(s)?\n\n${detail}`);
 }
 
 // ---- misc bindings ------------------------------------------------------
@@ -239,7 +331,9 @@ function bindCanvasCursor (els, palette, designer) {
 // Column-marker preference (persisted in localStorage).
 const COL_MARKER_KEY = 'dspf-rad:col-marker';
 function bindColumnMarkerPref (sourceEditor, toggleBtn) {
-    const initial = localStorage.getItem(COL_MARKER_KEY) === 'on';
+    let initial = false;
+    try { initial = localStorage.getItem(COL_MARKER_KEY) === 'on'; }
+    catch (_) { /* private mode storage may throw */ }
     sourceEditor.setCursorColumnMarker(initial);
     if (initial) toggleBtn?.classList.add('on');
 

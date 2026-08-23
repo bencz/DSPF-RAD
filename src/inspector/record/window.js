@@ -106,10 +106,8 @@ function renderTitleEditor (sec, rec, win, ctx) {
         const v = titleInp.value.trim();
         removeKeyword(rec, 'WDWTITLE');
         if (v) {
-            const wrapped = v.startsWith('&')
-                ? `(*TEXT ${v})`
-                : `(*TEXT '${v.replace(/'/g, "''")}')`;
-            const newArgs = [wrapped, ...placementTokens(placementBox)];
+            const newArgs = rebuildTitleArgs(
+                v, titleArgs, placementTokens(placementBox));
             rec.keywords.push({ name: 'WDWTITLE', args: newArgs, indicators: [] });
         }
         ctx.onChange?.();
@@ -209,11 +207,23 @@ function parseWin (a) {
 
 function extractTitleText (raw) {
     if (!raw) return '';
-    const lit = String(raw).match(/\*TEXT\s+'([^']*)'/);
-    if (lit) return lit[1];
+    const lit = String(raw).match(/\*TEXT\s+('(?:''|[^'])*')/);
+    if (lit) return stripQuotesLite(lit[1]);
     const variable = String(raw).match(/\*TEXT\s+&([A-Z0-9_]+);?/i);
     if (variable) return `&${variable[1]};`;
     return stripQuotesLite(raw);
+}
+
+export function rebuildTitleArgs (value, existingArgs = [], placements = []) {
+    const v = String(value ?? '').trim();
+    if (!v) return [];
+    const wrapped = v.startsWith('&')
+        ? `(*TEXT ${v})`
+        : `(*TEXT '${v.replace(/'/g, "''")}')`;
+    const placementNames = new Set(['*TOP', '*BOTTOM', '*LEFT', '*CENTER', '*RIGHT']);
+    const preserved = existingArgs.slice(1).filter(arg =>
+        !placementNames.has(String(arg).toUpperCase()));
+    return [wrapped, ...preserved, ...placements];
 }
 
 function stripQuotesLite (s) {

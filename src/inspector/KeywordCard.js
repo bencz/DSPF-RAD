@@ -3,6 +3,7 @@
 
 import { addKeyword, removeWhere } from '../model/keywords.js';
 import { indicatorsInput } from './chips.js';
+import { tokenizeArguments } from '../parser/tokenizer.js';
 
 export function renderKeywordCard (target, kw, onChange) {
     const card = document.createElement('div');
@@ -66,9 +67,9 @@ function buildArgs (kw, onChange) {
     argsInp.type = 'text';
     argsInp.value = kw.args.join(' ');
     argsInp.placeholder = 'args';
-    argsInp.title = 'Keyword arguments (space-separated)';
+    argsInp.title = 'Keyword arguments (quotes and nested parentheses are preserved)';
     argsInp.addEventListener('change', () => {
-        kw.args = argsInp.value.trim().split(/\s+/).filter(Boolean);
+        kw.args = tokenizeArguments(argsInp.value);
         onChange?.();
     });
     return argsInp;

@@ -73,22 +73,37 @@ export function pickMainRecord (doc) {
     const withMbDsp = doc.records.find(r =>
         r.keywords?.some(kw => kw.name === 'MNUBARDSP'));
     if (withMbDsp) return withMbDsp;
+    const linkedSubfile = pickSubfilePair(doc);
+    if (linkedSubfile) return linkedSubfile.sflctl;
     for (const r of doc.records) {
-        if (r.type === 'SFL' || r.type === 'PULLDOWN' || r.type === 'MNUBAR') continue;
+        if (r.type === 'SFL' || r.type === 'SFLCTL' ||
+            r.type === 'PULLDOWN' || r.type === 'MNUBAR') continue;
         return r;
     }
-    return doc.records[0] ?? null;
+    return null;
 }
 
 export function pickSubfilePair (doc) {
+    return pickSubfilePairs(doc)[0] ?? null;
+}
+
+export function pickSubfilePairs (doc, { includeMessage = false } = {}) {
+    const pairs = [];
     for (const ctl of doc.records) {
         if (ctl.type !== 'SFLCTL') continue;
         const link = ctl.keywords.find(kw => kw.name === 'SFLCTL');
         if (!link || !link.args.length) continue;
         const sfl = doc.records.find(r => r.name === link.args[0] && r.type === 'SFL');
-        if (sfl) return { sfl, sflctl: ctl };
+        if (!sfl) continue;
+        const message = sfl.keywords?.some(keyword => keyword.name === 'SFLMSGRCD');
+        if (!includeMessage && message) continue;
+        pairs.push({ sfl, sflctl: ctl, message });
     }
-    return null;
+    return pairs;
+}
+
+export function pickPulldownRecords (doc) {
+    return doc.records.filter(record => record.type === 'PULLDOWN');
 }
 
 // ---- Action arms (menu bar / push buttons / choices) -------------------
@@ -189,8 +204,17 @@ export function collectChoiceArms (doc) {
             for (const c of chcs) {
                 const num   = c.args?.[0];
                 const label = unquote(c.args?.slice(1).join(' '));
+                const control = isMlt
+                    ? item.keywords.find(kw =>
+                        kw.name === 'CHCCTL' && String(kw.args?.[0]) === String(num))
+                    : null;
+                const controlField = stripAmpField(control?.args?.[1]);
+                // A multiple-choice field returns the number of selected
+                // entries in the visible field.  Per-choice state is
+                // returned through each CHCCTL hidden control field.
+                if (isMlt && !controlField) continue;
                 arms.push({
-                    condition: `${item.name} = ${num}`,
+                    condition: `${isMlt ? controlField : item.name} = ${isMlt ? '1' : num}`,
                     comment:   `${isSng ? 'Radio' : 'Check'} (${item.name}): ${label}`,
                     regionKey: `choice-${slugify(item.name)}-${slugify(label || num)}`,
                 });
@@ -208,12 +232,12 @@ export function collectIndicatorPositions (doc) {
     const positions = new Set();
     const harvest = (target) => {
         if (!target) return;
-        for (const ind of target.indicators ?? []) {
+        for (const ind of allConditionTokens(target)) {
             const m = String(ind).match(/^N?(\d{1,2})$/);
             if (m) positions.add(parseInt(m[1], 10));
         }
         for (const kw of target.keywords ?? []) {
-            for (const ind of kw.indicators ?? []) {
+            for (const ind of allConditionTokens(kw)) {
                 const m = String(ind).match(/^N?(\d{1,2})$/);
                 if (m) positions.add(parseInt(m[1], 10));
             }
@@ -221,6 +245,7 @@ export function collectIndicatorPositions (doc) {
     };
     for (const rec of doc.records) {
         harvest(rec);
+        for (const spec of rec.helpSpecs ?? []) harvest(spec);
         for (const item of rec.items) harvest(item);
     }
     // AIDs often carry the indicator number as an arg (CA03(03)) rather
@@ -232,12 +257,67 @@ export function collectIndicatorPositions (doc) {
 // Indicator number attached to a conditioned keyword (e.g. SFLDSP's
 // `indicators[0]`).  Lets the SFL loader recover which IN<nn> to flip.
 export function indOfKeyword (target, name) {
+    return indicatorConditionsOf(target, name)[0]?.pos ?? null;
+}
+
+// Conditions required to make a keyword active.  `N30` means indicator
+// 30 must be off, while `30` means it must be on.
+export function indicatorConditionsOf (target, name) {
     const kw = target.keywords?.find(k => k.name === name);
-    if (!kw) return null;
-    const ind = kw.indicators?.[0];
-    if (!ind) return null;
-    const m = String(ind).match(/^N?(\d{1,2})$/);
-    return m ? parseInt(m[1], 10) : null;
+    if (!kw) return [];
+    // To activate an OR expression the skeleton only needs one branch.
+    // Pick the first complete AND group instead of incorrectly combining
+    // indicators from mutually exclusive branches.
+    return conditionGroupsOf(kw)[0] ?? [];
+}
+
+export function conditionGroupsOf (target) {
+    const groups = [[]];
+    const lines = [
+        ...(target.conditionLines ?? []),
+        { conditionOp: target.conditionOp ?? '', indicators: target.indicators ?? [] },
+    ];
+    for (const line of lines) {
+        if (line.conditionOp === 'O' && groups.at(-1).length) groups.push([]);
+        for (const raw of line.indicators ?? []) {
+            const parsed = parseIndicatorCondition(raw);
+            if (parsed) groups.at(-1).push(parsed);
+        }
+    }
+    return groups.filter(group => group.length);
+}
+
+function allConditionTokens (target) {
+    return [
+        ...(target.conditionLines ?? []).flatMap(line => line.indicators ?? []),
+        ...(target.indicators ?? []),
+    ];
+}
+
+function parseIndicatorCondition (raw) {
+    const token = String(raw).toUpperCase();
+    const match = token.match(/^N?(\d{1,2})$/);
+    if (!match) return null;
+    const pos = parseInt(match[1], 10);
+    if (pos < 1 || pos > 99) return null;
+    return { pos, on: !token.startsWith('N') };
+}
+
+export function usesIndara (doc) {
+    return doc.records.some(rec => rec.keywords?.some(kw =>
+        kw.name === 'INDARA' && kw.scope === 'file'));
+}
+
+// Region keys are part of the regeneration contract.  Duplicate labels
+// and repeated controls are legal DDS, so suffix collisions deterministically.
+export function uniqueRegionKeyGroups (groups) {
+    const seen = new Map();
+    return groups.map(group => group.map(arm => {
+        const base = arm.regionKey;
+        const count = (seen.get(base) ?? 0) + 1;
+        seen.set(base, count);
+        return count === 1 ? arm : { ...arm, regionKey: `${base}-${count}` };
+    }));
 }
 
 // ---- string helpers ----------------------------------------------------

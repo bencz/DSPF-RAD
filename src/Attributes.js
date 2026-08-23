@@ -42,14 +42,23 @@ export const EDTCDE = [
 ];
 
 export const DATA_TYPES = [
-    { value: 'A', label: 'A · Char' },
-    { value: 'S', label: 'S · Signed numeric' },
-    { value: 'P', label: 'P · Packed' },
-    { value: 'Y', label: 'Y · Date' },
-    { value: 'N', label: 'N · Numeric only' },
+    { value: 'A', label: 'A · Alphanumeric shift' },
+    { value: 'S', label: 'S · Signed numeric shift' },
+    { value: 'Y', label: 'Y · Numeric only' },
+    { value: 'N', label: 'N · Numeric shift' },
     { value: 'I', label: 'I · Inhibit kbd' },
     { value: 'D', label: 'D · Digits only' },
     { value: 'X', label: 'X · Alpha only' },
+    { value: 'F', label: 'F · Floating point' },
+    { value: 'M', label: 'M · Numeric-only character' },
+    { value: 'L', label: 'L · Date' },
+    { value: 'T', label: 'T · Time' },
+    { value: 'Z', label: 'Z · Timestamp' },
+    { value: 'W', label: 'W · Katakana' },
+    { value: 'E', label: 'E · DBCS either' },
+    { value: 'J', label: 'J · DBCS only' },
+    { value: 'O', label: 'O · DBCS open' },
+    { value: 'G', label: 'G · DBCS graphic' },
 ];
 
 export const USAGES = [
@@ -57,4 +66,6 @@ export const USAGES = [
     { value: 'O', label: 'O · Output' },
     { value: 'B', label: 'B · Both' },
     { value: 'H', label: 'H · Hidden' },
+    { value: 'P', label: 'P · Program-to-system' },
+    { value: 'M', label: 'M · Message' },
 ];

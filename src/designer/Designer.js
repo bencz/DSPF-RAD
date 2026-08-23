@@ -4,7 +4,7 @@
 // instead of selecting / dragging).
 
 import { GridCanvas } from '../canvas/GridCanvas.js';
-import { specToItem } from './specToItem.js';
+import { specToItems } from './specToItem.js';
 import { bindDragDrop } from './dragDrop.js';
 import { bindPointerInput, bindKeyboardInput } from './input.js';
 
@@ -52,9 +52,12 @@ export class Designer {
     forceResize () { this.renderer.resize(); }
 
     placeFromSpec (spec, cell) {
-        const item    = specToItem(spec, cell);
-        const created = this.document.addItem(item);
-        this.selectItem(created.id);
+        const usedNames = this.document.activeRecord.items
+            .map(item => item.name)
+            .filter(Boolean);
+        const items   = specToItems(spec, cell, usedNames);
+        const created = this.document.addItems(items);
+        this.selectItem(created[0]?.id ?? null);
         this.palette?.clearArmed?.();
         this.canvas.classList.remove('canvas-armed');
     }

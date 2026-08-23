@@ -3,6 +3,7 @@
 
 import { sectionStart, row } from '../dom.js';
 import { removeKeyword } from '../quoting.js';
+import { tokenizeArguments } from '../../parser/tokenizer.js';
 
 export function renderValidation (pane, item, ctx) {
     if (item.kind !== 'field') return;
@@ -61,7 +62,7 @@ function addFreeFormRow (sec, item, ctx, name, placeholder) {
     inp.value = (kw?.args ?? []).join(' ');
     inp.placeholder = placeholder;
     inp.addEventListener('change', () => {
-        const args = inp.value.trim().split(/\s+/).filter(Boolean);
+        const args = tokenizeArguments(inp.value);
         removeKeyword(item, name);
         if (args.length) item.keywords.push({ name, args, indicators: [] });
         ctx.onChange?.();

@@ -14,7 +14,16 @@ export function filterAndMergeLines (rawLines) {
 function stripNoiseLines (rawLines) {
     const kept = [];
     for (const raw of rawLines) {
-        const padded = raw.replace(/\t/g, ' ').padEnd(80).substring(0, 80);
+        const expanded = expandTabs(raw);
+        const trimmed = expanded.trim();
+        if (/^[A-Za-z][A-Za-z0-9_]*\s*(?:\(|$)/.test(trimmed) &&
+            expanded === expanded.trimStart()) {
+            // A few source exports strip the complete fixed-column prefix
+            // from file-level keywords (for example `DSPSIZ(*DS3)`).
+            kept.push((' '.repeat(44) + trimmed).padEnd(80).substring(0, 80));
+            continue;
+        }
+        const padded = expanded.padEnd(80).substring(0, 80);
         const formType = padded[5];
         // Real DSPF carries 'A' in col 6.  Blank means free-format some
         // IDEs emit — we accept it.  Anything else (M*, X*, …) is tooling
@@ -26,6 +35,15 @@ function stripNoiseLines (rawLines) {
         kept.push(padded);
     }
     return kept;
+}
+
+function expandTabs (line) {
+    let out = '';
+    for (const character of String(line ?? '')) {
+        if (character !== '\t') out += character;
+        else out += ' '.repeat(8 - (out.length % 8));
+    }
+    return out;
 }
 
 function mergeContinuations (kept) {

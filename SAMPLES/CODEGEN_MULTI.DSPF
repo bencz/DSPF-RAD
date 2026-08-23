@@ -1,0 +1,24 @@
+     A* Two independent data-subfile screens used by the codegen tests.       *
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      INDARA
+     A                                      CF03(03 'Exit')
+     A          R FIRSTSFL                  SFL
+     A            FIRSTOPT       1A  B  8  2TEXT('First option')
+     A            FIRSTTXT      30A  O  8  5TEXT('First description')
+     A          R FIRSTCTL                  SFLCTL(FIRSTSFL)
+     A                                      SFLSIZ(0010)
+     A                                      SFLPAG(0005)
+     A N30                                  SFLDSP
+     A N30                                  SFLDSPCTL
+     A  30                                  SFLCLR
+     A                                  1  2'First subfile screen'
+     A          R SECONDSFL                 SFL
+     A            SECONDOPT      1A  B 15  2TEXT('Second option')
+     A            SECONDTXT     30A  O 15  5TEXT('Second description')
+     A          R SECONDCTL                 SFLCTL(SECONDSFL)
+     A                                      SFLSIZ(0010)
+     A                                      SFLPAG(0005)
+     A N31                                  SFLDSP
+     A N31                                  SFLDSPCTL
+     A  31                                  SFLCLR
+     A                                  1  2'Second subfile screen'

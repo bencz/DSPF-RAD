@@ -5,6 +5,7 @@
 import { sectionStart, row } from '../dom.js';
 import { renderPresenceChips } from '../chips.js';
 import { removeKeyword } from '../quoting.js';
+import { tokenizeArguments } from '../../parser/tokenizer.js';
 
 const RECORD_OPTION_NAMES = [
     'OVERLAY','PUTOVR','OVRDTA','OVRATR','KEEP','ASSUME','FRCDTA','CLRL',
@@ -82,7 +83,7 @@ export function renderCursorBinding (pane, rec, ctx) {
         inp.placeholder = placeholder;
         inp.value       = (kw?.args ?? []).join(' ');
         inp.addEventListener('change', () => {
-            const args = inp.value.trim().split(/\s+/).filter(Boolean);
+            const args = tokenizeArguments(inp.value);
             removeKeyword(rec, name);
             if (args.length) rec.keywords.push({ name, args, indicators: [] });
             ctx.onChange?.();

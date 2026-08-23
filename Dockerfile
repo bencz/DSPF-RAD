@@ -5,7 +5,7 @@ FROM node:lts-alpine
 
 WORKDIR /app
 
-RUN npm install -g serve@latest --silent
+RUN npm install -g serve@14.2.6 --silent
 
 # Copy only the runtime assets. The project is fully static: HTML, CSS,
 # the ES module tree under src/, plus the SEO helpers (robots.txt and

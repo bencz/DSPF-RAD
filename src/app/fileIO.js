@@ -4,6 +4,7 @@
 
 import { parseDspf } from '../parser/parseDspf.js';
 import { writeDspf } from '../writer/writeDspf.js';
+import { ibmiName } from '../model/factories.js';
 
 export function bindFileIO ({ doc, designer, modelSel, fileInput, flash }) {
     bindOpen(doc, designer, modelSel, fileInput, flash);
@@ -23,8 +24,9 @@ function bindOpen (doc, designer, modelSel, fileInput, flash) {
             const text   = await file.text();
             const parsed = parseDspf(text);
             doc.adopt(parsed);
+            doc.sourceName = ibmiName(file.name.replace(/\.[^.]+$/, ''), 'DSPFILE');
 
-            matchModelFromDsPsiz(doc, modelSel, designer);
+            syncModelChrome(doc, modelSel, designer);
             designer.selectItem(null);
             flash(`Loaded ${file.name}: ${doc.records.length} records, ${doc.itemCount()} items.`, 'ok');
         } catch (err) {
@@ -34,21 +36,9 @@ function bindOpen (doc, designer, modelSel, fileInput, flash) {
     });
 }
 
-function matchModelFromDsPsiz (doc, modelSel, designer) {
-    const dspsiz = doc.records[0]?.keywords?.find(kw => kw.name === 'DSPSIZ');
-    if (!dspsiz || dspsiz.args.length < 2) return;
-
-    const rows = parseInt(dspsiz.args[0], 10);
-    const cols = parseInt(dspsiz.args[1], 10);
-    if (rows === 27 && cols === 132) {
-        doc.setModel('27x132');
-        modelSel.value = '27x132';
-        document.body.classList.add('wide-mode');
-    } else {
-        doc.setModel('24x80');
-        modelSel.value = '24x80';
-        document.body.classList.remove('wide-mode');
-    }
+function syncModelChrome (doc, modelSel, designer) {
+    modelSel.value = doc.modelKey;
+    document.body.classList.toggle('wide-mode', doc.modelKey === '27x132');
     requestAnimationFrame(() => designer.forceResize());
 }
 
@@ -56,7 +46,7 @@ function bindSave (doc, flash) {
     document.getElementById('saveDoc').addEventListener('click', () => {
         try {
             const source = writeDspf(doc);
-            const name = (doc.records[0]?.name || 'DSPF') + '.DSPF';
+            const name = (doc.sourceName || 'DSPFILE') + '.DSPF';
             downloadText(name, source);
             flash(`Saved ${name}.`, 'ok');
         } catch (err) {

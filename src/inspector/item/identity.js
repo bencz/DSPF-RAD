@@ -57,7 +57,7 @@ function renderFieldBlock (pane, item, ctx) {
     section(pane, 'Field', [
         textField(item, 'name', 'Name',
             v => ctx.onItemPatch(item.id, {
-                name: v.toUpperCase().replace(/[^A-Z0-9_]/g, '').slice(0, 10),
+                name: v.toUpperCase().replace(/[^A-Z0-9_$#@]/g, '').slice(0, 10),
             })),
         numField(item, 'length', 'Length',
             v => ctx.onItemPatch(item.id, { length: v }), 1, ctx.document.cols),

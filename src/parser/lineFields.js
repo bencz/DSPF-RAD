@@ -23,11 +23,10 @@ export function parseSourceLine (line) {
     // legitimately longer than 80 cols and we want the full keyword text.
     const padded = line.length < 80 ? line.padEnd(80) : line;
 
-    const indicators = [
-        parseIndChunk(padded.substring(7, 10)),
-        parseIndChunk(padded.substring(10, 13)),
-        parseIndChunk(padded.substring(13, 16)),
-    ].filter(Boolean);
+    const indicators = parseConditionArea(padded.substring(7, 16));
+    const conditionOp = /^[AO]$/i.test(padded[6])
+        ? padded[6].toUpperCase()
+        : '';
 
     const nameType  = padded[16]?.trim() ?? '';
     const name      = padded.substring(18, 28).trim();
@@ -41,7 +40,7 @@ export function parseSourceLine (line) {
     const keyword   = padded.substring(44).trimEnd();
 
     return {
-        indicators,
+        indicators, conditionOp,
         nameType, name, refFlag,
         length:   lengthS ? parseInt(lengthS, 10)   : null,
         dataType, decimals: decimalsS ? parseInt(decimalsS, 10) : null,
@@ -54,6 +53,18 @@ export function parseSourceLine (line) {
         rowRaw: rowS, colRaw: colS,
         keywordText: keyword,
     };
+}
+
+function parseConditionArea (area) {
+    const trimmed = area.trim();
+    // Display-size condition names (*DS3, *DS4 or a user-defined name)
+    // occupy the condition area as one token rather than three slots.
+    if (trimmed.startsWith('*')) return [trimmed.toUpperCase()];
+    return [
+        parseIndChunk(area.substring(0, 3)),
+        parseIndChunk(area.substring(3, 6)),
+        parseIndChunk(area.substring(6, 9)),
+    ].filter(Boolean);
 }
 
 // Parse a row/col field which may be empty, an absolute number, or an

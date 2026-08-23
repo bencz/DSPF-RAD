@@ -6,19 +6,25 @@ import { parseIndicatorTokens, formatIndicatorTokens } from '../model/keywords.j
 
 // One chip per name in `names`.  Clicking adds/removes a bare keyword on
 // target.  Optional `titles` map provides per-chip tooltips.
-export function renderPresenceChips (sec, target, names, titles = {}, onChange) {
+export function renderPresenceChips (sec, target, names, titles = {}, onChange, scope = null) {
     const chips = document.createElement('div');
     chips.className = 'insp-chips';
     for (const name of names) {
-        const on = target.keywords.some(k => k.name === name);
+        const matches = k => k.name === name &&
+            (scope === 'file' ? k.scope === 'file' : k.scope !== 'file');
+        const on = target.keywords.some(matches);
         const chip = document.createElement('span');
         chip.className = 'insp-chip' + (on ? ' on' : '');
         chip.textContent = name;
         if (titles[name]) chip.title = titles[name];
         chip.addEventListener('click', () => {
-            const idx = target.keywords.findIndex(k => k.name === name);
+            const idx = target.keywords.findIndex(matches);
             if (idx >= 0) target.keywords.splice(idx, 1);
-            else          target.keywords.push({ name, args: [], indicators: [] });
+            else {
+                const keyword = { name, args: [], indicators: [] };
+                if (scope === 'file') keyword.scope = 'file';
+                target.keywords.push(keyword);
+            }
             onChange?.();
         });
         chips.appendChild(chip);

@@ -28,13 +28,18 @@ export function pushLine (out, params) {
         // For `+` we prefer breaking on whitespace (between keyword args).
         // For `-` we want a hard split at the column so internal spaces
         // inside the literal are preserved.
-        let breakIdx = cont === '+' ? remaining.lastIndexOf(' ', room) : room;
+        let breakIdx = cont === '+' ? remaining.lastIndexOf(' ', room - 1) : room;
+        const brokeAtSeparator = cont === '+' && breakIdx >= 1;
         if (breakIdx < 1) breakIdx = room;
 
         const head = cont === '+'
             ? remaining.substring(0, breakIdx).replace(/\s+$/, '')
             : remaining.substring(0, breakIdx);
-        const chunk = head + cont;
+        // DDS '+' joins the continuation directly to the previous text.
+        // When we wrap at whitespace, retain one separator before '+' so
+        // token boundaries survive parse → write → parse.  A hard split of
+        // one long token intentionally has no separator.
+        const chunk = head + (brokeAtSeparator ? ' +' : cont);
 
         out.push(first
             ? buildLine({ ...params, keywordText: chunk })
@@ -52,6 +57,7 @@ export function pushLine (out, params) {
 
 function buildLine ({
     indicators = [],
+    conditionOp = '',
     nameType = '',
     name = '',
     refFlag = '',
@@ -63,15 +69,15 @@ function buildLine ({
     col = null,
     keywordText = '',
 }) {
-    const lenStr = (length   != null && length   !== '') ? String(length)   : '';
-    const decStr = (decimals != null && decimals !== '') ? String(decimals) : '';
-    const rowStr = (row      != null && row      !== '') ? String(row)      : '';
-    const colStr = (col      != null && col      !== '') ? String(col)      : '';
+    const lenStr = fixedNumber(length,   5, 1, 'field length');
+    const decStr = fixedNumber(decimals, 2, 0, 'decimal positions');
+    const rowStr = fixedNumber(row,      3, 1, 'row');
+    const colStr = fixedNumber(col,      3, 1, 'column');
 
     let line = '';
     line += '     ';                                            // 1-5   seq
     line += 'A';                                                // 6     type
-    line += ' ';                                                // 7     reserved
+    line += /^[AO]$/.test(conditionOp) ? conditionOp : ' ';     // 7     AND/OR
     line += formatIndicators(indicators);                       // 8-16  inds
     line += (nameType || ' ').slice(0, 1);                      // 17    nameType
     line += ' ';                                                // 18    reserved
@@ -88,12 +94,39 @@ function buildLine ({
     return line.replace(/\s+$/, '');
 }
 
+function fixedNumber (value, width, minimum, label) {
+    if (value == null || value === '') return '';
+    const number = Number(value);
+    const maximum = (10 ** width) - 1;
+    if (!Number.isInteger(number) || number < minimum || number > maximum) {
+        throw new Error(`Invalid DDS ${label}: ${value}`);
+    }
+    return String(number);
+}
+
 function formatIndicators (indicators) {
+    if ((indicators?.length ?? 0) > 3) {
+        throw new Error(
+            'A DDS source line supports at most three indicator conditions');
+    }
+    if (indicators.length === 1 && String(indicators[0]).startsWith('*')) {
+        const name = String(indicators[0]).toUpperCase();
+        if (!/^\*[A-Z0-9_$#@]{1,7}$/.test(name)) {
+            throw new Error(`Invalid DDS display-size condition name: ${name}`);
+        }
+        return name.padEnd(9);
+    }
     const slots = [indicators[0] ?? '', indicators[1] ?? '', indicators[2] ?? ''];
     return slots.map(tok => {
         if (!tok) return '   ';
-        const isN = tok.startsWith('N');
-        const num = (isN ? tok.substring(1) : tok).padStart(2, '0').slice(-2);
+        const raw = String(tok).toUpperCase();
+        const match = /^(N?)(\d{1,2})$/.exec(raw);
+        const value = match ? parseInt(match[2], 10) : NaN;
+        if (!match || value < 1 || value > 99) {
+            throw new Error(`Invalid DDS indicator condition: ${tok}`);
+        }
+        const isN = match[1] === 'N';
+        const num = String(value).padStart(2, '0');
         return (isN ? 'N' : ' ') + num;
     }).join('');
 }
