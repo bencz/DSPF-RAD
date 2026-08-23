@@ -23,8 +23,8 @@ export function renderDftVal (pane, item, ctx) {
     const inp = makeInput(stripQuotes(kw?.args?.[0] ?? ''),
         'default display value');
     inp.addEventListener('change', () => {
-        // DFTVAL preserves whitespace-only values — IBM allows '   ' as a
-        // valid default — so we only skip when the raw input is empty.
+        // DFTVAL preserves whitespace-only values - IBM allows '   ' as a
+        // valid default - so we only skip when the raw input is empty.
         const v = inp.value;
         removeKeyword(item, 'DFTVAL');
         if (v !== '') {

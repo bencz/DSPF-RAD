@@ -17,11 +17,11 @@ export function drawChoiceField (gc, it, multi) {
     if (!choices.length) { drawField(gc, it); return; }
 
     const colour = COLOR_CSS[valueOf(it, 'COLOR') || DEFAULT_COLOR] || COLOR_CSS.GRN;
-    const glyph  = multi ? '☐' : '◯';
+    const glyph  = multi ? '[ ]' : '◯';
     const numRow = getNumRow(it);
     const numCol = getNumCol(it);
     const widest = Math.max(...choices.map(c => c.label.length));
-    const colW   = widest + 3;     // "◯ " + label + 1 col gap
+    const colW   = widest + 3;     // marker + label + 1 col gap
 
     const useRowGrid = numRow > 0 && choices.length > numRow;
     const useColGrid = !useRowGrid && numCol > 0 && choices.length > numCol;
@@ -57,7 +57,7 @@ export function drawMenuBarField (gc, it) {
         const y = (it.row - 1)    * gc.cellH;
         const w = label.length    * gc.cellW;
         // Highlight bar per choice (the active one would be inverted at
-        // runtime — we paint a neutral tint to keep the design preview
+        // runtime - we paint a neutral tint to keep the design preview
         // stable).
         ctx.fillStyle = 'rgba(220, 200, 80, 0.18)';
         ctx.fillRect(x, y, w, gc.cellH);

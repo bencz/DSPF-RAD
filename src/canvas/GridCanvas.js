@@ -1,7 +1,7 @@
 // Canvas renderer.  Reads attributes via the keyword helpers so even
 // indicator-conditioned items paint as if active at design time.  Per-
 // kind drawing lives in the sibling modules; this file is the
-// orchestrator — sizing, the draw() loop, and the public selection /
+// orchestrator - sizing, the draw() loop, and the public selection /
 // preview hooks the Designer pokes at.
 
 import {

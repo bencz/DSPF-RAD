@@ -1,7 +1,7 @@
 // Two-way sync between the canvas and the live DSPF source view.
 //
 //   canvas → source: every doc.emit() runs writeDspfWithMap, swaps the
-//   editor text, and refreshes the line-range map so cursor↔item link
+//   editor text, and refreshes the line-range map so cursor/item linking
 //   stays correct.  Skipped while sourceIsAuthoritative is on so a
 //   parse round-trip doesn't reformat the user's in-progress text on
 //   every keystroke.
@@ -29,7 +29,7 @@ export function bindSourceSync ({ doc, designer, sourceEditor, sourceStatusEl })
         cursorSyncTimer:       null,
         // When source drives a canvas selection, we don't want the
         // canvas's onSelectionChange callback to bounce the source
-        // cursor back to the item's first line — the user just clicked
+        // cursor back to the item's first line - the user just clicked
         // somewhere in the source.
         suppressCursorSync:    false,
     };
@@ -112,7 +112,7 @@ function runParse (text, state, doc, designer, setStatus, applyHighlight) {
         finally { state.suppressCursorSync = false; }
         // doc.adopt → emit fired our other listeners, but the canvas→
         // source listener skipped because of the flag.  Recompute the
-        // line map so cursor↔item reflects the adopted doc.
+        // line map so cursor/item linking reflects the adopted doc.
         state.lineMap = writeDspfWithMap(doc).map;
         applyHighlight();
         const diagnostics = validateDspf(doc);

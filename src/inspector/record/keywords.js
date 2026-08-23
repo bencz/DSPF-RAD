@@ -13,7 +13,7 @@ export function renderKeywordsCatchAll (pane, rec, ctx) {
     sec.appendChild(renderAddKeywordButton(rec, ctx.onChange));
 }
 
-// Item list — useful for hidden fields and for big records like CLOCK
+// Item list - useful for hidden fields and for big records like CLOCK
 // where conditioned figlet items dominate.  Sort fields/sysvalues/widgets
 // above constants, tag each row with kind + indicator badge, and collapse
 // conditioned items to a single "+N conditioned" entry when the global

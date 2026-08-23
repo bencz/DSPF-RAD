@@ -257,7 +257,7 @@ function renderChangedSubfileBlocks (pairs) {
 function loadSubfilePara (sflPair, dspfName) {
     // SFLCLR / SFLDSP / SFLDSPCTL positions come from indicators on the
     // SFLCTL record.  A missing position just means the user hasn't wired
-    // it — we skip its MOVE so the generated code still compiles.
+    // it - we skip its MOVE so the generated code still compiles.
     const clear     = subfileClearOperation(sflPair);
     const sfldsp    = indicatorConditionsOf(sflPair.sflctl, 'SFLDSP');
     const sfldspctl = indicatorConditionsOf(sflPair.sflctl, 'SFLDSPCTL');
@@ -309,7 +309,7 @@ function renderCobolIndicatorMoves (conditions, invert = false) {
 // ---- evaluate arms -----------------------------------------------------
 
 function renderAidEvals (aids) {
-    // Use the positional indicator name (IN03, IN12, …) — friendly names
+    // Use the positional indicator name (IN03, IN12, …) - friendly names
     // like "Exit" / "Cancel" collide with COBOL reserved words.
     return aids.map(a => {
         const nm = `IN${pad2(a.pos)}`;

@@ -1,6 +1,6 @@
 // Bootstrap.  Constructs the document, the renderer, the inspector,
 // the source editor, and wires them together with the toolbar / menubar /
-// statusbar chrome.  Each concern lives in its own sibling module — this
+// statusbar chrome.  Each concern lives in its own sibling module - this
 // file is the assembly line.
 
 import { DspfDocument } from '../model/index.js';
@@ -28,7 +28,7 @@ import { ibmiName }       from '../model/factories.js';
 const $ = (id) => document.getElementById(id);
 
 function main () {
-    console.log('%c[dspf·rad]', 'color:#6f6', 'boot — DSPF-RAD designer (v0.5)');
+    console.log('%c[dspf·rad]', 'color:#6f6', 'boot - DSPF-RAD designer (v0.5)');
 
     initTheme();
 
@@ -64,7 +64,7 @@ function main () {
     });
     selectFromInspector = (id) => designer.selectItem(id);
 
-    // Source editor + canvas↔source bridge.
+    // Source editor + bidirectional canvas/source bridge.
     const sourceEditor = new SourceEditor($('sourceEditor'));
     bindSourceSync({
         doc, designer, sourceEditor,
@@ -320,11 +320,11 @@ function bindCanvasCursor (els, palette, designer) {
     const grid = els.canvas;
     grid.addEventListener('pointermove', (ev) => {
         const cell = designer.renderer.cellAt(ev.clientX, ev.clientY);
-        els.sbCursor.textContent = cell ? `(${cell.row},${cell.col})` : '(–,–)';
+        els.sbCursor.textContent = cell ? `(${cell.row},${cell.col})` : '(-,-)';
         grid.classList.toggle('canvas-armed', !!palette.getArmedSpec());
     });
     grid.addEventListener('pointerleave', () => {
-        els.sbCursor.textContent = '(–,–)';
+        els.sbCursor.textContent = '(-,-)';
     });
 }
 
@@ -373,6 +373,6 @@ export function boot () {
             status.textContent = 'BOOT ERROR (see console): ' + (err.message || err);
             status.className   = 'error';
         }
-        document.title = '⚠ dspf·rad boot error';
+        document.title = '[!] dspf·rad boot error';
     }
 }

@@ -1,7 +1,7 @@
 // Tokenisers for the keyword area (cols 45+).
 //
 // tokenizeKeywords returns [{ name, args }, ...].  Args preserve embedded
-// quoted strings verbatim — with surrounding quotes kept — and are
+// quoted strings verbatim - with surrounding quotes kept - and are
 // space-separated at depth 1 inside the outer parentheses.
 //
 // readQuotedString peels a single 'literal' off the front of a string,

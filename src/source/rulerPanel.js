@@ -38,7 +38,7 @@ export function rulerPanelFactory (view) {
     inner.appendChild(makeLine('dspf-ruler-labels', DSPF_RULER_LABELS));
     dom.appendChild(inner);
 
-    // Font metrics are read once at mount — copying every sync triggered
+    // Font metrics are read once at mount - copying every sync triggered
     // a measure pulse (ResizeObserver -> sync -> style write -> RO again).
     const inheritFontMetricsOnce = () => {
         const cs = getComputedStyle(view.contentDOM);

@@ -1,5 +1,5 @@
 // RPGLE skeleton generator.  Emits a `**FREE` program with protected
-// regions — code inside `[DSPF-RAD-REGION begin=... end=...]` blocks is
+// regions - code inside `[DSPF-RAD-REGION begin=... end=...]` blocks is
 // preserved across regenerations when `previousSource` is supplied.
 
 import {

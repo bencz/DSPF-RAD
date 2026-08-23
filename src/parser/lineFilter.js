@@ -26,7 +26,7 @@ function stripNoiseLines (rawLines) {
         const padded = expanded.padEnd(80).substring(0, 80);
         const formType = padded[5];
         // Real DSPF carries 'A' in col 6.  Blank means free-format some
-        // IDEs emit — we accept it.  Anything else (M*, X*, …) is tooling
+        // IDEs emit - we accept it.  Anything else (M*, X*, …) is tooling
         // metadata we don't care about.
         if (formType !== 'A' && formType !== ' ') continue;
         if (formType === 'A' && padded[6] === '*') continue;     // A*-metadata

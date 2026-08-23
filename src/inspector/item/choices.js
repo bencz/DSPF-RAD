@@ -58,7 +58,7 @@ function renderContainerHeader (sec, item, info) {
     sec.appendChild(div);
 }
 
-// CHCAVAIL / CHCSLT / CHCUNAVAIL summary — they live on the field,
+// CHCAVAIL / CHCSLT / CHCUNAVAIL summary - they live on the field,
 // parallel to CHOICE entries.
 function renderChcExtras (sec, item) {
     const extras = item.keywords.filter(k =>

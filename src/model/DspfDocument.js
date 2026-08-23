@@ -1,6 +1,6 @@
 // In-memory DSPF document.  All conditioning and attributes live on
 // item.keywords[] / record.keywords[] in { name, args, indicators } shape
-// — see ./keywords.js for the manipulation helpers.
+// - see ./keywords.js for the manipulation helpers.
 
 import { MODELS, RECORD_TYPES } from './constants.js';
 import { makeItem, makeRecord, uniqueRecordName, ibmiName } from './factories.js';

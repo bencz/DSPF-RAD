@@ -8,7 +8,7 @@ const dspfStreamLang = StreamLanguage.define({
     name: 'dspf',
     startState: () => ({ inString: false }),
     token (stream, state) {
-        // Reset string state at SOL — the writer never wraps strings
+        // Reset string state at SOL - the writer never wraps strings
         // across lines, so a fresh line is always outside a literal.
         if (stream.sol()) state.inString = false;
         const col = stream.pos + 1;          // 1-indexed column

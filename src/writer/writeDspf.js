@@ -25,7 +25,7 @@ export function writeDspf (doc) {
 }
 
 // Same output as writeDspf plus a per-record / per-item line-range map.
-// The cursor↔item link in the UI uses it to jump between source lines and
+// The cursor/item link in the UI uses it to jump between source lines and
 // canvas items.  Lines are 1-indexed inclusive: { first: 12, last: 14 }.
 export function writeDspfWithMap (doc) {
     const lines = [];

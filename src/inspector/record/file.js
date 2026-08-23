@@ -1,4 +1,4 @@
-// File-level sections — only rendered on records[0] since DSPF puts
+// File-level sections - only rendered on records[0] since DSPF puts
 // doc-level keywords there after parse.  Two groupings: presence chips
 // for boolean toggles (PRINT/ERRSFL/...), plus a misc section for
 // MSGLOC / DSPMOD / SETOF / etc.
@@ -15,7 +15,7 @@ const FILE_OPTION_NAMES = [
 const FILE_OPTION_TIPS = {
     INDARA: 'Indicators live in a separate data structure (the program ' +
             'reads/writes them directly).  When set, the runtime DOES NOT ' +
-            'use response indicators — the design-time preview still shows ' +
+            'use response indicators - the design-time preview still shows ' +
             'conditioned items, but at runtime visibility is controlled in code.',
 };
 
@@ -32,7 +32,7 @@ export function renderFileOptions (pane, rec, ctx) {
         warn.style.color      = '#cc6';
         warn.style.padding    = '4px 0';
         warn.style.fontStyle  = 'italic';
-        warn.textContent = '⚠ INDARA on: indicators are program-controlled.  ' +
+        warn.textContent = '[!] INDARA on: indicators are program-controlled.  ' +
             'Conditioned items still preview but runtime visibility depends on ' +
             'data structure values.';
         sec.appendChild(warn);
@@ -104,7 +104,7 @@ function renderDspMod (sec, rec, ctx) {
     sec.appendChild(row('DSPMOD', sel));
 }
 
-// SETOF is read-only — its (N 'desc') shape is rare enough that an editor
+// SETOF is read-only - its (N 'desc') shape is rare enough that an editor
 // would add UI weight no real screen needs.
 function renderSetofSummary (sec, rec) {
     const setofs = rec.keywords.filter(k => k.name === 'SETOF');

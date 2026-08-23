@@ -56,7 +56,7 @@ function bindSave (doc, flash) {
     });
 }
 
-// Programmatic download — used by Save, RPGLE/COBOL export, etc.
+// Programmatic download - used by Save, RPGLE/COBOL export, etc.
 export function downloadText (filename, text) {
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url  = URL.createObjectURL(blob);

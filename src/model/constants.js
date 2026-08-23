@@ -1,5 +1,5 @@
 // Display geometries and record-type tags.  Renderer + parser branch on
-// these — the type drives chrome (window frame, subfile band, …) and the
+// these - the type drives chrome (window frame, subfile band, …) and the
 // model size drives canvas dimensions.
 
 export const MODELS = {

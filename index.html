@@ -67,7 +67,7 @@
     <link rel="icon" type="image/svg+xml"
           href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23050a05'/><text x='32' y='44' font-family='monospace' font-size='18' font-weight='bold' fill='%2333ff33' text-anchor='middle'>DSPF</text></svg>">
 
-    <!-- 98.css gives us the Win98 chrome — bitmap MS Sans Serif font, raised/sunken
+    <!-- 98.css gives us the Win98 chrome - bitmap MS Sans Serif font, raised/sunken
          3D borders, native button/input/select look, .window + .title-bar + .status-bar
          primitives.  Loaded BEFORE our styles.css so we can override what doesn't
          fit (compact menubar buttons, the dark embedded canvas, the dark CodeMirror
@@ -75,13 +75,13 @@
     <link rel="stylesheet" href="https://unpkg.com/98.css@0.1.21">
     <link rel="stylesheet" href="styles.css">
 
-    <!-- No-FOUC theme application — runs BEFORE styles.css paints.
+    <!-- No-FOUC theme application - runs BEFORE styles.css paints.
          Reads localStorage first (explicit user choice wins).  If empty,
          falls back to the OS preference via prefers-color-scheme.  Once
          the rest of the app boots, src/app/Theme.js takes over the
          wiring (toggle button + live OS-pref tracking).
          Kept inline because any external script would race the first
-         paint and cause a light↔dark flash. -->
+         paint and cause a light/dark flash. -->
     <script>
       (function () {
         try {
@@ -129,7 +129,7 @@
 <div class="window app-window">
     <div class="title-bar">
         <div class="title-bar-text">
-            <span class="app-brand-mark">DSPF</span> · RAD — IronTerm Display File Designer
+            <span class="app-brand-mark">DSPF</span> · RAD - IronTerm Display File Designer
         </div>
     </div>
 
@@ -140,7 +140,7 @@
              .menu-dropdown <ul> that appears on click.  Menu items carry
              a data-cmd that the menubar controller in main.js dispatches
              to the hidden #legacyControls (where the existing
-             handlers live).  No JS handler in main.js needed to move —
+             handlers live).  No JS handler in main.js needed to move -
              we only synthesize clicks/changes on those hidden controls.
 
              Access keys are marked with <u>X</u> for visual hint only;
@@ -200,14 +200,14 @@
             <li class="menubar-spacer" aria-hidden="true"></li>
             <li class="menubar-info">
                 <button id="themeToggle" type="button" class="theme-toggle"
-                        title="Toggle light/dark theme" aria-label="Toggle theme">☀</button>
+                        title="Toggle light/dark theme" aria-label="Toggle theme">D</button>
                 <span class="hint" title="Drag from palette · Click to select · Arrow keys to nudge (Shift = ×5) · Del to remove">drag·click·arrows·Del</span>
                 <span id="status" class="toolbar-status">ready</span>
             </li>
         </menu>
 
         <!-- Visible toolbar row beneath the menubar.  Holds the controls
-             the user reaches for most often — Model, Record, view toggles.
+             the user reaches for most often - Model, Record, view toggles.
              Classic VB6 / Borland layout: menubar for discoverable actions,
              toolbar for the fast-path controls.  IDs match what main.js
              already wires up, so no handler changes are needed. -->
@@ -226,8 +226,8 @@
             </label>
             <button id="addRecord"    title="Add a new record format">+R</button>
             <button id="addSubfile"   title="Add a Subfile pair (SFL + SFLCTL) wired with defaults">+SFL</button>
-            <button id="renameRecord" title="Rename the active record format">⇄</button>
-            <button id="deleteRecord" title="Delete the active record format">−R</button>
+            <button id="renameRecord" title="Rename the active record format">RN</button>
+            <button id="deleteRecord" title="Delete the active record format">-R</button>
 
             <span class="sep" aria-hidden="true"></span>
 
@@ -237,7 +237,7 @@
                     title="Hide items that only render when an indicator is on/off (cleans up screens like CLOCK)">Hide cond</button>
         </div>
 
-        <!-- Legacy controls — originals the JS handlers in main.js are bound
+        <!-- Legacy controls - originals the JS handlers in main.js are bound
              to.  Menubar items dispatch by id (e.g. File > New calls
              #newDoc.click()).  Hidden via [hidden] but present in the DOM so
              click events still fire.  Visible controls (Model / Record /
@@ -249,15 +249,15 @@
             <button id="saveDoc" title="Generate DSPF source">Save</button>
             <input  id="fileInput" type="file">
 
-            <button id="genRpgle" title="Generate RPGLE skeleton with protected regions">↗ RPGLE</button>
-            <button id="genCobol" title="Generate COBOL skeleton with protected regions">↗ COBOL</button>
+            <button id="genRpgle" title="Generate RPGLE skeleton with protected regions">RPGLE</button>
+            <button id="genCobol" title="Generate COBOL skeleton with protected regions">COBOL</button>
             <button id="regenRpgle" hidden>Regenerate RPGLE</button>
             <button id="regenCobol" hidden>Regenerate COBOL</button>
-            <button id="exportJson" title="Copy internal model as JSON (debug)">{·}</button>
+            <button id="exportJson" title="Copy internal model as JSON (debug)">{ }</button>
         </div>
 
         <!-- 3-column workspace: Palette  |  Canvas  |  Inspector.
-             Each side panel is its own Win98 .window with a title bar —
+             Each side panel is its own Win98 .window with a title bar -
              MDI-style nesting that matches IDEs of the era (VB6 / Borland). -->
         <div class="workspace">
 
@@ -272,63 +272,63 @@
                             <span class="pi-icon">A</span><span class="pi-label">Constant</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="input" data-length="10">
-                            <span class="pi-icon">▭</span><span class="pi-label">Input field</span>
+                            <span class="pi-icon">I</span><span class="pi-label">Input field</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="output" data-length="10">
-                            <span class="pi-icon">▷</span><span class="pi-label">Output field</span>
+                            <span class="pi-icon">O</span><span class="pi-label">Output field</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="both" data-length="10">
-                            <span class="pi-icon">⇄</span><span class="pi-label">I/O field</span>
+                            <span class="pi-icon">IO</span><span class="pi-label">I/O field</span>
                         </div>
                     </div>
 
                     <div class="palette-group">
                         <h4>Presets</h4>
                         <div class="palette-item" draggable="true" data-kind="constant" data-text="================================================================================">
-                            <span class="pi-icon">─</span><span class="pi-label">Rule line</span>
+                            <span class="pi-icon">-</span><span class="pi-label">Rule line</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="constant" data-text="Sign On" data-dspatr="HI" data-color="WHT">
-                            <span class="pi-icon">»</span><span class="pi-label">"Sign On" title</span>
+                            <span class="pi-icon">&gt;</span><span class="pi-label">"Sign On" title</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="input"  data-length="10" data-name="USER" data-dspatr="UL">
-                            <span class="pi-icon">▭</span><span class="pi-label">USER (10A, UL)</span>
+                            <span class="pi-icon">I</span><span class="pi-label">USER (10A, UL)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="input"  data-length="10" data-name="PASSWD" data-dspatr="ND,UL">
-                            <span class="pi-icon">▭</span><span class="pi-label">Password (ND·UL)</span>
+                            <span class="pi-icon">I</span><span class="pi-label">Password (ND·UL)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="output" data-length="6"  data-name="MSG"    data-dspatr="HI" data-color="YLW">
-                            <span class="pi-icon">▷</span><span class="pi-label">Message (HI·YLW)</span>
+                            <span class="pi-icon">O</span><span class="pi-label">Message (HI·YLW)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="constant" data-text="F3=Exit   F12=Cancel" data-color="BLU">
-                            <span class="pi-icon">⌨</span><span class="pi-label">Function-key legend</span>
+                            <span class="pi-icon">K</span><span class="pi-label">Function-key legend</span>
                         </div>
                     </div>
 
                     <div class="palette-group">
                         <h4>ENPTUI controls</h4>
                         <div class="palette-item" draggable="true" data-kind="pushbtn">
-                            <span class="pi-icon">⊓</span><span class="pi-label">Push button</span>
+                            <span class="pi-icon">[]</span><span class="pi-label">Push button</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="pushbtnGroup">
-                            <span class="pi-icon">⊓⊓</span><span class="pi-label">Push button group (3)</span>
+                            <span class="pi-icon">[]</span><span class="pi-label">Push button group (3)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="radio">
-                            <span class="pi-icon">◉</span><span class="pi-label">Radio (single)</span>
+                            <span class="pi-icon">◯</span><span class="pi-label">Radio (single)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="radioGroup">
-                            <span class="pi-icon">◉</span><span class="pi-label">Radio group (3)</span>
+                            <span class="pi-icon">◯</span><span class="pi-label">Radio group (3)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="checkbox">
-                            <span class="pi-icon">☑</span><span class="pi-label">Checkbox (single)</span>
+                            <span class="pi-icon">x</span><span class="pi-label">Checkbox (single)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="checkGroup">
-                            <span class="pi-icon">☑</span><span class="pi-label">Check group (3)</span>
+                            <span class="pi-icon">x</span><span class="pi-label">Check group (3)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="mnubar">
-                            <span class="pi-icon">≡</span><span class="pi-label">Menu bar (2 items)</span>
+                            <span class="pi-icon">=</span><span class="pi-label">Menu bar (2 items)</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="cntfld">
-                            <span class="pi-icon">¶</span><span class="pi-label">Continued field</span>
+                            <span class="pi-icon">+</span><span class="pi-label">Continued field</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="errmsg">
                             <span class="pi-icon">!</span><span class="pi-label">Error msg field</span>
@@ -338,16 +338,16 @@
                     <div class="palette-group">
                         <h4>System values</h4>
                         <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="DATE">
-                            <span class="pi-icon">⌚</span><span class="pi-label">DATE</span>
+                            <span class="pi-icon">D</span><span class="pi-label">DATE</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="TIME">
-                            <span class="pi-icon">⌛</span><span class="pi-label">TIME</span>
+                            <span class="pi-icon">T</span><span class="pi-label">TIME</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="USER">
-                            <span class="pi-icon">☻</span><span class="pi-label">USER</span>
+                            <span class="pi-icon">U</span><span class="pi-label">USER</span>
                         </div>
                         <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="SYSNAME">
-                            <span class="pi-icon">⌬</span><span class="pi-label">SYSNAME</span>
+                            <span class="pi-icon">S</span><span class="pi-label">SYSNAME</span>
                         </div>
                     </div>
 
@@ -357,7 +357,7 @@
                 </div>
             </aside>
 
-            <!-- Canvas sits in a sunken 3D well — looks like the embedded
+            <!-- Canvas sits in a sunken 3D well - looks like the embedded
                  terminal display in a Client Access / PCOMM Win98 window. -->
             <main class="canvas-wrap">
                 <div class="canvas-frame" id="canvasFrame">
@@ -387,21 +387,21 @@
              plus a gray sub-toolbar holding the column-marker toggle and
              the sync-status LED.  The collapse arrow MUST live in the
              title-bar (not the sub-toolbar) because the sub-toolbar is
-             hidden when collapsed — keeping the arrow inside the title-bar
+             hidden when collapsed - keeping the arrow inside the title-bar
              means the user can always click it to re-expand.  The button
              has no aria-label so 98.css's [aria-label="Minimize"]
-             background-image rule doesn't paint over our ▾/▴ text. -->
+             background-image rule doesn't paint over our v/^ text. -->
         <section class="window source-panel" id="sourcePanel">
             <div class="title-bar">
-                <div class="title-bar-text">Source — DSPF</div>
+                <div class="title-bar-text">Source - DSPF</div>
                 <div class="title-bar-controls">
                     <button id="sourceCollapse" class="source-collapse"
-                            title="Hide source panel">▾</button>
+                            title="Hide source panel">v</button>
                 </div>
             </div>
             <div class="source-toolbar">
                 <button id="cursorColToggle" class="source-chip"
-                        title="Vertical column marker at cursor position">┃ col</button>
+                        title="Vertical column marker at cursor position">| col</button>
                 <span class="source-toolbar-spacer"></span>
                 <span class="source-status ok" id="sourceStatus" title="Sync state">sync</span>
             </div>
@@ -412,9 +412,9 @@
              field layout for free.  IDs match what main.js writes to. -->
         <div id="statusbar" class="status-bar" role="status" aria-live="polite">
             <p class="status-bar-field" id="sbModel"  title="Display model">24×80</p>
-            <p class="status-bar-field" id="sbRecord" title="Active record">—</p>
+            <p class="status-bar-field" id="sbRecord" title="Active record">-</p>
             <p class="status-bar-field" id="sbItems"  title="Item count in active record">0 items</p>
-            <p class="status-bar-field" id="sbCursor" title="Grid cursor (row, col)">(–,–)</p>
+            <p class="status-bar-field" id="sbCursor" title="Grid cursor (row, col)">(-,-)</p>
         </div>
 
     </div>

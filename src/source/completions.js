@@ -2,7 +2,7 @@
 // we offer flags, inside `COLOR(...)` we offer colours, everywhere else
 // we offer the keyword universe.
 
-// Not exhaustive — IBM has hundreds of DSPF keywords — but covers what
+// Not exhaustive - IBM has hundreds of DSPF keywords - but covers what
 // this designer recognises plus the common shortcuts.
 const DSPF_KEYWORDS = [
     'SFL', 'SFLCTL', 'MNUBAR', 'PULLDOWN', 'WINDOW',

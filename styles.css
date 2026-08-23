@@ -1,14 +1,14 @@
-/* DSPF·RAD — Windows 98 chrome wrapping a dark IBM 5250 terminal canvas
+/* DSPF·RAD - Windows 98 chrome wrapping a dark IBM 5250 terminal canvas
    and a dark CodeMirror DSPF source editor.  Loaded AFTER 98.css so we
    can override what doesn't fit the app's needs (compact toolbar buttons,
    the dark embedded terminal, the dark editor, the custom palette item
    rows, etc.).
 
    Two color worlds coexist here:
-     1. Win98 silver/gray chrome — toolbar, panels, status bar, inspector.
+     1. Win98 silver/gray chrome - toolbar, panels, status bar, inspector.
         Uses 98.css defaults: #c0c0c0 face, #fff highlight, #808080 shadow,
         navy/blue gradient title bars, bitmap MS Sans Serif font.
-     2. IBM 5250 phosphor green — the canvas + the source editor.  These
+     2. IBM 5250 phosphor green - the canvas + the source editor.  These
         sit inside Win98 windows but their content is dark + green, like
         an embedded terminal emulator (Client Access / PCOMM era).        */
 
@@ -24,7 +24,7 @@
        grew with the extra toolbar row beneath the menubar. */
     --chrome-h: 140px;
 
-    /* IBM 5250 phosphor palette — used by the canvas + the embedded
+    /* IBM 5250 phosphor palette - used by the canvas + the embedded
        CodeMirror.  Preserved as authentic terminal greens. */
     --term-bg:  #050a05;
     --term-grn: #33ff33;
@@ -82,7 +82,7 @@ body {
 }
 
 /* ============================================================
-   Outer app window — fills the viewport.  The .window class from
+   Outer app window - fills the viewport.  The .window class from
    98.css already gives us the 3D raised border + 3px padding.  We
    just add the flex column layout so children stack vertically.
    ============================================================ */
@@ -96,7 +96,7 @@ body {
 }
 .app-window > .title-bar { flex: 0 0 auto; }
 
-/* Phosphor-green "DSPF" mark inside the title bar — a tiny terminal
+/* Phosphor-green "DSPF" mark inside the title bar - a tiny terminal
    peeking through the chrome.  Same colors as the embedded canvas so
    the two read as siblings. */
 .app-brand-mark {
@@ -120,12 +120,12 @@ body {
 }
 
 /* ============================================================
-   Menubar — classic Win98 File / Record / View / Export / Help.
+   Menubar - classic Win98 File / Record / View / Export / Help.
    The interactive controls (Open select, Record select, Overlay
    toggle, RPGLE/COBOL/JSON exports) all live in the menus now.
    Their original buttons + selects are kept in #legacyControls
    (display:none via the hidden attribute) so main.js's existing
-   handlers stay wired — the menubar controller synthesises clicks
+   handlers stay wired - the menubar controller synthesises clicks
    and `change` events on them.
    ============================================================ */
 #menubar {
@@ -174,7 +174,7 @@ body {
     background: var(--w98-navy);
     color: var(--fg-on-accent);
 }
-/* Underlined access-key hint (visual only — no Alt+key binding). */
+/* Underlined access-key hint (visual only - no Alt+key binding). */
 .menu-title u,
 .menu-item u { text-decoration: underline; }
 
@@ -247,7 +247,7 @@ body {
    active record in the Record > Active submenu). */
 .menu-item.menu-radio[data-radio-on="true"]::before,
 .menu-item[data-radio-on="true"]::before {
-    content: '●';
+    content: 'o';
     position: absolute;
     left: 10px;
     color: inherit;
@@ -262,7 +262,7 @@ body {
     list-style: none;
 }
 
-/* Disabled menu items get the classic Win98 "etched gray" look — gray
+/* Disabled menu items get the classic Win98 "etched gray" look - gray
    text with a 1px white drop shadow that creates the carved-out feel.
    Hover override prevents the blue highlight on disabled items.  The JS
    dispatcher in main.js also bails early on .disabled items so the menu
@@ -281,9 +281,9 @@ body {
 .menu-item.disabled:hover .menu-accel { color: var(--fg-disabled); }
 
 /* ============================================================
-   Main toolbar — visible row below the menubar grouping the
+   Main toolbar - visible row below the menubar grouping the
    controls the user reaches for most often:
-     [ Model ▼ ] | [ Record ▼  +R  +SFL  ⇄  −R ] | [Overlay] [Hide cond]
+     [ Model v ] | [ Record v  +R  +SFL  RN  -R ] | [Overlay] [Hide cond]
    Two-row Win98 chrome (menubar + button toolbar) matches VB6
    and Borland tools of the era.
    ============================================================ */
@@ -318,7 +318,7 @@ body {
     height: 22px;
     font-size: 11px;
 }
-/* Classic Win98 vertical divider — two pixel-wide column with one
+/* Classic Win98 vertical divider - two pixel-wide column with one
    dark and one light pixel, simulating an etched groove between
    toolbar groups. */
 #toolbar .sep {
@@ -331,7 +331,7 @@ body {
 }
 /* Pressed-in state for Overlay / Hide cond toggles.  Inverts the
    3D border direction (raised → sunken) and bumps padding 1px so
-   the label visually "sinks in" — exactly how Win98 toolbar latches
+   the label visually "sinks in" - exactly how Win98 toolbar latches
    looked on Office 97 / VB6. */
 #toolbar button.toggle.on {
     border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
@@ -384,7 +384,7 @@ body {
     cursor: help;
     font-family: "SF Mono", Menlo, Consolas, monospace;
 }
-/* Ephemeral status — sunken field, monospace, color-coded.  Same
+/* Ephemeral status - sunken field, monospace, color-coded.  Same
    look as before but at the right of the menubar instead of toolbar. */
 .toolbar-status {
     padding: 2px 8px;
@@ -424,7 +424,7 @@ body {
 .panel.inspector { width: 300px; flex: 0 0 300px; }
 .panel > .title-bar { flex: 0 0 auto; }
 
-/* The interior of each panel — a sunken "well" inside the raised
+/* The interior of each panel - a sunken "well" inside the raised
    window.  Looks like the standard Win98 "split" subwindow shell. */
 .panel .panel-body {
     flex: 1 1 auto;
@@ -437,7 +437,7 @@ body {
 }
 
 /* ============================================================
-   Palette — each item is a list-row in the Win98 listbox style
+   Palette - each item is a list-row in the Win98 listbox style
    (white bg, blue selected, dotted focus ring on armed).
    ============================================================ */
 .palette-group + .palette-group { margin-top: 6px; }
@@ -476,7 +476,7 @@ body {
 .palette-item.palette-armed .pi-icon,
 .palette-item.palette-armed .pi-label { color: var(--fg-on-accent); }
 .palette-item.palette-armed::after {
-    content: '◉ click grid';
+    content: 'o click grid';
     margin-left: auto;
     color: var(--fg-on-accent);
     font-family: "SF Mono", Menlo, monospace;
@@ -503,7 +503,7 @@ body {
 .palette-hint em { color: var(--fg-accent); font-style: normal; font-weight: bold; }
 
 /* ============================================================
-   Canvas — dark 5250 terminal embedded in a deep Win98 sunken well.
+   Canvas - dark 5250 terminal embedded in a deep Win98 sunken well.
    Keeps the original aspect-ratio + height calc so the grid scales
    with viewport / source-panel size.
    ============================================================ */
@@ -523,7 +523,7 @@ body {
     position: relative;
     background: var(--term-bg);
     /* Win98 deep-sunken bezel: 2px outer (dark/white) + 1px inner inset
-       (darker/lighter) — same recipe as 98.css's .sunken-panel but with
+       (darker/lighter) - same recipe as 98.css's .sunken-panel but with
        a touch more depth because the dark canvas behind it makes the
        bezel read crisply. */
     border: 2px solid;
@@ -552,7 +552,7 @@ body.wide-mode .canvas-frame {
     aspect-ratio: 11 / 5;
     width: min(100%, calc((100vh - var(--chrome-h) - var(--source-panel-h) - var(--source-handle-h)) * 11 / 5));
 }
-/* Bottom-left helper text drawn over the dark canvas — keep phosphor
+/* Bottom-left helper text drawn over the dark canvas - keep phosphor
    dim-green so it reads as terminal scrollback. */
 .canvas-help {
     position: absolute;
@@ -567,7 +567,7 @@ body.wide-mode .canvas-frame {
 .canvas-help.hidden { opacity: 0; }
 
 /* ============================================================
-   Inspector — keeps Inspector.js's existing class names so no JS
+   Inspector - keeps Inspector.js's existing class names so no JS
    changes are needed.  Each .insp-section becomes a Win98 group
    box with a "cut-into-border" h4 legend.
    ============================================================ */
@@ -787,7 +787,7 @@ body.wide-mode .canvas-frame {
     border-style: dashed;
 }
 
-/* ---- Items list (in Record tab) — Win98 listbox look ---- */
+/* ---- Items list (in Record tab) - Win98 listbox look ---- */
 .insp-itemlist {
     display: flex;
     flex-direction: column;
@@ -859,7 +859,7 @@ body.wide-mode .canvas-frame {
    Source panel (bottom) + splitter
    ============================================================ */
 
-/* Classic Win98 splitter — gray bar with a dotted "gripper" in the
+/* Classic Win98 splitter - gray bar with a dotted "gripper" in the
    middle.  Cursor hint is row-resize.  JS toggles .dragging while
    the pointer drag is active. */
 .resize-handle {
@@ -888,7 +888,7 @@ body.wide-mode .canvas-frame {
 .resize-handle.dragging { background: #a0a0a0; }
 body.source-collapsed .resize-handle { display: none; }
 
-/* Source panel is itself a Win98 sub-window — title bar at top,
+/* Source panel is itself a Win98 sub-window - title bar at top,
    gray sub-toolbar (col toggle, sync LED, collapse arrow), then
    the dark CodeMirror surface in a sunken well. */
 .source-panel {
@@ -901,7 +901,7 @@ body.source-collapsed .resize-handle { display: none; }
 }
 .source-panel > .title-bar { flex: 0 0 auto; }
 /* Collapsed = "window-shade" pattern: title-bar stays visible so the
-   ▴ button is always clickable to re-expand; only the toolbar + editor
+   up button is always clickable to re-expand; only the toolbar + editor
    collapse away.  main.js shrinks --source-panel-h to ~24px (title-bar
    height) so the canvas's height calc gives back the freed pixels. */
 body.source-collapsed .source-toolbar,
@@ -921,7 +921,7 @@ body.source-collapsed .source-editor { display: none; }
 }
 .source-toolbar-spacer { flex: 1; }
 
-/* Reusable chip-style button (┃ col toggle). */
+/* Reusable chip-style button for the column toggle. */
 .source-chip {
     background: var(--w98-face);
     color: var(--fg-text);
@@ -949,9 +949,9 @@ body.source-collapsed .source-editor { display: none; }
 }
 /* Source-panel collapse arrow inside its title-bar-controls.  We override
    98.css's default title-bar-controls button (which is 16x14 with a
-   background-image icon) to render our text ▾/▴ instead.  The button
+   background-image icon) to render our ASCII up/down text instead. The button
    takes no aria-label so 98.css's [aria-label="Minimize"]::before
-   background-image rule won't apply — the empty button face is ours to
+   background-image rule won't apply - the empty button face is ours to
    paint with text. */
 .title-bar-controls .source-collapse {
     width: auto;
@@ -981,7 +981,7 @@ body.source-collapsed .source-editor { display: none; }
 
 /* ---- Sync status LED ----
    Tiny "indicator light" mounted in a sunken pill.  The dot is a
-   CSS circle (fixed width — no emoji glyph drift) inside a Win98
+   CSS circle (fixed width - no emoji glyph drift) inside a Win98
    sunken field.  Pulses while debounced parse is in flight. */
 .source-status {
     padding: 1px 9px 1px 7px;
@@ -1039,7 +1039,7 @@ body.source-collapsed .source-editor { display: none; }
 }
 
 /* ============================================================
-   CodeMirror 6 dark theme — preserved inside the Win98 sunken well.
+   CodeMirror 6 dark theme - preserved inside the Win98 sunken well.
    The terminal aesthetic for DSPF source matches the canvas + the
    .app-brand-mark in the title bar.
    ============================================================ */
@@ -1095,7 +1095,7 @@ body.source-collapsed .source-editor { display: none; }
     box-shadow: inset 2px 0 0 #4a9aff;
 }
 
-/* Vertical bar tracking the cursor's column.  See SourceEditor.js — the
+/* Vertical bar tracking the cursor's column.  See SourceEditor.js - the
    `.show` class is toggled on THIS element (not on .cm-editor) because
    CM6 rewrites .cm-editor's className whenever editorAttributes recompute
    (focus/blur etc.), which would silently strip any class we set there. */
@@ -1128,12 +1128,12 @@ body.source-collapsed .source-editor { display: none; }
 .dspf-ruler-labels { color: var(--term-grn); }
 
 /* Hide the default CodeMirror panel border the showPanel injects above
-   the editor — our ruler carries its own bottom border. */
+   the editor - our ruler carries its own bottom border. */
 .cm-editor .cm-panels.cm-panels-top { border-bottom: none; }
 .cm-editor .cm-panels { background: transparent; }
 
 /* ============================================================
-   Status bar at the very bottom — 98.css .status-bar handles the
+   Status bar at the very bottom - 98.css .status-bar handles the
    horizontal layout with sunken fields; we only need to tighten
    font + add monospace for the cursor / item-count readouts.
    ============================================================ */
@@ -1157,11 +1157,11 @@ body.source-collapsed .source-editor { display: none; }
 #sbCursor { min-width: 70px; text-align: right; }
 
 /* ============================================================
-   Theme toggle button — chip-style ☀/☾ in the menubar-info row.
+   Theme toggle button in the menubar-info row.
    Reuses the .source-chip Win98 3D-raised look (kept consistent
    with the other small chips in the chrome).  Glyph is wider than
    text so we drop the monospace family for a slightly more open
-   look — the sun/moon read better at the default UI font weight. */
+   look - the sun/moon read better at the default UI font weight. */
 .theme-toggle {
     background: var(--w98-face);
     color: var(--fg-text);
@@ -1191,7 +1191,7 @@ body.source-collapsed .source-editor { display: none; }
 }
 
 /* ============================================================
-   Dark theme — applied via [data-theme="dark"] on <html>.
+   Dark theme - applied via [data-theme="dark"] on <html>.
 
    Strategy:
      1. Remap the --w98-* literal palette to dark values.  Most of
@@ -1208,7 +1208,7 @@ body.source-collapsed .source-editor { display: none; }
         wouldn't read on a dark background.
 
    The phosphor canvas + CodeMirror (--term-bg, --term-grn,
-   --term-dim) are deliberately untouched — phosphor green on black
+   --term-dim) are deliberately untouched - phosphor green on black
    is the canonical IBM 5250 look and shouldn't change with theme.
    ============================================================ */
 [data-theme="dark"] {
@@ -1237,7 +1237,7 @@ body.source-collapsed .source-editor { display: none; }
 
 /* ---- 98.css overrides (no CSS vars in 98.css 0.1.21) ------ */
 
-/* .window — the raised silver panel.  Original box-shadow uses the
+/* .window - the raised silver panel.  Original box-shadow uses the
    classic 4-color recipe (white, light gray, gray, dark); dark mode
    uses the same recipe shifted down. */
 [data-theme="dark"] .window {
@@ -1250,7 +1250,7 @@ body.source-collapsed .source-editor { display: none; }
         inset  2px  2px 0 var(--w98-white);
 }
 
-/* .title-bar — the navy gradient.  Solid dark blue in dark mode
+/* .title-bar - the navy gradient.  Solid dark blue in dark mode
    keeps the brand-mark legible without a bright gradient.  98.css's
    inactive title bar uses a gray gradient; in dark we use muted blue. */
 [data-theme="dark"] .title-bar {
@@ -1260,7 +1260,7 @@ body.source-collapsed .source-editor { display: none; }
     background: linear-gradient(90deg, #2a2a2a 0%, #555555 100%);
 }
 
-/* form controls — 98.css gives them a white bg + 4-color sunken
+/* form controls - 98.css gives them a white bg + 4-color sunken
    bezel.  Dark mode uses the dark input bg + a darker bezel. */
 [data-theme="dark"] input[type="text"],
 [data-theme="dark"] input[type="number"],
@@ -1280,14 +1280,14 @@ body.source-collapsed .source-editor { display: none; }
         inset  2px  2px 0 var(--w98-dark);
 }
 
-/* select :focus highlight — 98.css paints it navy+white text.  In
+/* select :focus highlight - 98.css paints it navy+white text.  In
    dark we use the darker accent + white-on-accent. */
 [data-theme="dark"] select:focus {
     background-color: var(--w98-navy);
     color: var(--fg-on-accent);
 }
 
-/* button — 98.css raised silver; same 4-color recipe in dark. */
+/* button - 98.css raised silver; same 4-color recipe in dark. */
 [data-theme="dark"] button,
 [data-theme="dark"] input[type="reset"],
 [data-theme="dark"] input[type="submit"] {
@@ -1315,7 +1315,7 @@ body.source-collapsed .source-editor { display: none; }
     color: var(--fg-disabled);
 }
 
-/* .status-bar-field — 98.css gives it a sunken 2-color shadow. */
+/* .status-bar-field - 98.css gives it a sunken 2-color shadow. */
 [data-theme="dark"] .status-bar-field {
     box-shadow:
         inset -1px -1px 0 var(--w98-light),
@@ -1325,22 +1325,22 @@ body.source-collapsed .source-editor { display: none; }
 
 /* ---- App-specific dark adjustments ---------------------- */
 
-/* Body text default — html/body set color:#000 inline, so override. */
+/* Body text default - html/body set color:#000 inline, so override. */
 [data-theme="dark"] html,
 [data-theme="dark"] body {
     color: var(--fg-text);
 }
 
 /* The .app-brand-mark inside the title bar is its own phosphor pill
-   — leave untouched (looks great in either theme). */
+   - leave untouched (looks great in either theme). */
 
-/* Item tag colors — saturated primaries don't read on dark.  Brighten. */
+/* Item tag colors - saturated primaries don't read on dark.  Brighten. */
 [data-theme="dark"] .insp-itemrow-tag.tag-constant { color: #6a9aff; }
 [data-theme="dark"] .insp-itemrow-tag.tag-sysvalue { color: #5fd7d7; }
 [data-theme="dark"] .insp-itemrow-tag.tag-field    { color: #87d787; }
 [data-theme="dark"] .insp-itemrow-tag.tag-hidden   { color: #d787d7; }
 
-/* Resize-handle hover/dragging — light-mode uses gray shades that
+/* Resize-handle hover/dragging - light-mode uses gray shades that
    would clash with the dark chrome.  Override to dark equivalents. */
 [data-theme="dark"] .resize-handle:hover    { background: #3a3a3a; }
 [data-theme="dark"] .resize-handle.dragging { background: #505050; }
@@ -1354,13 +1354,12 @@ body.source-collapsed .source-editor { display: none; }
     text-shadow: none;
 }
 
-/* Menu accelerator on navy hover — light mode uses #c0c0c0; that's
+/* Menu accelerator on navy hover - light mode uses #c0c0c0; that's
    still readable on the dark blue hover bg, but slightly bumped
    here for better legibility. */
 [data-theme="dark"] .menu-item:hover .menu-accel { color: #b8b8b8; }
 
-/* Scrollbar — 98.css renders custom scrollbars via background-image
+/* Scrollbar - 98.css renders custom scrollbars via background-image
    SVGs that are tuned for light chrome.  In dark they look slightly
    off but remain functional.  Accepted (matches 98.css ecosystem
-   behavior — most 98.css dark forks ignore the scrollbar). */
-
+   behavior - most 98.css dark forks ignore the scrollbar). */

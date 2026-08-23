@@ -3,7 +3,7 @@
 // the designer to re-measure the canvas.
 
 const DEFAULT_PANEL_H   = 260;
-const COLLAPSED_PANEL_H = 24;        // title-bar height — leaves the ▴ button clickable
+const COLLAPSED_PANEL_H = 24;        // title-bar height; leaves the up button clickable
 const HANDLE_H          = 5;
 const MIN_PANEL_H       = 80;
 const MAX_PANEL_RATIO   = 0.7;       // 70vh
@@ -48,7 +48,7 @@ function bindResizeDrag (handle, designer) {
     });
 }
 
-// Window-shade collapse: the title-bar peeks out so the ▴ button is
+// Window-shade collapse: the title-bar peeks out so the up button is
 // always clickable.  CSS hides the source-toolbar + editor in the
 // collapsed state; the handle goes to 0.
 function bindCollapse (collapseBtn, designer) {
@@ -56,7 +56,7 @@ function bindCollapse (collapseBtn, designer) {
 
     collapseBtn.addEventListener('click', () => {
         const collapsed = document.body.classList.toggle('source-collapsed');
-        collapseBtn.textContent = collapsed ? '▴' : '▾';
+        collapseBtn.textContent = collapsed ? '^' : 'v';
         collapseBtn.title       = collapsed ? 'Show source panel' : 'Hide source panel';
 
         document.documentElement.style.setProperty(

@@ -3,7 +3,7 @@
 //
 // Why route through #legacyControls instead of refactoring the handlers?
 // Each handler in boot() is a closure over locals (statusEl, designer,
-// palette, …).  Calling button.click() preserves those bindings — we
+// palette, …).  Calling button.click() preserves those bindings - we
 // only synthesise the user-action signal.  The `hidden` attribute on the
 // wrapper div doesn't block programmatic .click(), so the chain
 // menu → btn.click() → original handler stays intact.
@@ -55,7 +55,7 @@ function bindOutsideClicks (menubar, state) {
 }
 
 function bindEscape (state) {
-    // Don't stopPropagation — Designer's Esc handler (clear selection /
+    // Don't stopPropagation - Designer's Esc handler (clear selection /
     // disarm palette) still needs to run.
     document.addEventListener('keydown', (ev) => {
         if (ev.key === 'Escape' && state.openLi) closeAll(state);
@@ -77,14 +77,14 @@ function bindItemDispatch (menubar, state) {
 function dispatchCmd (cmd) {
     if (cmd === 'about') {
         alert(
-            'DSPF·RAD — IronTerm\n\n' +
+            'DSPF·RAD - IronTerm\n\n' +
             'Browser-side IBM i (AS/400) display file designer.\n' +
             'Drag/drop UI builder for DSPF source.\n\n' +
             'Author: Alexandre Bencz\n' +
             'Build: v0.5 (Win98 chrome)');
         return;
     }
-    // Everything else: the data-cmd value IS the id of a hidden button —
+    // Everything else: the data-cmd value IS the id of a hidden button -
     // synthesise a click and let the closure-captured handler run.
     const btn = document.getElementById(cmd);
     if (btn) btn.click();

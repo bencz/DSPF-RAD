@@ -72,7 +72,7 @@ function dispatchRenderer (gc, view, isOverlay, parentRec) {
         return;
     }
 
-    // Field — branch by ENPTUI pattern in the keywords.
+    // Field - branch by ENPTUI pattern in the keywords.
     if (hasKeyword(view, 'SNGCHCFLD') || hasKeyword(view, 'MLTCHCFLD')) {
         drawChoiceField(gc, view, hasKeyword(view, 'MLTCHCFLD'));
     } else if (mnubarChoicesOf(view).length) {

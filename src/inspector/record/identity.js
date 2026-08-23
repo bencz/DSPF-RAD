@@ -1,5 +1,5 @@
-// Record name + type dropdown.  Type changes (RECORD ↔ SFL ↔ WINDOW …)
-// don't move keywords around — the renderer + writer branch on type.
+// Record name + type dropdown.  Type changes (RECORD / SFL / WINDOW, etc.)
+// don't move keywords around - the renderer + writer branch on type.
 
 import { RECORD_TYPES } from '../../model/constants.js';
 import { section, row } from '../dom.js';

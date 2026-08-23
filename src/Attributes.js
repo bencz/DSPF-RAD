@@ -1,5 +1,5 @@
 // DSPF attributes the renderer + inspector know about.  Unrecognised
-// keywords still round-trip via item.keywords[] — this file just enumerates
+// keywords still round-trip via item.keywords[] - this file just enumerates
 // what we surface in dropdowns and paint with special colours.
 
 export const DSPATR_FLAGS = {

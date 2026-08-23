@@ -1,4 +1,4 @@
-// REFFLD editor — only shown when the item carries a REFFLD keyword.
+// REFFLD editor - only shown when the item carries a REFFLD keyword.
 // Two-line layout: a single text input with whichever shape the REFFLD
 // arg uses (<field> <file> | <lib>/<file>/<field>).
 

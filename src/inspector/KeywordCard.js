@@ -1,4 +1,4 @@
-// Reusable keyword editor card — the "Other keywords" rows on the Item
+// Reusable keyword editor card - the "Other keywords" rows on the Item
 // tab and the catch-all keyword list on the Record tab both use this.
 
 import { addKeyword, removeWhere } from '../model/keywords.js';

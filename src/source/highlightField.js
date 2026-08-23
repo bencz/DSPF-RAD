@@ -1,4 +1,4 @@
-// Line-decoration field driven by a state effect.  The cursor↔item link
+// Line-decoration field driven by a state effect.  The cursor/item link
 // uses it to highlight which item is selected on the canvas.
 
 import { StateField, StateEffect, RangeSetBuilder } from '@codemirror/state';

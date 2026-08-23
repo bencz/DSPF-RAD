@@ -38,7 +38,7 @@ export function ensureList (target) {
 
 // Union of args across every `name` keyword on `target`, source order.
 // Real DSPF allows packing flags into a single DSPATR(HI UL) as well as
-// repeating DSPATR(HI) DSPATR(UL) — both forms produce the same set.
+// repeating DSPATR(HI) DSPATR(UL) - both forms produce the same set.
 export function flagsOf (target, name) {
     const out = [];
     for (const kw of target.keywords ?? []) {
@@ -81,10 +81,10 @@ export function removeWhere (target, predicate) {
 }
 
 // Toggle a flag keyword like DSPATR(HI).  Handles:
-//   - Standalone DSPATR(HI) — removed wholesale when off.
-//   - Packed DSPATR(HI UL) — drops the matching arg only (keyword deleted
+//   - Standalone DSPATR(HI) - removed wholesale when off.
+//   - Packed DSPATR(HI UL) - drops the matching arg only (keyword deleted
 //     if it becomes empty).
-//   - Indicator-conditioned entries — left alone so toggling here doesn't
+//   - Indicator-conditioned entries - left alone so toggling here doesn't
 //     silently delete user conditioning.
 // Enable is a no-op when an unconditional keyword already carries the flag.
 export function setFlag (target, name, flag, enabled) {

@@ -1,6 +1,6 @@
 // Palette: HTML5 drag source + click-to-place fallback.
 //
-// HTML5 drag/drop is finicky across browsers — sometimes a custom MIME
+// HTML5 drag/drop is finicky across browsers - sometimes a custom MIME
 // silently fails or `dataTransfer` reads empty inside the drop handler.
 // Mitigations here:
 //   - publish two MIMEs at dragstart (custom + text/plain)

@@ -1,7 +1,7 @@
 // Thin vertical bar tracking the cursor's pixel-x.  Implemented as a
 // ViewPlugin to:
 //
-//   1. Mount inside `view.scrollDOM` (the .cm-scroller) — that element is
+//   1. Mount inside `view.scrollDOM` (the .cm-scroller) - that element is
 //      owned by CodeMirror's render pipeline and never removed.  Mounting
 //      on `view.dom` lost the child on panel remount.
 //
@@ -23,7 +23,7 @@ export const cursorColMarkerPlugin = ViewPlugin.fromClass(class {
         // flex-layout pass treats us as out-of-flow immediately.  Without
         // these the bar briefly participates in the flex row, shifts
         // .cm-content's left offset, and invalidates the coord cache on
-        // the very first measure.  Start offscreen — position() corrects.
+        // the very first measure.  Start offscreen - position() corrects.
         Object.assign(this.dom.style, {
             position: 'absolute',
             top:      '0',
@@ -62,7 +62,7 @@ export const cursorColMarkerPlugin = ViewPlugin.fromClass(class {
                   ?? this.view.coordsAtPos(sel.head, -1);
         } catch (_) { /* not measurable yet (initial layout) */ }
         if (!coords) {
-            // CM6's coord cache may still be catching up on first paint —
+            // CM6's coord cache may still be catching up on first paint -
             // retry on the next frame.
             requestAnimationFrame(() => this.position());
             return;

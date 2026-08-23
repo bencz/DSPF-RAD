@@ -1,6 +1,6 @@
 // Property panel.  Two tabs (Item / Record) rendered into the same root,
 // re-built from scratch on every change.  All edits flow through the
-// callbacks the constructor receives — sections mutate keyword lists
+// callbacks the constructor receives - sections mutate keyword lists
 // directly but always call ctx.onChange so the doc emits.
 
 import { renderItemPane }   from './ItemPane.js';

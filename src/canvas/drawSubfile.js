@@ -94,7 +94,7 @@ function maybeDrawScrollbar (gc, sflctl, anchorRow, rowCount) {
 }
 
 // ENPTUI scroll bar on the right edge of the subfile band: up arrow +
-// track + thumb + down arrow.  No runtime state — thumb at top by
+// track + thumb + down arrow.  No runtime state - thumb at top by
 // default.
 function drawScrollBar (gc, startRow, rowCount, gridCols) {
     const { ctx } = gc;
@@ -117,9 +117,9 @@ function drawScrollBar (gc, startRow, rowCount, gridCols) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('▲', x + w / 2, y + gc.cellH / 2);
-    ctx.fillText('▼', x + w / 2, y + h - gc.cellH / 2);
+    ctx.fillText('v', x + w / 2, y + h - gc.cellH / 2);
 
-    // Thumb — roughly a third of the track, sitting in the upper area.
+    // Thumb - roughly a third of the track, sitting in the upper area.
     const thumbH = Math.max(gc.cellH * 1.5, h / 4);
     const thumbY = y + gc.cellH + (h - gc.cellH * 2 - thumbH) * 0.25;
     ctx.fillStyle = 'rgba(102, 255, 102, 0.25)';

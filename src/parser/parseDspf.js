@@ -3,7 +3,7 @@
 // Tolerant by design: real-world DSPF can lack the leading 'A' at col 6
 // (some tools strip it), mix tabs into the prefix, and uses keyword
 // continuations via '+' / '-' at the end of the keyword area.  All
-// accepted — the lenient layer lives in ./lineFilter.js.
+// accepted - the lenient layer lives in ./lineFilter.js.
 
 import { DspfDocument, makeRecord, makeItem } from '../model/index.js';
 import { normalize as kwNormalize } from '../model/keywords.js';
@@ -154,7 +154,7 @@ function handleNamedField (p, state, doc) {
     ensureCurrentRecord(state, doc);
     const conditionLines = takeConditionPrefix(state);
 
-    // REFFLD fields commonly omit length/type — the referenced PF supplies
+    // REFFLD fields commonly omit length/type - the referenced PF supplies
     // them at compile time.  We can't resolve the PF here, so we pin a
     // 10-char placeholder and flag the item so the renderer can clamp
     // it against the next sibling.
@@ -282,7 +282,7 @@ function pushConstantOrSysvalue (p, state, kwText, conditionLines) {
     state.curRecord.items.push(item);
     state.curTarget = item;
 
-    // The first token doubles as the sysvalue marker AND a keyword — keep
+    // The first token doubles as the sysvalue marker AND a keyword - keep
     // it as a keyword so the writer can round-trip cleanly.
     item.keywords.push(kwNormalize({
         name: head.name, args: head.args, indicators: [],
@@ -300,7 +300,7 @@ function handleContinuation (p, state) {
     const conditionLines = takeConditionPrefix(state);
 
     if (!target) {
-        // Document-level keywords seen before the first record header —
+        // Document-level keywords seen before the first record header -
         // stash and prepend to records[0] once we have one.
         for (const kw of kws) {
             const normalized = conditionedKeyword(kw, p, conditionLines);

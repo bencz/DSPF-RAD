@@ -1,4 +1,4 @@
-// DATFMT / TIMFMT dropdown — only rendered for fields with date (L) or
+// DATFMT / TIMFMT dropdown - only rendered for fields with date (L) or
 // time (T) data type.
 
 import { section, row } from '../dom.js';

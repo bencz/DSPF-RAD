@@ -191,7 +191,7 @@ export function collectPushbtnArms (doc) {
 }
 
 // Standalone choice fields (SNGCHCFLD / MLTCHCFLD) NOT inside a PULLDOWN
-// — those are already handled via the menu bar arms.
+// - those are already handled via the menu bar arms.
 export function collectChoiceArms (doc) {
     const arms = [];
     for (const rec of doc.records) {
@@ -226,7 +226,7 @@ export function collectChoiceArms (doc) {
 
 // ---- COBOL: indicator structure ----------------------------------------
 
-// Every indicator position referenced anywhere in the doc — used to build
+// Every indicator position referenced anywhere in the doc - used to build
 // the 99-byte INDICATORS group COBOL maps onto the display file.
 export function collectIndicatorPositions (doc) {
     const positions = new Set();
@@ -249,7 +249,7 @@ export function collectIndicatorPositions (doc) {
         for (const item of rec.items) harvest(item);
     }
     // AIDs often carry the indicator number as an arg (CA03(03)) rather
-    // than via the conditioning slot — mix those in too.
+    // than via the conditioning slot - mix those in too.
     for (const a of collectAids(doc)) positions.add(a.pos);
     return [...positions].sort((a, b) => a - b);
 }

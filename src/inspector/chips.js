@@ -38,7 +38,7 @@ export function indicatorsInput (currentArr, onChange) {
     inp.type = 'text';
     inp.value = formatIndicatorTokens(currentArr);
     inp.placeholder = 'e.g. 33 N34';
-    inp.title = 'Indicators — examples: "33" (when 33 on), "N80" (when 80 off), "33 N34" (both)';
+    inp.title = 'Indicators - examples: "33" (when 33 on), "N80" (when 80 off), "33 N34" (both)';
     inp.className = 'insp-ind';
     inp.addEventListener('change', () => onChange(parseIndicatorTokens(inp.value)));
     return inp;
