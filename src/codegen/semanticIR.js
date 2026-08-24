@@ -7,6 +7,7 @@ import { buildIdentityGraph } from './identityGraph.js';
 import { classifyCapabilities } from './capabilities.js';
 import { mapSemanticLayout } from './layoutMapper.js';
 import { resolveRecordRelations } from './recordRelations.js';
+import { itemNameOf, itemSourceIdentity } from './sourceIdentities.js';
 
 const SCHEMA_VERSION = '2.1.0';
 const CONVERTER_VERSION = 'dspf-rad-semantic-ir-1';
@@ -21,8 +22,24 @@ function hashText (text) {
     return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
+// The parse-local item id comes from a module counter, so it changes on every
+// parse of the same source. Strip ids before hashing: the revision hash must
+// depend on the SOURCE TEXT, never on how many documents this process built.
+function stableSnapshot (value) {
+    if (Array.isArray(value)) return value.map(stableSnapshot);
+    if (value && typeof value === 'object') {
+        const out = {};
+        for (const [key, child] of Object.entries(value)) {
+            if (key === 'id') continue;
+            out[key] = stableSnapshot(child);
+        }
+        return out;
+    }
+    return value;
+}
+
 function sourceIdentity (recordName, kind, name, occurrence) {
-    return `dspf:${recordName}:${kind}:${name || 'anonymous'}:occurrence:${occurrence}`;
+    return itemSourceIdentity(recordName, kind, name, occurrence);
 }
 
 function copyKeywords (keywords = []) {
@@ -70,9 +87,7 @@ export function resolveDisplayProfile (source) {
 }
 
 function itemName (item) {
-    if (item.kind === 'constant') return item.text || 'constant';
-    if (item.kind === 'sysvalue') return item.name || 'system-value';
-    return item.name || 'anonymous';
+    return itemNameOf(item);
 }
 
 export function buildDspfSemanticIR (doc) {
@@ -177,7 +192,7 @@ export function buildDspfSemanticIR (doc) {
     return {
         schemaVersion: SCHEMA_VERSION,
         sourceRevision: {
-            sourceHash: hashText(JSON.stringify(snapshot)),
+            sourceHash: hashText(JSON.stringify(stableSnapshot(snapshot))),
             converterVersion: CONVERTER_VERSION,
         },
         displayProfile,

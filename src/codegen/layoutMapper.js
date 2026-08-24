@@ -1,5 +1,8 @@
 // Pure source-grid to target-grid mapping for Semantic IR.
 // Source geometry is preserved; every lossy mapping receives a review entry.
+// Identities come from the shared naming module — never re-derived here.
+
+import { identityForItem } from './sourceIdentities.js';
 
 const TARGET_COLUMNS = 12;
 
@@ -42,7 +45,7 @@ export function mapSemanticLayout (source, displayProfile) {
             occupied.set(key, true);
             if (sourceRow > displayProfile.rows) lossiness.push('row-overflow');
             if (windowOffset.row || windowOffset.col) lossiness.push('window-offset');
-            const sourceIdentity = `dspf:${record.name}:${item.kind}:${item.name || item.text || item.kind}:occurrence:${index + 1}`;
+            const sourceIdentity = identityForItem(record.name, item, index + 1);
             const status = lossiness.some(value => value !== 'window-offset') ? 'manual-review' : 'converted';
             layouts.push({
                 sourceIdentity,

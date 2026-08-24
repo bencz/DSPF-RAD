@@ -1,0 +1,73 @@
+# DSPF·RAD verification ladder (D-16/D-17).
+# Runs the fast-to-slow levels on every push/PR: L1 unit → L2 component →
+# L3 build → L4 browser. No deploy jobs until the seed server epic lands.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ladder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install root dependencies (pnpm)
+        run: pnpm install --frozen-lockfile
+
+      - name: Install react-app dependencies (npm)
+        working-directory: react-app
+        run: npm ci
+
+      # Contract SSOT projections stay parseable and in sync (D-10).
+      - name: Check contract projections
+        run: pnpm check:projections
+
+      # L1 — unit, node env (conversion core)
+      - name: L1 unit tests
+        run: pnpm test
+
+      # Gate C5 — containment sweep across TESTS/ + QDDSSRC/ corpora (L4-0D)
+      - name: Containment sweep (Gate C5)
+        run: pnpm verify:sources
+
+      # L2 — component tests, jsdom (react shell)
+      - name: L2 component tests
+        working-directory: react-app
+        run: npm test
+
+      # L3 — standalone build; preview serves dist/ so this MUST precede L4
+      - name: L3 production build
+        working-directory: react-app
+        run: npm run build
+
+      # L4 — browser suite; auto-starts vite preview on :4173 (fresh runner,
+      # nothing to reuse), chromium only per playwright.config.js
+      - name: Install Playwright chromium
+        working-directory: react-app
+        run: npx playwright install --with-deps chromium
+
+      - name: L4 browser tests
+        working-directory: react-app
+        run: npx playwright test

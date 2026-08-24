@@ -1,8 +1,14 @@
 // Pure SFL/SFLCTL record assembly for Semantic IR.
 // The result preserves source records and describes runtime state without executing it.
+// Copied items drop the parse-local `id`: assembly output must stay stable
+// across parses of the same source (sourceRevision depends on it).
 
 function keyword (record, name) {
     return record?.keywords?.find(item => item.name === name);
+}
+
+function snapshotItems (items = []) {
+    return items.map(({ id, ...rest }) => rest);
 }
 
 function numberArg (record, name) {
@@ -31,8 +37,8 @@ export function assembleSflScreens (source = {}) {
             displayControlIndicator: keyword(control, 'SFLDSPCTL')?.indicators?.[0] ?? null,
             clearIndicator: keyword(control, 'SFLCLR')?.indicators?.[0] ?? null,
             endMode: keyword(control, 'SFLEND')?.args?.[0] ?? null,
-            controlItems: (control.items ?? []).map(item => ({ ...item })),
-            templateItems: (template?.items ?? []).map(item => ({ ...item })),
+            controlItems: snapshotItems(control.items),
+            templateItems: snapshotItems(template?.items),
             status,
             reason: template ? 'SFL runtime rows are supplied by the external runtime' : 'SFL template is missing',
         });

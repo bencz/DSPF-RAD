@@ -7,7 +7,10 @@
 	},
 	"scripts": {
 		"test": "vitest run",
+		"check:projections": "node scripts/check-projections.mjs",
+		"verify:sources": "node scripts/verify-sources.mjs",
 		"generate:react": "node scripts/generate-react-app.mjs",
-		"generate:spring": "node scripts/generate-spring-app.mjs"
+		"generate:spring": "node scripts/generate-spring-app.mjs",
+		"extract:overrides": "node scripts/extract-design-overrides.mjs"
 	}
 }
