@@ -1,62 +1,53 @@
 # DSPF·RAD Conversion Contracts
 
-這組文件定義 DSPF 轉換系統的高階架構、後端接口、抽象 mapping rule、前端 design system 與 generated app 檔案模版。
+本目錄是 DSPF·RAD 轉換系統的契約 SSOT。Markdown 文件是唯一決策來源；JSON schemas 與 `openapi.yaml` 是機器可讀投影。
+
+## 範圍（2026-08 起生效，見 decisions.md D-11）
+
+- **產品 = 前端轉換**：DSPF → Semantic IR → Mapping Contract → 生成 React App。
+- **Spring Boot 僅作 seed-data 展示伺服器**：讓生成的 React App「看得到效果」，不承擔任何正式後端職責。
+- `TESTS/`、`QDDSSRC/`、`INPUT/` 是參考應用程式,作為測試素材（fixtures、E2E、seed 抽取）。
 
 ## 文件索引
 
 | 文件 | 內容 |
 |---|---|
-| `00-system-design.md` | 系統邊界、資料流、責任、功能與 release gate |
-| `01-backend-interfaces.md` | Spring Boot runtime、conversion API、錯誤與 session contract |
-| `02-backend-file-template.md` | Node/Spring Boot backend 目錄與 class/template 責任 |
-| `03-conversion-rules.md` | Semantic IR、identity、layout、OPTION/FUNCTION、lossiness rule |
-| `04-frontend-design-system.md` | MUI tokens、component contract、Router/Query 邊界、accessibility |
-| `05-frontend-file-template.md` | standalone generated React app 目錄與檔案責任 |
-| `06-completeness-proof.md` | Known coverage、unknown containment、schema/test/release proof |
-| `07-conflict-decisions.md` | Contract conflicts、selected options、reasons、verification |
-| `08-rpg-to-react-system.md` | External RPG/RPGLE source to React runtime binding boundary |
-| `09-preview-generation-methodology.md` | Penpot-inspired brief, mapping, Vite preview, screenshot, build, and receipt workflow |
-| `semantic-layout-design.md` | Semantic IR、identity、record relations、layout、regression boundary |
-| `openapi.yaml` | Spring Boot runtime 與 conversion API 的 OpenAPI 3.1 contract |
-| `target_design.md` | Contract-owned design tokens |
-| `target-react-admin-components-used.md` | MUI component inventory and boundary rules for the target React admin reference template |
-| `frontend/component-state.schema.json` | Frontend component state schema |
-| `frontend/field-binding.schema.json` | Frontend field binding schema |
-| `frontend/route-manifest.schema.json` | Generated route manifest schema |
-| `frontend/query-and-error-policy.md` | TanStack Query and frontend error policy |
-| `frontend/responsive-accessibility.md` | Responsive and accessibility policy |
-| `frontend/generated-app-test-matrix.md` | Generated app test matrix |
-| `schemas/` | Semantic, identity, relation, SFL, runtime binding, RPG, security, and diagnostic schemas |
+| [01-scope-and-sources.md](01-scope-and-sources.md) | 目的、範圍表（in/out of scope）、責任邊界、狀態擁有權、測試素材、發佈 gates L/S/G |
+| [02-conversion-core.md](02-conversion-core.md) | 轉換流程、DspfDocument 邊界、顯示設定檔、身份規則、metadata authority、記錄關係、layout 公式、OPTION/FUNCTION、SFL 邊界、轉換狀態與零丟失 gate、覆蓋矩陣、gates C0–C4 |
+| [03-generated-react-app.md](03-generated-react-app.md) | Design tokens、介面邊界、MUI 元件清單與邊界、無障礙/響應式政策、Query/error 政策、生成 App 檔案模板、預覽與驗證方法論、測試矩陣 |
+| [04-seed-backend.md](04-seed-backend.md) | Seed-data 示範伺服器：硬邊界（demo 不是 production）、端點、畫面狀態形狀、交易腳本行為、seed 來源（手寫 + RPG 抽取）、專案模板 |
+| [05-lifecycle.md](05-lifecycle.md) | 六段生命週期（source→edit→convert→generate→verify→deliver）、身份與 hash 鏈、驗證梯、receipt 規格、失敗政策、確定性規則、誠實進度表 |
+| [decisions.md](decisions.md) | 決策日誌 D-01…D-14（衝突裁決、範圍變更、整合紀錄） |
+| [target_design.md](target_design.md) | Design tokens（唯一 token 來源） |
+| [openapi.yaml](openapi.yaml) | Seed API 的 OpenAPI 3.1 投影 |
+| [schemas/](schemas/) | Semantic IR、identity、relation、SFL、diagnostic、traceability、field-binding、route-manifest 等 JSON schemas |
 
-## Contract 原則
+## Markdown SSOT 政策
 
-- `DspfDocument` 是既有設計資料來源。
-- Conversion core 只讀取 `DspfDocument`。
-- Semantic IR 是 conversion boundary，不取代 `DspfDocument`。
-- DOM id、runtime binding key、source identity、business identity 必須分開。
-- Unsupported semantics 不產生 executable action。
-- Local demo 不得冒充 production backend。
-- 每次轉換必須產生 manifest、traceability、binding map 與 conversion report。
-- 既有 parser、writer、Canvas、React faithful preview、Inspector、source sync 必須通過 regression gate。
+1. Markdown 擁有意義、決策、預設值與邊界。
+2. 投影檔（schemas、openapi.yaml）不得引入 Markdown 沒有的新規則。
+3. 若投影與 Markdown 衝突：**停止實作**，先改 Markdown，再更新投影，並留下指令與輸出路徑證據。
 
-## Markdown SSOT policy
+## 核心規則速記
 
-Markdown contract documents are the single source of truth. JSON schemas and OpenAPI files are machine-readable projections of the Markdown decisions.
+- 轉換核心唯讀 `DspfDocument`;Semantic IR 是轉換邊界,不取代文件。
+- `sourceIdentity`、`runtimeBindingKey`、DOM id、`businessName` 四者分離。
+- 未支援語意不產生可執行動作;每個來源物件必有一個轉換狀態;零靜默丟失。
+- 每次轉換產出 manifest、traceability、binding map、conversion report。
+- 本地 demo 必須標示 `mode: "seed-demo"`,不得冒充 production backend。
+- 既有 parser/writer/Canvas/faithful preview/Inspector/source sync 是回歸合約,不得被轉換破壞。
 
-| Domain | Markdown SSOT | Derived projection |
-|---|---|---|
-| System boundary | `00-system-design.md` | Architecture diagrams and generated package boundaries |
-| Backend/API | `01-backend-interfaces.md` | `openapi.yaml` and backend schemas |
-| Backend files | `02-backend-file-template.md` | Generated project template |
-| Conversion rules | `03-conversion-rules.md` | Semantic and diagnostic JSON schemas |
-| Frontend usage | `04-frontend-design-system.md` | Frontend component schemas and policies |
-| Frontend files | `05-frontend-file-template.md` | Generated app file tree |
-| Completeness | `06-completeness-proof.md` | Coverage and release evidence |
-| Decisions | `07-conflict-decisions.md` | Version and migration records |
-| External runtime | `08-rpg-to-react-system.md` | Runtime binding and workflow schemas |
-| Semantic layout rationale | `semantic-layout-design.md` | Layout policy and traceability schemas |
-| Design tokens | `target_design.md` | MUI theme and generated CSS/theme output |
+## 變更程序
 
-The Markdown document owns the meaning, decision, default, and boundary. A JSON or OpenAPI file must not introduce a new rule that is absent from its Markdown source.
+```text
+需要新規則時:
+IF 現有四份主題文件有對應章節:
+    該章節內更新
+ELSE:
+    新增編號文件,並更新本索引與 decisions.md
+同時:
+    更新受影響的 schema / openapi 投影
+    在 decisions.md 記錄決策(若有取捨)
+```
 
-If a derived file conflicts with its Markdown source, stop implementation. Update the Markdown SSOT first. Regenerate or update the derived file after the Markdown change. Record the command and output path as evidence.
+歷史文件（00–09 號、frontend/、security.schema.json）已於 D-11/D-12 整合刪除,內容可在 git 歷史追查。
