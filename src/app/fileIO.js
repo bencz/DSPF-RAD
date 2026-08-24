@@ -6,13 +6,15 @@ import { parseDspf } from '../parser/parseDspf.js';
 import { writeDspf } from '../writer/writeDspf.js';
 import { ibmiName } from '../model/factories.js';
 
-export function bindFileIO ({ doc, designer, modelSel, fileInput, flash }) {
-    bindOpen(doc, designer, modelSel, fileInput, flash);
-    bindSave(doc, flash);
+export function bindFileIO ({ doc, designer, modelSel, fileInput, flash, flushSource }) {
+    bindOpen(doc, designer, modelSel, fileInput, flash, flushSource);
+    bindSave(doc, flash, flushSource);
 }
 
-function bindOpen (doc, designer, modelSel, fileInput, flash) {
+function bindOpen (doc, designer, modelSel, fileInput, flash, flushSource) {
     document.getElementById('openDoc').addEventListener('click', () => {
+        flushSource?.();
+        if (doc.isDirty && !confirm('Open another DSPF and discard unsaved changes?')) return;
         fileInput.click();
     });
 
@@ -25,6 +27,7 @@ function bindOpen (doc, designer, modelSel, fileInput, flash) {
             const parsed = parseDspf(text);
             doc.adopt(parsed);
             doc.sourceName = ibmiName(file.name.replace(/\.[^.]+$/, ''), 'DSPFILE');
+            doc.resetHistory({ markClean: true });
 
             syncModelChrome(doc, modelSel, designer);
             designer.selectItem(null);
@@ -42,12 +45,14 @@ function syncModelChrome (doc, modelSel, designer) {
     requestAnimationFrame(() => designer.forceResize());
 }
 
-function bindSave (doc, flash) {
+function bindSave (doc, flash, flushSource) {
     document.getElementById('saveDoc').addEventListener('click', () => {
         try {
+            flushSource?.();
             const source = writeDspf(doc);
             const name = (doc.sourceName || 'DSPFILE') + '.DSPF';
             downloadText(name, source);
+            doc.markClean();
             flash(`Saved ${name}.`, 'ok');
         } catch (err) {
             console.error('[dspf·rad] save failed:', err);

@@ -21,6 +21,14 @@ export function makeChromeSync ({ doc, els }) {
         els.overlayBtn?.classList.toggle('on', doc.showOverlay);
         els.hideCondBtn?.classList.toggle('on', doc.hideConditioned);
 
+        if (els.sbDirty) {
+            els.sbDirty.textContent = doc.isDirty ? 'modified' : 'saved';
+            els.sbDirty.classList.toggle('dirty', doc.isDirty);
+        }
+        if (els.undoBtn) els.undoBtn.disabled = !doc.canUndo;
+        if (els.redoBtn) els.redoBtn.disabled = !doc.canRedo;
+        document.title = `${doc.isDirty ? '* ' : ''}${doc.sourceName} - DSPF·RAD`;
+
         // 98.css paints the etched-gray look when [disabled] is set.  The
         // handler also flashes an error if invoked with a single record,
         // but disabling here matches what Win98 toolbars did historically.

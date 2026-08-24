@@ -14,6 +14,7 @@ import { drawItem } from './itemDispatch.js';
 import { recordOffset } from './windowSpec.js';
 import { effectiveLength } from './metrics.js';
 import { cellAt, itemAt } from './hitTest.js';
+import { isVisibleInSimulation } from './simulation.js';
 
 export class GridCanvas {
     constructor (canvas) {
@@ -34,6 +35,11 @@ export class GridCanvas {
         this.selection = null;
         this.preview   = null;
         this.hoverCell = null;
+        this.simulation = {
+            enabled: false,
+            indicators: new Set(),
+            values: new Map(),
+        };
 
         this._ro = new ResizeObserver(() => this.resize());
         this._ro.observe(canvas);
@@ -86,14 +92,20 @@ export class GridCanvas {
         ctx.textBaseline = 'middle';
         ctx.textAlign    = 'left';
 
-        if (this.document.showOverlay) this._paintOverlayRecords();
+        if (this.document.showOverlay && !this.simulation.enabled) {
+            this._paintOverlayRecords();
+        }
 
         // When the active record is an SFLCTL, paint the linked SFL's
         // items first so the SFLCTL chrome can land on top on overlap.
         const active = this.document.activeRecord;
-        if (active.type === 'SFLCTL') drawLinkedSubfile(this, active);
+        if (active.type === 'SFLCTL' && keywordAllows(this, active, 'SFLDSP')) {
+            drawLinkedSubfile(this, active);
+        }
 
-        this._drawRecord(active, false);
+        if (active.type !== 'SFLCTL' || keywordAllows(this, active, 'SFLDSPCTL')) {
+            this._drawRecord(active, false);
+        }
 
         if (this.preview)   this._paintPreview();
         if (this.hoverCell) this._paintHover();
@@ -142,7 +154,11 @@ export class GridCanvas {
             }
         }
         for (const it of record.items) {
-            const selected = !isOverlay && it.id === this.selection;
+            const selected = !isOverlay && (
+                this.selection instanceof Set
+                    ? this.selection.has(it.id)
+                    : it.id === this.selection
+            );
             drawItem(this, it, selected, isOverlay, record, offset);
         }
     }
@@ -170,6 +186,12 @@ export class GridCanvas {
         const y = (row - 1) * this.cellH;
         ctx.strokeRect(x + 0.5, y + 0.5, this.cellW - 1, this.cellH - 1);
     }
+}
+
+function keywordAllows (gc, record, name) {
+    if (!gc.simulation?.enabled) return true;
+    const keyword = record.keywords?.find(candidate => candidate.name === name);
+    return !keyword || isVisibleInSimulation(gc, keyword);
 }
 
 // Re-export the metrics + display-text helpers that callers outside the

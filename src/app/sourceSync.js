@@ -26,6 +26,7 @@ export function bindSourceSync ({ doc, designer, sourceEditor, sourceStatusEl })
         lineMap:               { records: [], items: [] },
         sourceIsAuthoritative: false,
         parseTimer:            null,
+        pendingText:           null,
         cursorSyncTimer:       null,
         // When source drives a canvas selection, we don't want the
         // canvas's onSelectionChange callback to bounce the source
@@ -46,13 +47,14 @@ export function bindSourceSync ({ doc, designer, sourceEditor, sourceStatusEl })
 
     // Canvas → source: refresh on every doc emit unless source is in
     // control of the latest mutation.
-    doc.onChange(() => {
-        if (state.sourceIsAuthoritative) return;
+    doc.onChange((_doc, meta = {}) => {
+        if (state.sourceIsAuthoritative || meta.transient || meta.changed !== true) return;
         // A canvas/inspector mutation supersedes any source snapshot still
         // waiting in the debounce queue.  Otherwise the stale timer can
         // overwrite the newer visual edit a fraction of a second later.
         clearTimeout(state.parseTimer);
         state.parseTimer = null;
+        state.pendingText = null;
         try {
             const { text, map } = writeDspfWithMap(doc);
             state.lineMap = map;
@@ -77,6 +79,15 @@ export function bindSourceSync ({ doc, designer, sourceEditor, sourceStatusEl })
         const entry = state.lineMap.items.find(i => i.id === id);
         if (entry) sourceEditor.setCursorLine(entry.first);
     };
+
+    const flush = () => {
+        if (!state.parseTimer || state.pendingText == null) return;
+        clearTimeout(state.parseTimer);
+        state.parseTimer = null;
+        runParse(state.pendingText, state, doc, designer, setStatus, applyHighlight);
+    };
+    window.addEventListener('beforeunload', flush);
+    return { flush };
 }
 
 function makeStatusSetter (el) {
@@ -89,6 +100,7 @@ function makeStatusSetter (el) {
 
 function scheduleParse (text, state, doc, designer, setStatus, applyHighlight) {
     setStatus('warn', 'parsing…');
+    state.pendingText = text;
     clearTimeout(state.parseTimer);
     state.parseTimer = setTimeout(() =>
         runParse(text, state, doc, designer, setStatus, applyHighlight),
@@ -96,6 +108,8 @@ function scheduleParse (text, state, doc, designer, setStatus, applyHighlight) {
 }
 
 function runParse (text, state, doc, designer, setStatus, applyHighlight) {
+    state.parseTimer = null;
+    state.pendingText = null;
     try {
         const parsed = parseDspf(text);
         if (!parsed || !parsed.records?.length) {

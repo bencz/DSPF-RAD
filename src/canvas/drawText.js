@@ -5,6 +5,7 @@ import { COLOR_CSS, DEFAULT_COLOR } from '../Attributes.js';
 import { flagsOf, valueOf } from '../model/keywords.js';
 import { hasKeyword } from './keywordReaders.js';
 import { SYS_WIDTH } from './theme.js';
+import { simulationValue } from './simulation.js';
 
 export function drawTextRun (gc, it, text) {
     const { ctx } = gc;
@@ -55,7 +56,8 @@ export function drawTextRun (gc, it, text) {
 export function drawSysvalue (gc, it) {
     const name   = it.sysName || 'DATE';
     const width  = SYS_WIDTH[name] ?? Math.max(name.length, 8);
-    const text   = name.padEnd(width);
+    const sample = simulationValue(gc, it);
+    const text   = String(sample ?? name).slice(0, width).padEnd(width);
     const flags  = flagsOf(it, 'DSPATR');
     // Force a turquoise tint to mark it as a system value.
     const colour = COLOR_CSS[valueOf(it, 'COLOR') || 'TRQ'] || COLOR_CSS.TRQ;

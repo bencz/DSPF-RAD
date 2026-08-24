@@ -164,6 +164,33 @@
                 </ul>
             </li>
 
+            <li class="menu" data-menu="edit">
+                <button class="menu-title" type="button"><u>E</u>dit</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="undoDoc">
+                        <span class="menu-label"><u>U</u>ndo</span>
+                        <span class="menu-accel">Ctrl+Z</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="redoDoc">
+                        <span class="menu-label"><u>R</u>edo</span>
+                        <span class="menu-accel">Ctrl+Y</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="copyItems">
+                        <span class="menu-label"><u>C</u>opy items</span>
+                        <span class="menu-accel">Ctrl+C</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="pasteItems">
+                        <span class="menu-label"><u>P</u>aste items</span>
+                        <span class="menu-accel">Ctrl+V</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="duplicateItems">
+                        <span class="menu-label"><u>D</u>uplicate items</span>
+                        <span class="menu-accel">Ctrl+D</span>
+                    </button></li>
+                </ul>
+            </li>
+
             <li class="menu" data-menu="export">
                 <button class="menu-title" type="button"><u>E</u>xport</button>
                 <ul class="menu-dropdown" role="menu">
@@ -212,6 +239,12 @@
              toolbar for the fast-path controls.  IDs match what main.js
              already wires up, so no handler changes are needed. -->
         <div id="toolbar" class="toolbar-row">
+            <button id="templateNew" title="Create a DSPF from a screen template (Ctrl+N)">New…</button>
+            <button id="undoDoc" title="Undo the last design change (Ctrl+Z)" disabled>Undo</button>
+            <button id="redoDoc" title="Redo the last undone change (Ctrl+Y)" disabled>Redo</button>
+
+            <span class="sep" aria-hidden="true"></span>
+
             <label class="lbl">Model
                 <select id="modelSel" title="Display file geometry">
                     <option value="24x80"  selected>24×80 (5251-11)</option>
@@ -235,6 +268,44 @@
                     title="Render the other records faded behind the active one">Overlay</button>
             <button id="hideCondToggle" class="toggle"
                     title="Hide items that only render when an indicator is on/off (cleans up screens like CLOCK)">Hide cond</button>
+
+            <span class="sep" aria-hidden="true"></span>
+
+            <button id="copyItems" title="Copy selected items (Ctrl+C)">Copy</button>
+            <button id="pasteItems" title="Paste copied items (Ctrl+V)">Paste</button>
+            <button id="duplicateItems" title="Duplicate selected items (Ctrl+D)">Dup</button>
+            <select id="arrangeSel" title="Alignment/distribution operation">
+                <option value="left">Align left</option>
+                <option value="right">Align right</option>
+                <option value="top">Align top</option>
+                <option value="bottom">Align bottom</option>
+                <option value="hcenter">Center horizontally</option>
+                <option value="vcenter">Center vertically</option>
+                <option value="distribute-horizontal">Distribute horizontally</option>
+                <option value="distribute-vertical">Distribute vertically</option>
+            </select>
+            <button id="arrangeItems" title="Apply to the selected items">Arrange</button>
+
+            <span class="sep" aria-hidden="true"></span>
+            <button id="simulateToggle" class="toggle"
+                    title="Preview indicator conditions and sample field values">Simulate</button>
+        </div>
+
+        <div id="simulationBar" class="simulation-bar" hidden>
+            <strong>Runtime preview</strong>
+            <label>Indicators ON
+                <input id="simIndicators" type="text" placeholder="03 12 31" maxlength="296">
+            </label>
+            <span class="sep" aria-hidden="true"></span>
+            <label>Field
+                <select id="simFieldSel"></select>
+            </label>
+            <label>Value
+                <input id="simFieldValue" type="text" maxlength="132">
+            </label>
+            <button id="simSetValue" type="button">Set value</button>
+            <button id="simClear" type="button">Reset preview</button>
+            <span class="simulation-hint">Only preview state changes; DSPF source is untouched.</span>
         </div>
 
         <!-- Legacy controls - originals the JS handlers in main.js are bound
@@ -263,9 +334,14 @@
 
             <aside class="window panel palette" id="palette">
                 <div class="title-bar">
-                    <div class="title-bar-text">Palette</div>
+                    <div class="title-bar-text">Project</div>
                 </div>
                 <div class="panel-body">
+                    <div class="side-tabs">
+                        <button id="paletteTabBtn" class="active" type="button">Palette</button>
+                        <button id="recordsTabBtn" type="button">Records</button>
+                    </div>
+                    <div id="paletteTabPane">
                     <div class="palette-group">
                         <h4>Widgets</h4>
                         <div class="palette-item" draggable="true" data-kind="constant" data-text="Sample">
@@ -354,6 +430,10 @@
                     <p class="palette-hint">
                         Drag onto the grid <em>or</em> click an item then click the grid (click-to-place).
                     </p>
+                    </div>
+                    <div id="recordsTabPane" hidden>
+                        <div id="recordTree" class="record-tree"></div>
+                    </div>
                 </div>
             </aside>
 
@@ -400,12 +480,18 @@
                 </div>
             </div>
             <div class="source-toolbar">
+                <button id="sourceViewBtn" class="source-chip on" type="button">Source</button>
+                <button id="problemsViewBtn" class="source-chip" type="button">Problems 0</button>
+                <span class="sep" aria-hidden="true"></span>
                 <button id="cursorColToggle" class="source-chip"
                         title="Vertical column marker at cursor position">| col</button>
                 <span class="source-toolbar-spacer"></span>
                 <span class="source-status ok" id="sourceStatus" title="Sync state">sync</span>
             </div>
             <div class="source-editor" id="sourceEditor"></div>
+            <div class="problems-panel" id="problemsPanel" hidden>
+                <p class="problems-empty">No problems found.</p>
+            </div>
         </section>
 
         <!-- 98.css .status-bar gets the classic horizontal-striped bottom
@@ -415,10 +501,44 @@
             <p class="status-bar-field" id="sbRecord" title="Active record">-</p>
             <p class="status-bar-field" id="sbItems"  title="Item count in active record">0 items</p>
             <p class="status-bar-field" id="sbCursor" title="Grid cursor (row, col)">(-,-)</p>
+            <p class="status-bar-field" id="sbDirty" title="Document save state">saved</p>
         </div>
 
     </div>
 </div>
+
+<dialog id="templateDialog" class="window template-dialog" aria-labelledby="templateDialogTitle">
+    <form id="templateForm">
+        <div class="title-bar">
+            <div class="title-bar-text" id="templateDialogTitle">New DSPF from template</div>
+        </div>
+        <div class="template-body">
+            <p class="template-intro">Choose a starting point. Everything remains editable in the canvas and source.</p>
+            <div class="template-grid">
+                <label>Template
+                    <select id="templateKind"></select>
+                </label>
+                <p id="templateDescription" class="template-description"></p>
+                <label>DSPF name
+                    <input id="templateSourceName" type="text" value="DSPFILE" maxlength="10" required>
+                </label>
+                <label>First record/base name
+                    <input id="templateRecordName" type="text" value="MAIN" maxlength="10" required>
+                </label>
+                <label>Display model
+                    <select id="templateModel">
+                        <option value="24x80">24×80 (5251-11)</option>
+                        <option value="27x132">27×132 (3477-FC)</option>
+                    </select>
+                </label>
+            </div>
+            <div class="template-actions">
+                <button id="templateCancel" type="button">Cancel</button>
+                <button type="submit">Create design</button>
+            </div>
+        </div>
+    </form>
+</dialog>
 
 <script type="module" src="src/main.js"></script>
 

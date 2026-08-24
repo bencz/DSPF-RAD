@@ -81,7 +81,7 @@ function dispatchCmd (cmd) {
             'Browser-side IBM i (AS/400) display file designer.\n' +
             'Drag/drop UI builder for DSPF source.\n\n' +
             'Author: Alexandre Bencz\n' +
-            'Build: v0.5 (Win98 chrome)');
+            'Build: v0.7 (Win98 chrome)');
         return;
     }
     // Everything else: the data-cmd value IS the id of a hidden button -

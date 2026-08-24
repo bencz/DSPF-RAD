@@ -80,6 +80,8 @@ body {
     font-family: "Pixelated MS Sans Serif", "MS Sans Serif", Arial, sans-serif;
     font-size: 11px;
 }
+[hidden] { display: none !important; }
+body.simulation-active { --chrome-h: 172px; }
 
 /* ============================================================
    Outer app window - fills the viewport.  The .window class from
@@ -312,6 +314,7 @@ body {
     min-width: 140px;
     font-size: 11px;
 }
+#toolbar #arrangeSel { min-width: 150px; }
 #toolbar button {
     min-width: 0;
     padding: 2px 8px;
@@ -342,6 +345,36 @@ body {
     padding-top: 3px;
     padding-bottom: 1px;
 }
+
+/* Runtime-preview strip.  It is workspace state only and never changes DDS. */
+.simulation-bar {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    padding: 3px 6px;
+    background: var(--bg-tooltip);
+    border-bottom: 1px solid var(--w98-shadow);
+    box-shadow: 0 1px 0 var(--w98-white);
+}
+.simulation-bar strong { color: var(--fg-accent); margin-right: 4px; }
+.simulation-bar label { display: inline-flex; align-items: center; gap: 4px; }
+.simulation-bar input,
+.simulation-bar select { height: 22px; box-sizing: border-box; font-size: 11px; }
+#simIndicators { width: 130px; font-family: "SF Mono", Menlo, monospace; }
+#simFieldSel { min-width: 120px; }
+#simFieldValue { width: 150px; font-family: "SF Mono", Menlo, monospace; }
+.simulation-bar button { height: 22px; min-width: 0; padding: 2px 8px; }
+.simulation-bar .sep {
+    width: 0;
+    height: 18px;
+    border-left: 1px solid var(--w98-shadow);
+    border-right: 1px solid var(--w98-white);
+    margin: 0 3px;
+}
+.simulation-hint { margin-left: auto; color: var(--fg-muted); font-style: italic; }
 
 /* ---- Submenu (Record > Active …, View > Model …) ----
    CSS-only fly-out on hover.  Works because the submenu nests inside
@@ -441,6 +474,23 @@ body {
    (white bg, blue selected, dotted focus ring on armed).
    ============================================================ */
 .palette-group + .palette-group { margin-top: 6px; }
+.side-tabs {
+    display: flex;
+    gap: 2px;
+    margin: -2px -2px 6px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--w98-shadow);
+}
+.side-tabs button {
+    flex: 1;
+    min-width: 0;
+    height: 22px;
+    padding: 2px 4px;
+}
+.side-tabs button.active {
+    border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+    font-weight: bold;
+}
 .palette-group h4 {
     margin: 4px 2px 4px;
     padding: 0 2px;
@@ -501,6 +551,87 @@ body {
     border: 1px solid var(--w98-shadow);
 }
 .palette-hint em { color: var(--fg-accent); font-style: normal; font-weight: bold; }
+
+/* Record/project navigator. */
+.record-tree { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.record-tree-root {
+    padding: 5px 4px;
+    margin-bottom: 3px;
+    background: var(--bg-input);
+    border: 1px solid;
+    border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+    color: var(--fg-accent);
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.record-tree-branch { margin-bottom: 2px; }
+.record-tree-row,
+.record-tree-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    padding: 3px 4px;
+    background: var(--bg-input);
+    color: var(--fg-text);
+    border: 1px solid transparent;
+    box-shadow: none;
+    text-align: left;
+    font: inherit;
+}
+.record-tree-row:hover,
+.record-tree-link:hover { background: var(--accent-hover-bg); }
+.record-tree-row.active {
+    background: var(--w98-navy);
+    color: var(--fg-on-accent);
+    border-color: var(--w98-navy);
+}
+.record-tree-icon {
+    flex: 0 0 17px;
+    text-align: center;
+    margin-right: 4px;
+    color: var(--fg-accent);
+    font-weight: bold;
+}
+.record-tree-row.active .record-tree-icon { color: inherit; }
+.record-tree-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.record-tree-meta { margin-left: 4px; color: var(--fg-muted); font-size: 9px; }
+.record-tree-row.active .record-tree-meta { color: #d0d0d0; }
+.record-tree-link { padding-left: 27px; color: var(--fg-muted); font-size: 9px; }
+.record-tree-link:disabled { color: var(--status-error); text-shadow: none; }
+.record-tree-create { width: 100%; min-width: 0; margin-top: 8px; height: 24px; }
+
+/* Template assistant uses the platform dialog for focus/escape handling,
+   with the same Win98 chrome as the rest of the application. */
+.template-dialog {
+    width: min(520px, calc(100vw - 30px));
+    padding: 3px;
+    border: 0;
+    color: var(--fg-text);
+    background: var(--w98-face);
+}
+.template-dialog::backdrop { background: rgba(0, 0, 0, 0.48); }
+.template-dialog form { margin: 0; }
+.template-body { padding: 12px; }
+.template-intro { margin: 0 0 12px; color: var(--fg-muted); }
+.template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 12px; }
+.template-grid label { display: flex; flex-direction: column; gap: 4px; }
+.template-grid label:first-child,
+.template-description { grid-column: 1 / -1; }
+.template-grid input,
+.template-grid select { width: 100%; box-sizing: border-box; height: 24px; }
+.template-description {
+    min-height: 28px;
+    margin: -4px 0 2px;
+    padding: 6px;
+    background: var(--bg-tooltip);
+    border: 1px solid var(--w98-shadow);
+    color: var(--fg-muted);
+}
+.template-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 14px; }
+.template-actions button { min-width: 90px; }
 
 /* ============================================================
    Canvas - dark 5250 terminal embedded in a deep Win98 sunken well.
@@ -905,7 +1036,8 @@ body.source-collapsed .resize-handle { display: none; }
    collapse away.  main.js shrinks --source-panel-h to ~24px (title-bar
    height) so the canvas's height calc gives back the freed pixels. */
 body.source-collapsed .source-toolbar,
-body.source-collapsed .source-editor { display: none; }
+body.source-collapsed .source-editor,
+body.source-collapsed .problems-panel { display: none; }
 
 /* Sub-toolbar between the source panel's title bar and the editor. */
 .source-toolbar {
@@ -920,6 +1052,13 @@ body.source-collapsed .source-editor { display: none; }
     margin: 2px 2px 0;
 }
 .source-toolbar-spacer { flex: 1; }
+.source-toolbar .sep {
+    width: 0;
+    height: 18px;
+    border-left: 1px solid var(--w98-shadow);
+    border-right: 1px solid var(--w98-white);
+    margin: 0 3px;
+}
 
 /* Reusable chip-style button for the column toggle. */
 .source-chip {
@@ -947,6 +1086,7 @@ body.source-collapsed .source-editor { display: none; }
     background: var(--w98-face);
     font-weight: bold;
 }
+.source-chip.has-errors { color: var(--status-error); font-weight: bold; }
 /* Source-panel collapse arrow inside its title-bar-controls.  We override
    98.css's default title-bar-controls button (which is 16x14 with a
    background-image icon) to render our ASCII up/down text instead. The button
@@ -1037,6 +1177,48 @@ body.source-collapsed .source-editor { display: none; }
         inset  1px  1px 0 var(--w98-dark),
         inset -1px -1px 0 var(--w98-light);
 }
+
+/* Validation output shares the lower pane with the source editor. */
+.problems-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    margin: 2px;
+    padding: 3px;
+    background: var(--bg-input);
+    border: 1px solid;
+    border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+}
+.problems-empty {
+    margin: 8px;
+    color: var(--fg-muted);
+    font-style: italic;
+}
+.problem-row {
+    display: grid;
+    grid-template-columns: 54px 180px 1fr;
+    gap: 7px;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    padding: 4px 6px;
+    text-align: left;
+    background: var(--bg-input);
+    color: var(--fg-text);
+    border: 1px solid transparent;
+    box-shadow: none;
+    font: 11px "SF Mono", Menlo, Consolas, monospace;
+}
+.problem-row:hover,
+.problem-row:focus {
+    background: var(--accent-hover-bg);
+    border-color: var(--accent-hover-border);
+}
+.problem-severity { font-weight: bold; text-transform: uppercase; }
+.problem-row.error .problem-severity { color: var(--status-error); }
+.problem-row.warning .problem-severity { color: var(--status-warn); }
+.problem-code { color: var(--fg-accent); }
+.problem-context { color: var(--fg-muted); margin-left: 8px; }
 
 /* ============================================================
    CodeMirror 6 dark theme - preserved inside the Win98 sunken well.
@@ -1155,6 +1337,8 @@ body.source-collapsed .source-editor { display: none; }
 #sbRecord { min-width: 110px; }
 #sbItems  { min-width: 70px; }
 #sbCursor { min-width: 70px; text-align: right; }
+#sbDirty  { min-width: 70px; text-align: center; }
+#sbDirty.dirty { color: var(--status-warn); font-weight: bold; }
 
 /* ============================================================
    Theme toggle button in the menubar-info row.

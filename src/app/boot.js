@@ -21,6 +21,11 @@ import { bindSourceSync } from './sourceSync.js';
 import { bindPanelResize } from './panelResize.js';
 import { bindFileIO, downloadText } from './fileIO.js';
 import { initTheme }      from './Theme.js';
+import { recoverAutosave, bindPersistence } from './persistence.js';
+import { bindProblemsPanel } from './problemsPanel.js';
+import { bindTemplateDialog } from './templateDialog.js';
+import { bindSimulator } from './simulator.js';
+import { bindRecordTree } from './recordTree.js';
 import { usesIndara }     from '../codegen/analysis.js';
 import { validateDspf }   from '../validation/validateDspf.js';
 import { ibmiName }       from '../model/factories.js';
@@ -28,13 +33,15 @@ import { ibmiName }       from '../model/factories.js';
 const $ = (id) => document.getElementById(id);
 
 function main () {
-    console.log('%c[dspf·rad]', 'color:#6f6', 'boot - DSPF-RAD designer (v0.5)');
+    console.log('%c[dspf·rad]', 'color:#6f6', 'boot - DSPF-RAD designer (v0.7)');
 
     initTheme();
 
     const els = collectDomRefs();
     const doc = new DspfDocument();
     seedDemo(doc);
+    const recovered = recoverAutosave(doc);
+    doc.resetHistory({ markClean: !recovered });
 
     // Inspector / Palette / Designer + selection callback wiring.
     // selectFromInspector is patched after Designer construction because
@@ -66,10 +73,11 @@ function main () {
 
     // Source editor + bidirectional canvas/source bridge.
     const sourceEditor = new SourceEditor($('sourceEditor'));
-    bindSourceSync({
+    const sourceSync = bindSourceSync({
         doc, designer, sourceEditor,
         sourceStatusEl: $('sourceStatus'),
     });
+    bindProblemsPanel({ doc, designer, sourceEditor });
 
     bindPanelResize({
         designer,
@@ -81,16 +89,28 @@ function main () {
 
     // ---- toolbar / menubar action wiring -------------------------------
     const flash = makeFlasher(els.statusEl);
-    bindFileIO({ doc, designer, modelSel: els.modelSel, fileInput: els.fileInput, flash });
-    bindToolbarActions({ doc, designer, palette, modelSel: els.modelSel, recordSel: els.recordSel, els, flash });
-    bindExportActions({ doc, flash });
-    bindGlobalKeys(palette);
+    bindPersistence(doc);
+    bindFileIO({
+        doc, designer, modelSel: els.modelSel, fileInput: els.fileInput, flash,
+        flushSource: sourceSync.flush,
+    });
+    bindToolbarActions({
+        doc, designer, modelSel: els.modelSel, recordSel: els.recordSel,
+        els, flash,
+    });
+    bindTemplateDialog({
+        doc, designer, palette, flash, flushSource: sourceSync.flush,
+    });
+    bindSimulator({ doc, designer, flash });
+    bindRecordTree({ doc, designer });
+    bindExportActions({ doc, flash, flushSource: sourceSync.flush });
+    bindGlobalKeys({ doc, designer, palette });
     bindCanvasCursor(els, palette, designer);
 
     // First paint + listeners.
     refreshChrome();
-    doc.onChange(refreshChrome);
     setupMenubar();
+    if (recovered) flash('Recovered unsaved work from the previous session.', 'ok', 4000);
 
     // Console debugging surface.
     window.dspfRad = {
@@ -119,12 +139,17 @@ function collectDomRefs () {
         sbRecord:     $('sbRecord'),
         sbItems:      $('sbItems'),
         sbCursor:     $('sbCursor'),
+        sbDirty:      $('sbDirty'),
+        undoBtn:      $('undoDoc'),
+        redoBtn:      $('redoDoc'),
     };
 }
 
 // ---- toolbar action handlers --------------------------------------------
 
-function bindToolbarActions ({ doc, designer, palette, modelSel, recordSel, els, flash }) {
+function bindToolbarActions ({
+    doc, designer, modelSel, recordSel, els, flash,
+}) {
     modelSel.addEventListener('change', () => {
         doc.setModel(modelSel.value);
         document.body.classList.toggle('wide-mode', doc.modelKey === '27x132');
@@ -134,11 +159,28 @@ function bindToolbarActions ({ doc, designer, palette, modelSel, recordSel, els,
         setTimeout(() => designer.forceResize(), 60);
     });
 
-    $('newDoc').addEventListener('click', () => {
-        if (!confirm('Discard the current design?')) return;
-        doc.reset();
-        designer.selectItem(null);
-        palette.clearArmed();
+    $('undoDoc')?.addEventListener('click', () => doc.undo());
+    $('redoDoc')?.addEventListener('click', () => doc.redo());
+    $('copyItems')?.addEventListener('click', () => {
+        if (!designer.copySelection()) flash('Select one or more items first.', 'error');
+        else flash(`Copied ${designer.selectedIds.size} item(s).`, 'ok');
+    });
+    $('pasteItems')?.addEventListener('click', () => {
+        const added = designer.pasteSelection();
+        if (!added.length) flash('Nothing has been copied yet.', 'error');
+        else flash(`Pasted ${added.length} item(s).`, 'ok');
+    });
+    $('duplicateItems')?.addEventListener('click', () => {
+        const added = designer.duplicateSelection();
+        if (!added.length) flash('Select one or more items first.', 'error');
+        else flash(`Duplicated ${added.length} item(s).`, 'ok');
+    });
+    $('arrangeItems')?.addEventListener('click', () => {
+        const mode = $('arrangeSel')?.value;
+        const changed = mode?.startsWith('distribute-')
+            ? designer.distributeSelection(mode.replace('distribute-', ''))
+            : designer.alignSelection(mode);
+        if (!changed) flash('Select at least 2 items (3 to distribute).', 'error');
     });
 
     $('addRecord').addEventListener('click', () => {
@@ -184,13 +226,14 @@ function bindToolbarActions ({ doc, designer, palette, modelSel, recordSel, els,
     });
 }
 
-function bindExportActions ({ doc, flash }) {
+function bindExportActions ({ doc, flash, flushSource }) {
     $('genRpgle')?.addEventListener('click', () => exportRpgle(false));
     $('regenRpgle')?.addEventListener('click', () => exportRpgle(true));
     $('genCobol')?.addEventListener('click', () => exportCobol(false));
     $('regenCobol')?.addEventListener('click', () => exportCobol(true));
 
     async function exportRpgle (mergeExisting) {
+        flushSource?.();
         if (!confirmValidGeneration(doc, 'rpgle', flash)) return;
         const dspfName = ibmiName(doc.sourceName, 'DSPFILE');
         const prog = ibmiName(
@@ -216,6 +259,7 @@ function bindExportActions ({ doc, flash }) {
     }
 
     async function exportCobol (mergeExisting) {
+        flushSource?.();
         if (!usesIndara(doc)) {
             const add = confirm(
                 'ILE COBOL needs a stable separate indicator area. ' +
@@ -306,13 +350,62 @@ function confirmValidGeneration (doc, language, flash) {
 // ---- misc bindings ------------------------------------------------------
 
 // Global Escape disarms the palette regardless of focus.
-function bindGlobalKeys (palette) {
+function bindGlobalKeys ({ doc, designer, palette }) {
     document.addEventListener('keydown', (ev) => {
         if (ev.key === 'Escape' && palette.getArmedSpec()) {
             palette.clearArmed();
             $('grid').classList.remove('canvas-armed');
         }
+        const command = ev.ctrlKey || ev.metaKey;
+        if (!command) return;
+
+        const key = ev.key.toLowerCase();
+        if (key === 's') {
+            ev.preventDefault();
+            $('saveDoc').click();
+            return;
+        }
+        if (key === 'o') {
+            ev.preventDefault();
+            $('openDoc').click();
+            return;
+        }
+        if (key === 'n') {
+            ev.preventDefault();
+            $('newDoc').click();
+            return;
+        }
+        if (isTextEditingTarget(ev.target)) return;
+
+        if (key === 'z') {
+            ev.preventDefault();
+            if (ev.shiftKey) doc.redo();
+            else doc.undo();
+        } else if (key === 'y') {
+            ev.preventDefault();
+            doc.redo();
+        } else if (key === 'c') {
+            if (designer.selectedIds.size) {
+                ev.preventDefault();
+                designer.copySelection();
+            }
+        } else if (key === 'v') {
+            ev.preventDefault();
+            designer.pasteSelection();
+        } else if (key === 'd') {
+            if (designer.selectedIds.size) {
+                ev.preventDefault();
+                designer.duplicateSelection();
+            }
+        } else if (key === 'a' && document.activeElement === designer.canvas) {
+            ev.preventDefault();
+            designer.selectAll();
+        }
     });
+}
+
+function isTextEditingTarget (target) {
+    return !!target?.closest?.('input, textarea, select, [contenteditable="true"], .cm-editor');
 }
 
 // Cursor readout + armed-state class toggle on the canvas.

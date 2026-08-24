@@ -1,4 +1,6 @@
 import { pickMainRecord, usesIndara } from '../codegen/analysis.js';
+import { itemWidth, itemHeight } from '../canvas/metrics.js';
+import { parseWindowSpec } from '../canvas/windowSpec.js';
 
 const INPUT_USAGES = new Set(['I', 'B']);
 const DISPLAY_DATA_TYPES = new Set([
@@ -7,7 +9,7 @@ const DISPLAY_DATA_TYPES = new Set([
 ]);
 const DISPLAY_USAGES = new Set(['I', 'O', 'B', 'H', 'P', 'M']);
 
-export function validateDspf (doc, { language = null } = {}) {
+export function validateDspf (doc, { language = null, layout = false } = {}) {
     const diagnostics = [];
     const add = (severity, code, message, context = {}) =>
         diagnostics.push({ severity, code, message, ...context });
@@ -50,6 +52,7 @@ export function validateDspf (doc, { language = null } = {}) {
             }
             fieldNames.add(item.name);
         }
+        if (layout) validateLayout(record, doc, add);
         validateMenuLinks(record, doc, add);
         validateMenuDisplay(record, doc, add);
     }
@@ -67,7 +70,11 @@ export function validateDspf (doc, { language = null } = {}) {
 }
 
 function validateItem (item, record, doc, add) {
-    const context = { record: record.name, item: item.name || item.id };
+    const context = {
+        record: record.name,
+        item: item.name || item.id,
+        itemId: item.id,
+    };
     validateIndicators(item, add, context);
     for (const keyword of item.keywords ?? []) validateIndicators(keyword, add, context);
 
@@ -97,6 +104,57 @@ function validateItem (item, record, doc, add) {
     if (selection || pushButton) validateChoiceFieldShape(item, add, context);
     if (selection) validateChoices(item, record, add, context);
     if (pushButton) validateNumberedKeywords(item, 'PSHBTNCHC', 'PUSHBTNCHC', add, context);
+}
+
+function validateLayout (record, doc, add) {
+    const visible = (record.items ?? []).filter(item =>
+        !(item.kind === 'field' && ['H', 'P', 'M'].includes(item.usage)));
+    const windowSpec = parseWindowSpec(record);
+    const maxRows = windowSpec?.rows ?? doc.rows;
+    const maxCols = windowSpec?.cols ?? doc.cols;
+
+    for (const item of visible) {
+        const endRow = item.row + itemHeight(item) - 1;
+        const endCol = item.col + itemWidth(item) - 1;
+        if (endRow > maxRows || endCol > maxCols) {
+            add('error', 'ITEM_OVERFLOW',
+                `${item.name || item.text || item.id} ends at ${endRow},${endCol}, ` +
+                `outside the ${maxRows}x${maxCols} layout.`, {
+                    record: record.name,
+                    item: item.name || item.id,
+                    itemId: item.id,
+                });
+        }
+    }
+
+    const plain = visible.filter(item =>
+        !(item.indicators?.length) && !(item.conditionLines?.length));
+    for (let i = 0; i < plain.length; i++) {
+        for (let j = i + 1; j < plain.length; j++) {
+            if (!rectsOverlap(plain[i], plain[j])) continue;
+            add('warning', 'ITEM_OVERLAP',
+                `${itemLabel(plain[i])} overlaps ${itemLabel(plain[j])}.`, {
+                    record: record.name,
+                    item: plain[i].name || plain[i].id,
+                    itemId: plain[i].id,
+                });
+        }
+    }
+}
+
+function rectsOverlap (a, b) {
+    const aRight = a.col + itemWidth(a) - 1;
+    const bRight = b.col + itemWidth(b) - 1;
+    const aBottom = a.row + itemHeight(a) - 1;
+    const bBottom = b.row + itemHeight(b) - 1;
+    return a.col <= bRight && b.col <= aRight &&
+        a.row <= bBottom && b.row <= aBottom;
+}
+
+function itemLabel (item) {
+    if (item.name) return item.name;
+    if (item.kind === 'constant') return `'${String(item.text ?? '').slice(0, 20)}'`;
+    return item.id;
 }
 
 function validateLocation (item, doc, add, context) {

@@ -150,3 +150,53 @@ test('deleting the first record retains file-level keywords', () => {
         .filter(keyword => keyword.scope === 'file')
         .map(keyword => keyword.name), ['DSPSIZ', 'INDARA']);
 });
+
+test('document history supports undo, redo and clean state', () => {
+    const doc = new DspfDocument();
+    doc.resetHistory({ markClean: true });
+    const item = doc.addItem({ kind: 'constant', row: 2, col: 3, text: 'Hello' });
+
+    assert.equal(doc.isDirty, true);
+    assert.equal(doc.canUndo, true);
+    assert.equal(doc.undo(), true);
+    assert.equal(doc.findItem(item.id), null);
+    assert.equal(doc.isDirty, false);
+    assert.equal(doc.redo(), true);
+    assert.equal(doc.findItem(item.id).text, 'Hello');
+
+    doc.markClean();
+    assert.equal(doc.isDirty, false);
+});
+
+test('a transaction becomes one history operation', () => {
+    const doc = new DspfDocument();
+    const first = doc.addItem({ kind: 'constant', row: 1, col: 1, text: 'A' });
+    const second = doc.addItem({ kind: 'constant', row: 2, col: 1, text: 'B' });
+    doc.resetHistory({ markClean: true });
+
+    doc.transaction('Move items', () => {
+        doc.updateItems([
+            { id: first.id, patch: { col: 5 } },
+            { id: second.id, patch: { col: 5 } },
+        ]);
+    });
+    assert.equal(doc.activeRecord.items[0].col, 5);
+    assert.equal(doc.activeRecord.items[1].col, 5);
+    assert.equal(doc.undo(), true);
+    assert.equal(doc.activeRecord.items[0].col, 1);
+    assert.equal(doc.activeRecord.items[1].col, 1);
+    assert.equal(doc.canUndo, false);
+});
+
+test('workspace preferences and renderer caches do not dirty the DSPF', () => {
+    const doc = new DspfDocument();
+    const item = doc.addItem({ kind: 'field', name: 'VALUE', length: 10 });
+    doc.resetHistory({ markClean: true });
+
+    item._effectiveLength = 7;
+    doc.setShowOverlay(true);
+    doc.setHideConditioned(true);
+
+    assert.equal(doc.isDirty, false);
+    assert.equal(doc.canUndo, false);
+});

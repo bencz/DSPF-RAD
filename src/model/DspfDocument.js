@@ -14,6 +14,14 @@ export class DspfDocument {
         this.showOverlay = false;
         this.hideConditioned = false;
         this._listeners = new Set();
+        this._history = [];
+        this._future = [];
+        this._transactionDepth = 0;
+        this._transactionBefore = null;
+        this._transactionLabel = '';
+        this._transactionTouched = false;
+        this._currentSnapshot = this._snapshot();
+        this._cleanSnapshot = this._currentSnapshot;
     }
 
     get rows () { return MODELS[this.modelKey].rows; }
@@ -24,7 +32,109 @@ export class DspfDocument {
         this._listeners.add(fn);
         return () => this._listeners.delete(fn);
     }
-    emit () { for (const fn of this._listeners) fn(this); }
+    emit (meta = {}) {
+        if (this._transactionDepth > 0) {
+            this._transactionTouched = true;
+            this._notify({ ...meta, changed: true, transient: true, dirty: this.isDirty });
+            return;
+        }
+        const next = this._snapshot();
+        const changed = next !== this._currentSnapshot;
+        if (changed) {
+            if (this._transactionDepth === 0) {
+                this._history.push({
+                    snapshot: this._currentSnapshot,
+                    label: meta.label || 'Edit',
+                });
+                trimHistory(this._history);
+                this._future = [];
+            }
+            this._currentSnapshot = next;
+        }
+        this._notify({
+            ...meta,
+            changed,
+            transient: false,
+            dirty: this.isDirty,
+        });
+    }
+
+    get canUndo () { return this._history.length > 0; }
+    get canRedo () { return this._future.length > 0; }
+    get isDirty () { return this._currentSnapshot !== this._cleanSnapshot; }
+
+    beginTransaction (label = 'Edit') {
+        if (this._transactionDepth === 0) {
+            this._transactionBefore = this._currentSnapshot;
+            this._transactionLabel = label;
+            this._transactionTouched = false;
+        }
+        this._transactionDepth++;
+    }
+
+    endTransaction () {
+        if (this._transactionDepth === 0) return;
+        this._transactionDepth--;
+        if (this._transactionDepth > 0) return;
+
+        const before = this._transactionBefore;
+        const label = this._transactionLabel || 'Edit';
+        const next = this._transactionTouched ? this._snapshot() : before;
+        this._transactionBefore = null;
+        this._transactionLabel = '';
+        this._transactionTouched = false;
+        this._currentSnapshot = next;
+        if (before !== next) {
+            this._history.push({ snapshot: before, label });
+            trimHistory(this._history);
+            this._future = [];
+        }
+        this._notify({
+            changed: before !== next,
+            transaction: true,
+            label,
+            dirty: this.isDirty,
+        });
+    }
+
+    transaction (label, fn) {
+        this.beginTransaction(label);
+        try { return fn(); }
+        finally { this.endTransaction(); }
+    }
+
+    undo () {
+        const entry = this._history.pop();
+        if (!entry) return false;
+        this._future.push({ snapshot: this._currentSnapshot, label: entry.label });
+        this._restoreSnapshot(entry.snapshot, { reason: 'undo', label: entry.label });
+        return true;
+    }
+
+    redo () {
+        const entry = this._future.pop();
+        if (!entry) return false;
+        this._history.push({ snapshot: this._currentSnapshot, label: entry.label });
+        trimHistory(this._history);
+        this._restoreSnapshot(entry.snapshot, { reason: 'redo', label: entry.label });
+        return true;
+    }
+
+    resetHistory ({ markClean = true } = {}) {
+        this._history = [];
+        this._future = [];
+        this._transactionDepth = 0;
+        this._transactionBefore = null;
+        this._transactionTouched = false;
+        this._currentSnapshot = this._snapshot();
+        this._cleanSnapshot = markClean ? this._currentSnapshot : null;
+        this._notify({ historyReset: true, dirty: this.isDirty });
+    }
+
+    markClean () {
+        this._cleanSnapshot = this._currentSnapshot;
+        this._notify({ clean: true, dirty: false });
+    }
 
     // ---- mutations ----
 
@@ -212,6 +322,24 @@ export class DspfDocument {
         this.emit();
     }
 
+    updateItems (patches, meta = {}) {
+        let changed = false;
+        for (const entry of patches ?? []) {
+            const it = this.findItem(entry.id);
+            if (!it) continue;
+            const patch = entry.patch ?? entry;
+            for (const [key, value] of Object.entries(patch)) {
+                if (key === 'id') continue;
+                if (it[key] !== value) {
+                    it[key] = value;
+                    changed = true;
+                }
+            }
+            clampItem(it, this.rows, this.cols);
+        }
+        if (changed) this.emit(meta);
+    }
+
     findItem (id) {
         for (const r of this.records) {
             const it = r.items.find(x => x.id === id);
@@ -248,19 +376,7 @@ export class DspfDocument {
                         conditionLines: cloneConditionLines(kw.conditionLines),
                     })),
                 })),
-                items: r.items.map(it => ({
-                    ...it,
-                    conditionLines: cloneConditionLines(it.conditionLines),
-                    alternateLocations: (it.alternateLocations ?? []).map(
-                        location => ({ ...location })),
-                    keywords:   it.keywords.map(kw => ({
-                        ...kw,
-                        args: kw.args.slice(),
-                        indicators: kw.indicators.slice(),
-                        conditionLines: cloneConditionLines(kw.conditionLines),
-                    })),
-                    indicators: it.indicators.slice(),
-                })),
+                items: r.items.map(serializeItem),
             })),
         };
     }
@@ -287,8 +403,47 @@ export class DspfDocument {
         doc.records = recs.length ? recs : [makeRecord({ name: 'MAIN' })];
         doc.activeRecordIndex = clampRecordIndex(
             data.activeRecordIndex, doc.records.length);
+        doc._currentSnapshot = doc._snapshot();
+        doc._cleanSnapshot = doc._currentSnapshot;
         return doc;
     }
+
+    _snapshot () {
+        return JSON.stringify({
+            modelKey: this.modelKey,
+            sourceName: this.sourceName,
+            records: this.toJSON().records,
+        });
+    }
+
+    _restoreSnapshot (snapshot, meta) {
+        const activeRecordIndex = this.activeRecordIndex;
+        const parsed = DspfDocument.fromJSON(JSON.parse(snapshot));
+        this.modelKey = parsed.modelKey;
+        this.sourceName = parsed.sourceName;
+        this.records = parsed.records;
+        this.activeRecordIndex = clampRecordIndex(activeRecordIndex, this.records.length);
+        this._currentSnapshot = snapshot;
+        this._notify({ ...meta, changed: true, dirty: this.isDirty });
+    }
+
+    _notify (meta) {
+        for (const fn of this._listeners) fn(this, meta);
+    }
+}
+
+const HISTORY_LIMIT = 100;
+
+function trimHistory (history) {
+    if (history.length > HISTORY_LIMIT) history.splice(0, history.length - HISTORY_LIMIT);
+}
+
+function clampItem (it, rows, cols) {
+    if (it.row < 1) it.row = 1;
+    if (it.col < 1) it.col = 1;
+    if (it.row > rows) it.row = rows;
+    if (it.col > cols) it.col = cols;
+    if (it.kind === 'field' && it.length < 1) it.length = 1;
 }
 
 function cloneConditionLines (lines) {
@@ -296,6 +451,25 @@ function cloneConditionLines (lines) {
         conditionOp: line.conditionOp ?? '',
         indicators: (line.indicators ?? []).slice(),
     }));
+}
+
+function serializeItem (it) {
+    // `_effectiveLength` is a renderer cache, not document state.  Keeping
+    // it out of snapshots prevents a paint from creating a false dirty edit.
+    const { _effectiveLength: _ignored, ...item } = it;
+    return {
+        ...item,
+        conditionLines: cloneConditionLines(it.conditionLines),
+        alternateLocations: (it.alternateLocations ?? []).map(
+            location => ({ ...location })),
+        keywords: it.keywords.map(kw => ({
+            ...kw,
+            args: kw.args.slice(),
+            indicators: kw.indicators.slice(),
+            conditionLines: cloneConditionLines(kw.conditionLines),
+        })),
+        indicators: it.indicators.slice(),
+    };
 }
 
 function modelSizeKeyword (key) {

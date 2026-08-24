@@ -27,6 +27,18 @@ Open a `.DSPF` source, drag widgets onto a 5250 grid, tweak attributes in the in
 - **RPGLE** and **COBOL** skeleton generators with protected regions, so you can regenerate after DSPF changes without losing your handwritten logic.
 - Semantic validation before code generation (record/field names, subfile links,
   indicator conditions, ENPTUI choice controls, pulldowns, and COBOL `INDARA`).
+- Document-wide undo/redo, multi-selection, copy/paste/duplicate, and visual
+  alignment/distribution tools.
+- Unsaved-work indicator plus local crash/session recovery. A downloaded DSPF
+  remains the portable source of truth.
+- Navigable Problems view with semantic errors, visual overflow, and overlap
+  diagnostics linked back to the record and canvas item.
+- New-design assistant with blank, login, menu, maintenance, subfile, popup,
+  and confirmation templates for both supported display sizes.
+- Runtime preview mode: toggle response indicators and supply sample field
+  values without changing the generated DSPF.
+- Project navigator that lists record formats and follows SFL, menu/pulldown,
+  and referenced-window relationships.
 
 ## Running it
 
@@ -105,6 +117,13 @@ indicator table.
 
 - **Drag** from the palette onto the grid, or click a palette item then click the grid (click-to-place fallback).
 - **Click** an item to select. **Arrow keys** nudge it, **Shift+Arrow** moves by 5. **Del** removes it.
+- **Shift/Ctrl+Click** selects multiple items. **Ctrl+C/V/D** copies, pastes,
+  or duplicates the selection; **Ctrl+Z/Y** undo and redo.
+- Use **Arrange** in the toolbar to align or distribute selected items.
+- Use **Simulate** to preview conditioned items, SFL display indicators, choice
+  values, and sample field contents. Preview state never modifies the source.
+- Switch the left-side **Project** panel from Palette to Records to navigate
+  large display files and their linked formats.
 - **Overlay** fades non-active records behind the current one so you can see how the screens layer.
 - **Hide cond** skips items that only render under indicator conditions, handy for cleaning up screens like CLOCK that stack one item per digit value.
 

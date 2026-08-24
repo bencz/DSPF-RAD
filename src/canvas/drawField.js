@@ -6,12 +6,13 @@ import { flagsOf, valueOf } from '../model/keywords.js';
 import { hasKeyword } from './keywordReaders.js';
 import { datePlaceholder, timePlaceholder } from './metrics.js';
 import { getEntryDefaults } from './entryDefaults.js';
+import { simulationValue } from './simulation.js';
 
 export function drawField (gc, it, parentRec) {
     const { ctx } = gc;
 
     const styling = resolveStyling(it, parentRec, gc.document);
-    const text    = renderText(it);
+    const text    = renderText(gc, it);
 
     const x = (it.col - 1) * gc.cellW;
     const y = (it.row - 1) * gc.cellH;
@@ -48,8 +49,10 @@ function resolveStyling (it, parentRec, doc) {
     };
 }
 
-function renderText (it) {
+function renderText (gc, it) {
     const len = Math.max(1, it._effectiveLength ?? it.length ?? 1);
+    const sample = simulationValue(gc, it);
+    if (sample != null) return String(sample).slice(0, len).padEnd(len);
     if (it.dataType === 'L') {
         return (datePlaceholder(valueOf(it, 'DATFMT')) ?? '_'.repeat(len)).slice(0, len);
     }

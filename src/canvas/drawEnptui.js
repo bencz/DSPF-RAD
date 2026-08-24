@@ -9,6 +9,7 @@ import {
     getNumRow, getNumCol, cntfldWidth,
 } from './keywordReaders.js';
 import { drawField } from './drawField.js';
+import { simulationValue } from './simulation.js';
 
 // SNGCHCFLD / MLTCHCFLD: vertical stack by default, *NUMROW / *NUMCOL
 // flip to grid layouts.
@@ -17,7 +18,7 @@ export function drawChoiceField (gc, it, multi) {
     if (!choices.length) { drawField(gc, it); return; }
 
     const colour = COLOR_CSS[valueOf(it, 'COLOR') || DEFAULT_COLOR] || COLOR_CSS.GRN;
-    const glyph  = multi ? '[ ]' : '◯';
+    const selected = String(simulationValue(gc, it) ?? '');
     const numRow = getNumRow(it);
     const numCol = getNumCol(it);
     const widest = Math.max(...choices.map(c => c.label.length));
@@ -30,6 +31,8 @@ export function drawChoiceField (gc, it, multi) {
     ctx.font = `${gc.fontSize}px "SF Mono", Menlo, monospace`;
     for (let i = 0; i < choices.length; i++) {
         const { rowIdx, colIdx } = gridPos(i, { useRowGrid, useColGrid, numRow, numCol });
+        const picked = selected.split(/[\s,]+/).includes(String(choices[i].num));
+        const glyph = multi ? (picked ? '[x]' : '[ ]') : (picked ? '●' : '◯');
         const x = (it.col - 1 + colIdx * colW) * gc.cellW;
         const y = (it.row - 1 + rowIdx)        * gc.cellH;
         ctx.fillStyle = colour;
@@ -96,7 +99,8 @@ export function drawCntField (gc, it) {
     const total  = it.length ?? width;
     const lines  = Math.max(1, Math.ceil(total / width));
     const colour = COLOR_CSS[valueOf(it, 'COLOR') || DEFAULT_COLOR] || COLOR_CSS.GRN;
-    const text   = (it.name || '').padEnd(total, '_');
+    const sample = simulationValue(gc, it);
+    const text   = String(sample ?? it.name ?? '').padEnd(total, '_').slice(0, total);
     const { ctx } = gc;
 
     for (let i = 0; i < lines; i++) {

@@ -91,3 +91,18 @@ test('validation enforces MNUBARDSP return-field attributes', () => {
     const codes = validateDspf(doc).map(diagnostic => diagnostic.code);
     assert.ok(codes.includes('INVALID_MNUBARDSP_CHOICE_FIELD'));
 });
+
+test('optional layout diagnostics report overflow and overlap', () => {
+    const doc = parseDspf([
+        '     A          R SCREEN',
+        "     A                                  1 75'TOO WIDE'",
+        "     A                                  2  2'FIRST'",
+        "     A                                  2  4'SECOND'",
+    ].join('\n'));
+    const codes = validateDspf(doc, { layout: true })
+        .map(diagnostic => diagnostic.code);
+
+    assert.ok(codes.includes('ITEM_OVERFLOW'));
+    assert.ok(codes.includes('ITEM_OVERLAP'));
+    assert.deepEqual(validateDspf(doc), []);
+});

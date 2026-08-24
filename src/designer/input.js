@@ -36,12 +36,23 @@ function onPointerDown (designer, ev) {
     if (armed) { designer.placeFromSpec(armed, cell); return; }
 
     const hit = designer.renderer.itemAt(cell.row, cell.col);
-    if (!hit) { designer.selectItem(null); return; }
+    if (!hit) {
+        if (!ev.shiftKey && !ev.ctrlKey && !ev.metaKey) designer.selectItem(null);
+        return;
+    }
 
-    designer.selectItem(hit.id);
+    const additive = ev.shiftKey || ev.ctrlKey || ev.metaKey;
+    if (additive) designer.selectItem(hit.id, { toggle: true });
+    else if (!designer.selectedIds.has(hit.id)) designer.selectItem(hit.id);
+    if (!designer.selectedIds.has(hit.id)) return;
+
     designer._dragItem   = hit;
-    designer._dragOffset = { dr: cell.row - hit.row, dc: cell.col - hit.col };
+    designer._dragStartCell = cell;
+    designer._dragOrigins = designer.selectedItems().map(item => ({
+        id: item.id, row: item.row, col: item.col,
+    }));
     designer._dragMoved  = false;
+    designer.document.beginTransaction('Move items');
     try { designer.canvas.setPointerCapture(ev.pointerId); } catch (_) {}
 }
 
@@ -69,12 +80,14 @@ function onPointerMove (designer, ev) {
     }
 
     if (designer._dragItem) {
-        const r = cell.row - designer._dragOffset.dr;
-        const c = cell.col - designer._dragOffset.dc;
-        if (r !== designer._dragItem.row || c !== designer._dragItem.col) {
-            designer._dragMoved = true;
-            designer.document.updateItem(designer._dragItem.id, { row: r, col: c });
-        }
+        let dr = cell.row - designer._dragStartCell.row;
+        let dc = cell.col - designer._dragStartCell.col;
+        ({ dr, dc } = designer.constrainMove(designer._dragOrigins, dr, dc));
+        if (dr !== 0 || dc !== 0) designer._dragMoved = true;
+        designer.document.updateItems(designer._dragOrigins.map(origin => ({
+            id: origin.id,
+            patch: { row: origin.row + dr, col: origin.col + dc },
+        })));
     } else {
         designer.renderer.draw();
     }
@@ -84,7 +97,9 @@ function onPointerUp (designer, ev) {
     if (!designer._dragItem) return;
     try { designer.canvas.releasePointerCapture(ev.pointerId); } catch (_) {}
     designer._dragItem   = null;
-    designer._dragOffset = null;
+    designer._dragStartCell = null;
+    designer._dragOrigins = null;
+    designer.document.endTransaction();
 }
 
 function onKeyDown (designer, ev) {
@@ -96,20 +111,16 @@ function onKeyDown (designer, ev) {
             designer.renderer.draw();
             return;
         }
-        if (designer.selectedId) designer.selectItem(null);
+        if (designer.selectedIds.size) designer.selectItem(null);
         return;
     }
-    if (!designer.selectedId) return;
+    if (!designer.selectedIds.size) return;
 
     if (ev.key === 'Delete' || ev.key === 'Backspace') {
         ev.preventDefault();
-        designer.document.removeItem(designer.selectedId);
-        designer.selectItem(null);
+        designer.deleteSelection();
         return;
     }
-
-    const it = designer.document.findItem(designer.selectedId);
-    if (!it) return;
 
     const step = ev.shiftKey ? 5 : 1;
     let dr = 0, dc = 0;
@@ -119,5 +130,5 @@ function onKeyDown (designer, ev) {
     else if (ev.key === 'ArrowRight') dc =  step;
     else return;
     ev.preventDefault();
-    designer.document.updateItem(it.id, { row: it.row + dr, col: it.col + dc });
+    designer.moveSelection(dr, dc);
 }

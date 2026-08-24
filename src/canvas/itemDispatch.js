@@ -15,11 +15,13 @@ import {
     drawChoiceField, drawMenuBarField,
     drawPushbtnField, drawCntField,
 } from './drawEnptui.js';
+import { isVisibleInSimulation } from './simulation.js';
 
 const SELECT    = '#4a9aff';
 const SELECT_BG = 'rgba(74, 154, 255, 0.10)';
 
 export function drawItem (gc, it, selected, isOverlay, parentRec, offset) {
+    if (!isVisibleInSimulation(gc, it)) return;
     // Hidden + Program-to-System fields are invisible at runtime; skip
     // them in the canvas too (unless selected, so the user can re-target
     // them via the inspector).  Program-to-System (usage P, e.g. WDWTITLE
@@ -29,7 +31,8 @@ export function drawItem (gc, it, selected, isOverlay, parentRec, offset) {
     // "Hide conditioned" toggle: skip items that only appear when an
     // indicator fires.  Massively cleans up screens like CLOCK that stack
     // one item per possible digit value.
-    if (gc.document.hideConditioned && it.indicators?.length && !selected) return;
+    if (!gc.simulation?.enabled && gc.document.hideConditioned &&
+        it.indicators?.length && !selected) return;
 
     // Apply WINDOW offset (items in a WINDOW record live in coords
     // relative to the window's top-left corner).

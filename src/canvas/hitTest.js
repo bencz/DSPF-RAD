@@ -4,6 +4,7 @@
 
 import { recordOffset } from './windowSpec.js';
 import { itemWidth, itemHeight } from './metrics.js';
+import { isVisibleInSimulation } from './simulation.js';
 
 export function cellAt (gc, clientX, clientY) {
     if (!gc.document) return null;
@@ -24,14 +25,20 @@ export function cellAt (gc, clientX, clientY) {
 export function itemAt (gc, row, col) {
     if (!gc.document) return null;
     const rec     = gc.document.activeRecord;
+    const controlDisplay = rec.type === 'SFLCTL'
+        ? rec.keywords?.find(keyword => keyword.name === 'SFLDSPCTL')
+        : null;
+    if (gc.simulation?.enabled && controlDisplay &&
+        !isVisibleInSimulation(gc, controlDisplay)) return null;
     const offset  = recordOffset(rec);
     const dr      = offset?.rowOffset ?? 0;
     const dc      = offset?.colOffset ?? 0;
     const items   = rec.items;
-    const hideCnd = !!gc.document.hideConditioned;
+    const hideCnd = !gc.simulation?.enabled && !!gc.document.hideConditioned;
 
     for (let i = items.length - 1; i >= 0; i--) {
         const it = items[i];
+        if (!isVisibleInSimulation(gc, it)) continue;
         if (it.kind === 'field' && (it.usage === 'H' || it.usage === 'P')) continue;
         if (hideCnd && it.indicators?.length) continue;
 
