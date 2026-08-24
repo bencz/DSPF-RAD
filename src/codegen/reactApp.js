@@ -1,6 +1,8 @@
 // Deterministic standalone React/Vite output from the Mapping Contract.
 // Generated files consume serialized contract data and never import the designer.
 
+import { buildConversionManifest } from './conversionManifest.js';
+
 function json (value) { return JSON.stringify(value, null, 2) + '\n'; }
 
 export function generateReactApp (contract = {}) {
@@ -16,7 +18,7 @@ export function generateReactApp (contract = {}) {
         mapping.sourceIdentity,
         { runtimeBindingKey: mapping.runtimeBindingKey, domId: mapping.domId, status: mapping.status, role: mapping.output?.role ?? 'unknown', readOnly: mapping.output?.editable !== true, visible: mapping.output?.visible !== false, valueType: mapping.source?.dataType ?? 'string', usage: mapping.output?.role ?? 'unknown' },
     ]));
-    return {
+    const files = {
         'package.json': json({ private: true, type: 'module', scripts: { dev: 'vite', build: 'vite build', preview: 'vite preview' }, dependencies: { '@vitejs/plugin-react': '^5.0.0', '@emotion/cache': '^11.14.0', '@emotion/react': '^11.14.0', '@emotion/styled': '^11.14.0', '@mui/material': '^6.4.0', 'prop-types': '^15.8.1', react: '^19.0.0', 'react-dom': '^19.0.0' }, devDependencies: { vite: '^7.0.0' } }),
         'vite.config.js': "import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\nexport default defineConfig({ plugins: [react()] });\n",
         'index.html': '<div id="root"></div><script type="module" src="/src/main.jsx"></script>\n',
@@ -33,7 +35,22 @@ export default function App () {
         'src/theme.js': "import { createTheme } from '@mui/material/styles';\nexport const theme = createTheme({ typography: { fontSize: 16 }, palette: { primary: { main: '#0F3460' } } });\n",
         'src/routeManifest.js': `export const routeManifest = ${json(routeManifest)}`,
         'src/bindings.js': `export const bindings = ${json(bindingMap)}`,
+        'binding-map.json': json(bindingMap),
         'conversion-report.json': json(report),
         'traceability.json': json((contract.mappings ?? []).map(mapping => mapping.traceability)),
     };
+    const overrideEvidence = contract.overridesHash
+        ? { overridesHash: contract.overridesHash, overridesApplied: contract.overridesApplied ?? 0 }
+        : {};
+    files['conversion-manifest.json'] = json(buildConversionManifest({
+        generator: 'generateReactApp',
+        contractVersion: contract.version || '2.1.0',
+        files,
+        extra: {
+            mappingCount: (contract.mappings ?? []).length,
+            diagnosticCount: (contract.diagnostics ?? []).length,
+            ...overrideEvidence,
+        },
+    }));
+    return files;
 }

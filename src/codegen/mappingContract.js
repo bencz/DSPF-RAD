@@ -1,6 +1,7 @@
 // Pure versioned source-to-target Mapping Contract builder.
 // Every generated target remains traceable to Semantic IR evidence.
 import { buildFieldOutput, collectReffldEvidence } from './outputSemantics.js';
+import { applyDesignOverrides, hashOverrides, normalizeOverrideInput } from './designOverrides.js';
 
 function componentFor (item) {
     if (item.kind === 'field' && item.value?.usage === 'H') return 'HiddenControl';
@@ -10,7 +11,21 @@ function componentFor (item) {
     return 'UnsupportedItem';
 }
 
-export function buildMappingContract (ir) {
+export function buildMappingContract (ir, options = {}) {
+    const contract = buildBaseContract(ir);
+    const overrides = normalizeOverrideInput(options.overrides) ?? [];
+    if (overrides.length === 0) return contract;
+    const result = applyDesignOverrides(contract, overrides);
+    // Attach the override evidence so downstream receipts/manifests can carry
+    // the hash chain without re-deriving which overrides were applied.
+    return {
+        ...result.contract,
+        overridesHash: `fnv1a:${hashOverrides(overrides)}`,
+        overridesApplied: result.appliedCount,
+    };
+}
+
+function buildBaseContract (ir) {
     const identities = new Map((ir.identities ?? []).map(identity => [identity.sourceIdentity, identity]));
     const sourceItems = [
         ...(ir.fields ?? []).map(value => ({ kind: 'field', value })),

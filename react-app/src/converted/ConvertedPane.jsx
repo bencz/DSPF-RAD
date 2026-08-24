@@ -20,7 +20,7 @@ import { convertedTheme } from './convertedTheme.js';
 
 const EMPTY_BUS = { current: null, subscribe: () => () => {} };
 
-export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
+export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true, overrides = [] }) {
     const versionRef = useRef(0);
     const subscribe = useCallback((onStoreChange) => doc.onChange(() => {
         versionRef.current += 1;
@@ -31,8 +31,10 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
 
     if (!enabled) return null;
 
-    const semantic = buildSemanticPreview(doc);
+    const semantic = buildSemanticPreview(doc, { overrides });
     const model = buildVisualModel(doc);
+    const unmatchedOverrides = semantic.overrideDiagnostics
+        .filter((diagnostic) => diagnostic.code === 'OVERRIDE_NO_MATCHING_SOURCE').length;
     const reviewTitle = model.warnings.some((warning) => warning.severity === 'manual-review')
         ? 'Manual review' : 'Inferred output';
     const selectedId = bus?.current ?? null;
@@ -53,6 +55,15 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
                                 Modern React · {model.modelKey} · {active?.type ?? 'RECORD'}
                             </Typography>
                         </Box>
+                        {overrides.length > 0 && (
+                            <Chip
+                                data-testid="override-status"
+                                label={`design overrides · ${semantic.overridesByItemId.size} applied`
+                                    + (unmatchedOverrides > 0 ? ` · ${unmatchedOverrides} unmatched` : '')}
+                                color="secondary"
+                                size="small"
+                            />
+                        )}
                         <Chip label="Visual preview" color="primary" size="small" />
                     </Stack>
 
@@ -76,6 +87,7 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
                          }}>
                         {(active?.items ?? []).filter((item) => !item.hidden).map((item) => (
                             <ConvertedItem key={item.sourceId} item={item}
+                                           override={semantic.overridesByItemId.get(item.sourceId) ?? null}
                                            selected={item.sourceId === selectedId} />
                         ))}
                     </Box>
@@ -87,12 +99,15 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true }) {
     );
 }
 
-function ConvertedItem ({ item, selected }) {
+function ConvertedItem ({ item, override, selected }) {
     const content = item.kind === 'field'
         ? (item.name || 'Unnamed field')
         : item.kind === 'sysvalue'
             ? (item.sysName || 'System value')
             : item.text || ' ';
+    const targetCol = Number(override?.target?.targetCol) || item.targetCol;
+    const span = Number(override?.target?.span) || item.span;
+    const component = typeof override?.target?.component === 'string' ? override.target.component : null;
 
     return (
         <Paper
@@ -100,15 +115,17 @@ function ConvertedItem ({ item, selected }) {
             data-testid="converted-item"
             data-source-id={item.sourceId}
             data-kind={item.kind}
+            data-override-applied={override ? 'true' : undefined}
+            data-override-component={component ?? undefined}
             sx={{
                 gridRow: item.row,
                 minWidth: 0,
                 minHeight: 40,
                 display: 'flex',
                 alignItems: 'center',
-                gridColumn: `${item.targetCol} / span ${item.span}`,
+                gridColumn: `${targetCol} / span ${span}`,
                 py: 0.75,
-                borderColor: selected ? 'primary.main' : 'divider',
+                borderColor: selected ? 'primary.main' : (override ? 'secondary.main' : 'divider'),
                 borderWidth: selected ? 2 : 1,
                 bgcolor: item.color ?? 'background.paper',
                 color: item.color ? '#FFFFFF' : 'text.primary',

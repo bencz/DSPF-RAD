@@ -39,6 +39,8 @@ import { TestPanel }      from './preview/TestPanel.jsx';
 import { bindPreviewResize } from './preview/previewResize.js';
 import { ConvertedPane }  from './converted/ConvertedPane.jsx';
 import { bindConvertedResize } from './converted/convertedResize.js';
+import { loadDesignOverrides } from './conversion/designOverridesLoader.js';
+import { buildSemanticPreview } from './conversion/semanticPreview.js';
 
 // ---- small bindings ported from boot.js (not exported there) -----------
 
@@ -161,6 +163,11 @@ export default function App () {
     // Keep the faithful preview optional so compact workspaces can focus on
     // the Canvas or the Modern React converted pane without changing doc state.
     const [faithfulPreviewEnabled, setFaithfulPreviewEnabled] = useState(true);
+    // Design overlay (D-15): optional projection fetched once; absent file = no-op.
+    const [designOverrides, setDesignOverrides] = useState([]);
+    // Live mirror for the console/debug hook and mount effect closures.
+    const overridesRef = useRef([]);
+    overridesRef.current = designOverrides;
 
     // ---- chrome state (replaces chromeSync's DOM writes) ----------------
     const buildChrome = () => ({
@@ -237,11 +244,16 @@ export default function App () {
         setupMenubar();
 
         // Console debugging surface (same as the legacy app).
+        // `semantic()` exposes the full mapping view: IR, contract (mappings,
+        // diagnostics) and applied design overrides — see through
+        // window.dspfRad.semantic().contract.mappings in the console.
         window.dspfRad = {
             doc, designer, palette,
             parse: (s) => parseDspf(s),
             write: () => writeDspf(doc),
             load:  (s) => { doc.adopt(parseDspf(s)); designer.selectItem(null); },
+            get designOverrides() { return overridesRef.current; },
+            semantic: () => buildSemanticPreview(doc, { overrides: overridesRef.current }),
         };
 
         return () => {
@@ -255,6 +267,15 @@ export default function App () {
     useEffect(() => {
         document.body.classList.toggle('wide-mode', chrome.modelKey === '27x132');
     }, [chrome.modelKey]);
+
+    // Design overlay projection: one fetch; a 404 keeps the default conversion.
+    useEffect(() => {
+        let live = true;
+        loadDesignOverrides().then((result) => {
+            if (live) setDesignOverrides(result.overrides);
+        });
+        return () => { live = false; };
+    }, []);
 
     // ---- toolbar handlers ------------------------------------------------
     const onModelChange = (ev) => {
@@ -319,12 +340,12 @@ export default function App () {
         flash(`Generated ${prog}.CBLLE skeleton.`, 'ok');
     };
     const onGenReact = () => {
-        const contract = buildMappingContract(buildCompleteSemanticIR(doc));
+        const contract = buildMappingContract(buildCompleteSemanticIR(doc), { overrides: designOverrides });
         downloadText('dspf-react-output.json', JSON.stringify(generateReactApp(contract), null, 2));
         flash('Generated React/Vite app artifact map.', 'ok');
     };
     const onGenSpring = () => {
-        const contract = buildMappingContract(buildCompleteSemanticIR(doc));
+        const contract = buildMappingContract(buildCompleteSemanticIR(doc), { overrides: designOverrides });
         downloadText('dspf-spring-output.json', JSON.stringify(generateSpringBootApp(contract), null, 2));
         flash('Generated Spring Boot artifact map.', 'ok');
     };
@@ -523,7 +544,7 @@ export default function App () {
                             </div>
                         </div>
                         <div className="panel-body converted-body">
-                            <ConvertedPane doc={doc} bus={bus} enabled={convertedEnabled} />
+                            <ConvertedPane doc={doc} bus={bus} enabled={convertedEnabled} overrides={designOverrides} />
                         </div>
                     </aside>
 
