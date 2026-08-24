@@ -15,6 +15,9 @@ import { auditFixture } from '../src/codegen/containmentSweep.js';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPORA = ['TESTS', 'QDDSSRC'];
 const outArgIndex = process.argv.indexOf('--out');
+if (outArgIndex > -1 && !process.argv[outArgIndex + 1]) {
+    throw new Error('--out requires a file path');
+}
 const outputPath = resolve(outArgIndex > -1 ? process.argv[outArgIndex + 1] : '.tmp/coverage-matrix.json');
 
 function fnv1a (text) {

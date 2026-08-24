@@ -40,7 +40,7 @@ npm run build          # REQUIRED before Playwright — preview serves dist/
 npx playwright test    # chromium-only e2e; auto-starts vite preview on :4173 (reuseExistingServer)
 ```
 
-- No linter, no formatter config, no CI anywhere. Verification = tests + manual browser QA.
+- No linter or formatter config. CI (`.github/workflows/ci.yml`) runs the verification ladder — projections check, L1 unit → C5 containment sweep → L2 jsdom → L3 build → L4 Playwright chromium — on every push/PR to `main`. Local equivalents: `pnpm check:projections`, `pnpm test`, `pnpm verify:sources`, react-app `npm test`/`npm run build`/`npx playwright test`.
 - Root vitest runs with `environment: 'node'` deliberately — keep `src/codegen/**` free of DOM/window deps.
 - Legacy app still runs with any static server (`python3 -m http.server 8000`); `file://` will NOT work (ES modules + import map).
 - CodeMirror 6 comes from esm.sh at load time in the legacy app — internet needed on first load.
