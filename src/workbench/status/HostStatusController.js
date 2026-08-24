@@ -1,5 +1,5 @@
-// Presents the active runtime host in the workbench status bar. Connection
-// state will live here when the desktop host gains IBM i sessions.
+// Presents the active runtime host in the workbench status bar. IBM i session
+// state is rendered independently by ConnectionStatusController.
 export class HostStatusController {
     constructor ({ element, host }) {
         if (!element) throw new TypeError('HostStatusController requires an element.');

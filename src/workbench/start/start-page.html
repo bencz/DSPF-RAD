@@ -1,76 +1,81 @@
-        <section class="workbench-start-page" id="startPage" aria-labelledby="startPageTitle">
-            <div class="start-page-content">
-                <header class="start-page-header">
-                    <span class="start-page-mark" aria-hidden="true">ILE</span>
-                    <div>
-                        <h1 id="startPageTitle">IronTerm Studio</h1>
-                        <p>Integrated development environment for IBM i</p>
-                    </div>
-                </header>
-
-                <div class="start-page-grid">
-                    <section class="window start-page-panel">
-                        <div class="title-bar">
-                            <div class="title-bar-text">Start</div>
-                        </div>
-                        <div class="start-page-panel-body start-actions">
-                            <button type="button" data-command="workspace.new">
-                                <strong>New workspace</strong>
-                                <span>Organize local, scratch, and IBM i projects.</span>
-                            </button>
-                            <button type="button" data-command="workspace.open">
-                                <strong>Open workspace…</strong>
-                                <span>Load an existing .itworkspace manifest.</span>
-                            </button>
-                            <button type="button" data-command="file.new">
-                                <strong>New display file…</strong>
-                                <span>Create a DSPF with a visual template.</span>
-                            </button>
-                            <button type="button" data-command="file.open">
-                                <strong>Open DSPF/DDS source…</strong>
-                                <span>Open a local display-file source in the designer.</span>
-                            </button>
-                            <button type="button" data-command="source.openLocal">
-                                <strong>Open IBM i source code…</strong>
-                                <span>Open CLLE, RPGLE, COBOL, SQL, DDS, or text in the code editor.</span>
-                            </button>
-                            <button type="button" data-command="project.open">
-                                <strong>Open RAD design project…</strong>
-                                <span>Restore DSPF design metadata and key-flow actions.</span>
-                            </button>
-                            <button type="button" data-command="view.activeEditor"
-                                    data-role="return-editor" hidden>
-                                <strong>Return to active editor</strong>
-                                <span>Keep working with the document already open.</span>
-                            </button>
-                        </div>
-                    </section>
-
-                    <div class="start-page-sidebar">
-                        <section class="window start-page-panel">
-                            <div class="title-bar">
-                                <div class="title-bar-text">Environment</div>
-                            </div>
-                            <dl class="start-environment">
-                                <div><dt>Workspace</dt><dd data-role="workspace-name">Untitled Workspace</dd></div>
-                                <div><dt>Runtime</dt><dd data-role="runtime">Browser · offline ready</dd></div>
-                                <div><dt>IBM i</dt><dd data-role="connection">disconnected</dd></div>
-                            </dl>
-                        </section>
-
-                        <section class="window start-page-panel">
-                            <div class="title-bar">
-                                <div class="title-bar-text">Workbench</div>
-                            </div>
-                            <div class="start-page-panel-body start-summary">
-                                <p><strong>Offline-first foundation</strong></p>
-                                <p>Workspaces, local source operations, visual designers,
-                                   validation, and generation remain available without a server.</p>
-                                <p>Remote IBM i sessions become available only through a secure
-                                   desktop adapter.</p>
-                            </div>
-                        </section>
-                    </div>
-                </div>
+<section class="workbench-start-page" id="startPage" aria-labelledby="startPageTitle">
+    <div class="start-page-content">
+        <header class="start-page-header">
+            <span class="start-page-mark" aria-hidden="true">ILE</span>
+            <div>
+                <h1 id="startPageTitle">IronTerm Studio</h1>
+                <p>Integrated development environment for IBM i</p>
             </div>
-        </section>
+        </header>
+
+        <div class="start-page-grid">
+            <section class="window start-page-panel">
+                <div class="title-bar">
+                    <div class="title-bar-text">IBM i Development</div>
+                </div>
+                <div class="start-page-panel-body start-actions">
+                    <button type="button" data-command="connection.connect">
+                        <strong>Connect to IBM i…</strong>
+                        <span>Open a secure desktop session using the active connection profile.</span>
+                    </button>
+                    <button type="button" data-command="project.attachIbmiLibrary">
+                        <strong>Open IBM i libraries…</strong>
+                        <span>Attach one or more ILE libraries and browse them simultaneously.</span>
+                    </button>
+                    <button type="button" data-command="connection.manageProfiles">
+                        <strong>Manage IBM i connections…</strong>
+                        <span>Configure host, port, user, authentication, and library defaults.</span>
+                    </button>
+                    <button type="button" data-command="workspace.openIbmi">
+                        <strong>Open workspace from IBM i IFS…</strong>
+                        <span>Restore a portable IronTerm workspace stored on the server.</span>
+                    </button>
+                    <button type="button" data-command="view.activeEditor"
+                            data-role="return-editor" hidden>
+                        <strong>Return to active editor</strong>
+                        <span>Keep working with the document already open.</span>
+                    </button>
+                </div>
+            </section>
+
+            <div class="start-page-sidebar">
+                <section class="window start-page-panel">
+                    <div class="title-bar">
+                        <div class="title-bar-text">Environment</div>
+                    </div>
+                    <dl class="start-environment">
+                        <div><dt>Workspace</dt><dd data-role="workspace-name">Untitled Workspace</dd></div>
+                        <div><dt>Runtime</dt><dd data-role="runtime">Browser · offline ready</dd></div>
+                        <div><dt>Profile</dt><dd data-role="profile">not configured</dd></div>
+                        <div><dt>IBM i</dt><dd data-role="connection">disconnected</dd></div>
+                        <div><dt>Library</dt><dd data-role="library">not attached</dd></div>
+                    </dl>
+                </section>
+
+                <section class="window start-page-panel">
+                    <div class="title-bar">
+                        <div class="title-bar-text">Offline and local work</div>
+                    </div>
+                    <div class="start-page-panel-body start-actions start-actions-secondary">
+                        <button type="button" data-command="workspace.new">
+                            <strong>New offline workspace</strong>
+                            <span>Organize work that remains available without a server.</span>
+                        </button>
+                        <button type="button" data-command="workspace.open">
+                            <strong>Open local workspace…</strong>
+                            <span>Load a local .itworkspace manifest.</span>
+                        </button>
+                        <button type="button" data-command="source.openLocal">
+                            <strong>Open local source file…</strong>
+                            <span>Edit a source stream file from this computer.</span>
+                        </button>
+                        <button type="button" data-command="file.new">
+                            <strong>New display-file design…</strong>
+                            <span>Start the specialized visual DSPF designer.</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>

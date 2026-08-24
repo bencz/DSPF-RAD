@@ -16,12 +16,10 @@ export class DspfTemplateController {
         flash,
         flushSource,
         documentRef = globalThis.document,
-        dialogs,
     }) {
         if (!documentModel) throw new TypeError('DspfTemplateController requires a DSPF document.');
         if (!coordinator) throw new TypeError('DspfTemplateController requires a coordinator.');
         if (!commands) throw new TypeError('DspfTemplateController requires commands.');
-        if (!dialogs) throw new TypeError('DspfTemplateController requires dialogs.');
         this.documentModel = documentModel;
         this.coordinator = coordinator;
         this.designer = designer;
@@ -30,7 +28,6 @@ export class DspfTemplateController {
         this.flash = flash;
         this.flushSource = flushSource;
         this.document = documentRef;
-        this.dialogs = dialogs;
     }
 
     start () {
@@ -64,13 +61,6 @@ export class DspfTemplateController {
 
     async openDialog () {
         this.flushSource?.();
-        if (this.coordinator.isOpen && this.documentModel.isDirty &&
-            !await this.dialogs.confirm({
-                title: 'Unsaved display file',
-                message: 'Discard the current unsaved display-file design?',
-                acceptLabel: 'Discard and create',
-                danger: true,
-            })) return false;
         this.elements.sourceName.value = 'DSPFILE';
         this.elements.recordName.value = 'MAIN';
         this.elements.model.value = this.documentModel.modelKey;
@@ -123,13 +113,11 @@ export class DspfTemplateController {
             recordName: this.elements.recordName.value,
             modelKey: this.elements.model.value,
         });
-        this.documentModel.sourceName = created.sourceName;
-        this.documentModel.adopt(created, { preserveAidActions: false });
-        this.documentModel.resetHistory({ markClean: false });
+        created.resetHistory({ markClean: false });
         this.designer.selectItem(null);
         this.palette.clearArmed();
         this.elements.dialog.close();
-        this.coordinator.open();
+        this.coordinator.open({ documentModel: created });
         this.flash?.(
             `Created ${created.sourceName} from the ` +
             `${this.elements.kind.selectedOptions[0].textContent} template.`, 'ok', 4000);

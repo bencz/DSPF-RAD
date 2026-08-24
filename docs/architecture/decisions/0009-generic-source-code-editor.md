@@ -21,7 +21,12 @@ IronTerm Studio provides a generic source-code feature with three boundaries:
   workbench document descriptors and owns activation and close order;
 - `SourceCodeEditor` adapts CodeMirror to source documents and editor-independent
   language services, while `SourceCodeEditorController` owns commands, local
-  file operations, tabs, save confirmation, and presentation state.
+  file operations, save confirmation, and source-editor presentation state.
+
+Tabs are workbench chrome, not source-code feature chrome.
+`WorkbenchEditorTabsController` projects all workbench documents and delegates
+close requests to the owning feature, allowing source files and visual DSPF
+documents to coexist in one editor strip.
 
 The first rich language adapter is CL/CLLE. Its syntax styling and contextual
 completion consume the language-service layer and do not embed IBM i command

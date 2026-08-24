@@ -16,9 +16,8 @@ securely provide native SSH or operating-system credential storage.
 ## Decision
 
 IBM i connection lifecycle uses the focused `IbmiConnectionPort`. The port only
-opens and closes sessions. A concrete desktop adapter will own transport and
-secure credential retrieval; connection features receive the port through the
-composition root.
+opens and closes sessions. A concrete desktop adapter owns transport;
+connection features receive the port through the composition root.
 
 `IbmiConnectionService` owns the explicit disconnected, connecting, connected,
 disconnecting, and failed states. A successful adapter response is validated
@@ -31,13 +30,22 @@ disabled and the status bar reports that IBM i connectivity is unavailable;
 the frontend does not simulate a connection.
 
 Workspace projects reference connection profile IDs. Profiles store non-secret
-endpoint metadata. Sessions are transient and are never serialized into the
+endpoint metadata and a source-member CCSID policy (`*FILE` or a validated
+numeric override). Sessions are transient and are never serialized into the
 workspace or local profile store.
+
+The first concrete desktop adapter is recorded in ADR 0012. It keeps live SSH
+sessions in the Rust backend, requires OpenSSH host-key verification, and uses
+SSH Agent or session-only password authentication. Password values are never
+part of profiles and are discarded after each attempt. Persisted credentials
+and direct private-key files remain unavailable until native credential-store
+support exists. The browser still receives the unavailable port described
+above.
 
 ## Consequences
 
 - SSH libraries and Tauri commands cannot leak into workbench or feature code.
-- A desktop adapter can be added without changing session consumers.
+- Desktop transport can evolve without changing session consumers.
 - IBM i commands, member access, terminals, and build execution will use their
   own focused ports and reference an established session ID.
 - Removing a transport does not change the workspace manifest.

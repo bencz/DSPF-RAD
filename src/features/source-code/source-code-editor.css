@@ -7,60 +7,6 @@
     background: var(--w98-face);
 }
 
-.source-code-tabs {
-    flex: 0 0 auto;
-    min-height: 28px;
-    display: flex;
-    align-items: end;
-    gap: 1px;
-    padding: 3px 4px 0;
-    overflow-x: auto;
-    border-bottom: 1px solid var(--w98-shadow);
-}
-
-.source-code-tab {
-    min-width: 120px;
-    max-width: 240px;
-    height: 25px;
-    display: flex;
-    align-items: center;
-    padding: 0 5px 0 9px;
-    color: var(--fg-muted);
-    background: var(--w98-face);
-    border: 1px solid;
-    border-color: var(--w98-white) var(--w98-shadow) transparent var(--w98-white);
-}
-
-.source-code-tab.active {
-    height: 27px;
-    color: var(--fg-text);
-    font-weight: 600;
-    border-bottom-color: var(--w98-face);
-}
-
-.source-code-tab-label {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.source-code-tab-close {
-    min-width: 18px;
-    width: 18px;
-    height: 18px;
-    margin-left: 6px;
-    padding: 0;
-    box-shadow: none;
-    border: 1px solid transparent;
-    background: transparent;
-}
-
-.source-code-tab-close:hover {
-    border-color: var(--w98-shadow);
-}
-
 .source-code-toolbar {
     flex: 0 0 auto;
     min-height: 30px;

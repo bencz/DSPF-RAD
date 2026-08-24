@@ -20,6 +20,10 @@ open DSPF/DDS source, or return to the last active editor. The visual DSPF
 toolbars, toolbox, inspector, source pane, and document status are shown only
 while a DSPF designer document is active.
 
+An IronTerm workspace is the solution-level container: it groups multiple
+local, scratch, and IBM i projects without absorbing their source code or
+credentials.
+
 ## Screenshots
 
 ### Overview
@@ -68,10 +72,33 @@ while a DSPF designer document is active.
 - Versioned `.itworkspace` manifests for grouping scratch, local, and IBM i
   projects. Workspace files reference connection profile IDs but reject
   passwords, tokens, private keys, and other credentials.
+- Hybrid workspace persistence automatically caches the last session for
+  offline recovery and models a durable target as either a local file or an
+  IBM i IFS stream file. Remote writes carry an opaque expected revision so a
+  desktop adapter detects concurrent updates instead of overwriting
+  them silently.
 - Immutable workspace project models plus an explicit IBM i connection
-  lifecycle. The browser reports remote connectivity as unavailable; a future
-  desktop adapter will open real sessions without exposing credentials to the
-  frontend or workspace files.
+  lifecycle. The browser reports remote connectivity as unavailable; the
+  Tauri desktop opens real, in-memory SSH sessions without exposing
+  credentials to workspace files or frontend storage.
+- A connection-profile manager stores only host, port, IBM i user, libraries,
+  source-member CCSID policy, and the authentication method. The desktop supports SSH Agent and
+  session-only password authentication, and requires a matching OpenSSH
+  `known_hosts` entry.
+- IBM i projects attach a native ILE library instead of pretending it is an IFS
+  folder. The desktop Project Explorer lists typed objects from `QSYS.LIB`,
+  identifies source physical files, and obtains each member's authoritative
+  source type from native IBM i member metadata. The session-scoped catalog is
+  cleared when the connection changes. Selecting a `DSPF` member opens the visual DSPF
+  designer; other members open the source editor after IBM i converts their
+  database records and CCSID to UTF-8/LF text.
+
+For correctly described source physical files, keep **Source member CCSID** at
+`*FILE`. Legacy files whose bytes do not match their declared CCSID can set an
+explicit numeric override in the connection profile. For example,
+`BENCZ1/QCSRC` on PUB400 declares CCSID 273 while its `HELLO` member contains
+CCSID 37 source bytes, so that profile must use `37` to preserve `{`, `}` and
+backslash characters.
 - Central workbench command registry shared by menus and keyboard shortcuts,
   with command availability driven by the active host capabilities.
 - Class-based workbench views keep the root HTML as a minimal application host.
@@ -86,16 +113,26 @@ while a DSPF designer document is active.
   CL completion distinguishes commands, unused parameters, valid parameter
   values, declared variables, comments, strings, continuations, and nested
   commands such as `SBMJOB CMD(...)`.
-- A tabbed generic source editor opens and saves local IBM i source through the
-  active host bridge, tracks clean/dirty state in the workbench, highlights
-  CL/CLLE syntax, and provides contextual CL completion. Registered RPG,
-  COBOL, SQL, DDS, CMD, and panel-group source types already share the same
-  document lifecycle and open as plain text while their adapters are built.
+- Shared workbench tabs keep generic source files and specialized DSPF
+  designers visible together, including dirty state and feature-owned close
+  confirmation. The generic source editor opens and saves local IBM i source
+  through the active host bridge, tracks clean/dirty state in the workbench, highlights
+  CL/CLLE and fixed-format DDS syntax, and provides contextual CL completion.
+  Registered RPG, COBOL, SQL, CMD, and panel-group source types already share
+  the same document lifecycle and open as plain text while their language
+  adapters are built.
+- Multiple DSPF members remain open as independent designer tabs. Switching
+  preserves each design model and undo/redo state, while selecting an already
+  open member in the Project Explorer only activates its existing tab.
 - A persistent Project Explorer keeps the workspace, projects, open editors,
   project-associated sources, dirty state, and active selections visible while
   moving between the Start Page, source editor, and DSPF designer. Tree nodes
-  can be collapsed, and sources whose original project is not in the current
-  workspace remain accessible under Loose Sources.
+  can be collapsed, its width can be resized and is retained per workstation,
+  and sources whose original project is not in the current workspace remain
+  accessible under Loose Sources.
+- Remote member rows and the status bar show an explicit loading state while
+  IBM i converts and transfers source text; repeated opens of the same member
+  share a single remote read.
 
 ## Running it
 
@@ -118,14 +155,53 @@ npm run preview
 ```
 
 The generated `dist/` directory contains the JavaScript and CSS required at
-runtime. The Tauri desktop package embeds the same frontend; its future secure
-IBM i adapter will provide the SSH/SFTP and command capabilities that browsers
-cannot safely expose.
+runtime. The Tauri desktop package embeds the same frontend and provides the
+SSH/SFTP capabilities that browsers cannot safely expose.
 
 Run the Tauri desktop shell with `npm run desktop`. Its borderless main window
 uses the IronTerm Studio title bar for native dragging, minimizing,
 maximizing/restoring, and closing; the browser build keeps those native window
 controls hidden.
+
+### Connecting the desktop to IBM i
+
+IronTerm Studio authenticates with either the operating-system SSH Agent or a
+password requested for one connection attempt. Connect once with your OpenSSH
+client so the IBM i host key is present in `~/.ssh/known_hosts`; IronTerm Studio
+never silently accepts a new or changed host key. Then:
+
+1. Open **Connection > Manage profiles** and save the host, SSH port, IBM i
+   user, authentication method, default library, and library list. Choose
+   **Password (ask each connection)** for systems such as PUB400 when an SSH
+   Agent identity is unavailable. If no profile exists, choosing
+   **Connection > Connect to IBM i** opens this configuration automatically.
+2. Choose **Connection > Connect to IBM i**. Password profiles display the IDE
+   password dialog for this attempt; the password is not saved in the profile,
+   workspace, cache, or logs.
+3. Choose **Project > Attach IBM i libraries** and enter one or more system
+   library names separated by commas or spaces, such as
+   `BENCZ1, COMMON, QGPL`. The profile's default library and library list are
+   offered as the initial selection. Every attached library remains visible as
+   an independent Explorer root, so application and reference libraries can be
+   browsed simultaneously. Expand a source physical file such as `QRPGLESRC`
+   to list its members and authoritative source types. Selecting a `DSPF`
+   member opens the visual designer; other supported types open their source
+   editor. Remote members remain read-only until conflict-aware writes exist.
+4. Use **Project > Open workspace from IBM i IFS**, **Publish workspace to IBM
+   i IFS**, or **Synchronize IBM i workspace** when the portable workspace
+   manifest should also live on the server.
+
+Publishing accepts an absolute `.itworkspace` IFS path, creates missing parent
+directories, and refuses to overwrite a remotely changed revision. Saving a
+password or using a direct private-key file remains unavailable until native
+credential-store integration is implemented.
+
+The IFS workspace path and the attached ILE library have different purposes:
+IFS stores the IDE workspace/stream files, while the ILE project represents
+libraries, objects, source physical files, and members. Member text editing,
+native compilation, diagnostics, conflict-aware member saving, and object
+actions are the next remote capabilities and are not yet presented as
+implemented.
 
 ## Engine tests and generated samples
 
@@ -137,6 +213,7 @@ page markup.
 npm run quality:policy
 npm test
 npm run samples
+cargo test --locked --manifest-path src-tauri/Cargo.toml
 ```
 
 The suite round-trips all 72 DSPFs under `QDDSSRC/`, `TESTS/`, and `SAMPLES/`.
@@ -193,11 +270,16 @@ indicator table.
   project JSON in addition to exporting a plain DSPF member.
 - Final CRTDSPF/CRTBNDRPG/CRTBNDCBL acceptance still requires an IBM i system.
 - The browser host supports local file operations only. Direct IBM i access
-  belongs to the future desktop host; credentials will not be stored in project
-  documents or autosave data.
-- Local project directory enumeration and IBM i source-member discovery are
-  not implemented yet. The Explorer currently catalogs documents opened in the
-  IDE and associates new local sources with the active workspace project.
+  belongs to the desktop host; credentials are not stored in project documents
+  or autosave data.
+- The desktop IBM i adapter currently supports SSH Agent and session-only
+  password sessions, IFS workspace transfer, ILE object/member discovery, and
+  read-only converted source-member opening. Persisted credential vaults,
+  conflict-aware member writes, builds, diagnostics, and terminals are
+  subsequent focused capabilities.
+- Local project directory enumeration is not implemented yet. The Explorer
+  catalogs local documents opened in the IDE and navigates attached IBM i
+  libraries through the remote ILE object catalog.
 
 ## Architecture
 

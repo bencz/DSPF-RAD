@@ -29,6 +29,10 @@ source document
   continuations, document variables, labels, and nested command parameters.
 - `SourceDocument` owns source identity, text version, dirty state, resource
   URI, and change events. It does not import CodeMirror or a host adapter.
+- Remote catalogs obtain the member extension from native IBM i source-member
+  metadata; editor selection must not infer a language from source content.
+  `DSPF` routes to the visual designer, while the generic editor currently
+  provides fixed-format highlighting for the remaining DDS families.
 
 ## Completion depth
 

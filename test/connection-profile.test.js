@@ -23,10 +23,12 @@ test('connection profile normalizes IBM i metadata without secrets', () => {
         authentication: ConnectionAuthentication.PRIVATE_KEY,
         defaultLibrary: 'devlib',
         libraryList: ['qgpl', 'DEVLIB', 'qgpl'],
+        sourceCcsid: '37',
     });
 
     assert.equal(profile.defaultLibrary, 'DEVLIB');
     assert.deepEqual(profile.libraryList, ['QGPL', 'DEVLIB']);
+    assert.equal(profile.sourceCcsid, '37');
     assert.equal(Object.isFrozen(profile), true);
     assert.equal(JSON.stringify(profile).includes('privateKey'), false);
 });
@@ -41,6 +43,9 @@ test('connection profiles reject embedded credentials and invalid ports', () => 
     assert.throws(() => new ConnectionProfile({
         id: 'bad-port', name: 'Bad port', host: 'localhost', port: 70000,
     }), /Invalid SSH port/);
+    assert.throws(() => new ConnectionProfile({
+        id: 'bad-ccsid', name: 'Bad CCSID', host: 'localhost', sourceCcsid: '37) escape',
+    }), /Invalid IBM i source CCSID/);
 });
 
 test('connection profile store persists metadata and active selection', () => {

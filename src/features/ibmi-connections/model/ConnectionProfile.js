@@ -1,3 +1,5 @@
+import { IbmiSourceCcsid } from '../../../platform/ibmi/IbmiSourceCcsid.js';
+
 export const ConnectionAuthentication = Object.freeze({
     AGENT: 'agent',
     PRIVATE_KEY: 'private-key',
@@ -18,6 +20,7 @@ export class ConnectionProfile {
         authentication = ConnectionAuthentication.AGENT,
         defaultLibrary = '*CURLIB',
         libraryList = [],
+        sourceCcsid = '*FILE',
         ...additional
     }) {
         ConnectionProfile.assertNoCredentials(additional);
@@ -32,6 +35,7 @@ export class ConnectionProfile {
         this.authentication = authentication;
         this.defaultLibrary = ConnectionProfile.libraryName(defaultLibrary);
         this.libraryList = Object.freeze(ConnectionProfile.libraryList(libraryList));
+        this.sourceCcsid = IbmiSourceCcsid.normalize(sourceCcsid);
         Object.freeze(this);
     }
 
@@ -50,6 +54,7 @@ export class ConnectionProfile {
             authentication: this.authentication,
             defaultLibrary: this.defaultLibrary,
             libraryList: [...this.libraryList],
+            sourceCcsid: this.sourceCcsid,
         };
     }
 

@@ -1,18 +1,33 @@
 import { WorkbenchCommand } from '../../workbench/commands/commandIds.js';
 import { WorkspaceProjectKind } from '../../workbench/workspace/WorkspaceProject.js';
+import { ConnectionAuthentication } from './model/ConnectionProfile.js';
 
 export class ConnectionController {
     #unregister = [];
 
-    constructor ({ service, profiles, workspaceSession, commands, flash }) {
+    constructor ({
+        service,
+        profiles,
+        profileController,
+        workspaceSession,
+        commands,
+        dialogs,
+        flash,
+    }) {
         if (!service) throw new TypeError('ConnectionController requires a connection service.');
         if (!profiles) throw new TypeError('ConnectionController requires a profile store.');
+        if (!profileController) {
+            throw new TypeError('ConnectionController requires a profile controller.');
+        }
         if (!workspaceSession) throw new TypeError('ConnectionController requires a workspace session.');
         if (!commands) throw new TypeError('ConnectionController requires a command registry.');
+        if (!dialogs) throw new TypeError('ConnectionController requires dialogs.');
         this.service = service;
         this.profiles = profiles;
+        this.profileController = profileController;
         this.workspaceSession = workspaceSession;
         this.commands = commands;
+        this.dialogs = dialogs;
         this.flash = flash;
     }
 
@@ -24,7 +39,7 @@ export class ConnectionController {
                 title: 'Connect to IBM i',
                 category: 'Connection',
                 execute: () => this.connect(),
-                isEnabled: () => this.service.canConnect(this.#selectedProfileId()),
+                isEnabled: () => this.service.canStartConnection(),
             }),
             this.commands.register({
                 id: WorkbenchCommand.CONNECTION_DISCONNECT,
@@ -42,20 +57,32 @@ export class ConnectionController {
 
     async connect () {
         const profileId = this.#selectedProfileId();
-        const profile = this.profiles.get(profileId);
+        let profile = this.profiles.get(profileId);
         if (!profile) {
-            this.flash?.('Select or configure an IBM i connection profile first.', 'error');
-            return false;
+            profile = await this.profileController.chooseProfile();
+            if (!profile) return false;
         }
+        let secret = null;
         try {
-            await this.service.connect(profile.id);
+            if (profile.authentication === ConnectionAuthentication.PASSWORD) {
+                secret = await this.dialogs.secret({
+                    title: `Connect to ${profile.name}`,
+                    message: `Enter the password for ${profile.username}@${profile.host}.`,
+                    label: 'IBM i password',
+                });
+                if (secret == null) return false;
+            }
+            await this.service.connect(profile.id, { secret });
             this.profiles.activate(profile.id);
             this.flash?.(`Connected to ${profile.name}.`, 'ok');
             return true;
         } catch (error) {
-            this.flash?.(`Connection to ${profile.name} failed (${error.code ?? error.name}).`,
-                'error', 5000);
+            const message = error instanceof Error ? error.message : String(error);
+            this.flash?.(`Connection to ${profile.name} failed: ${message}`,
+                'error', 7000);
             return false;
+        } finally {
+            secret = null;
         }
     }
 
@@ -66,8 +93,9 @@ export class ConnectionController {
             if (disconnected) this.flash?.(`Disconnected from ${profileName}.`, 'ok');
             return disconnected;
         } catch (error) {
-            this.flash?.(`Could not disconnect from ${profileName} (${error.code ?? error.name}).`,
-                'error', 5000);
+            const message = error instanceof Error ? error.message : String(error);
+            this.flash?.(`Could not disconnect from ${profileName}: ${message}`,
+                'error', 7000);
             return false;
         }
     }

@@ -58,6 +58,7 @@ export class DspfFileController {
                 category: 'File',
                 execute: () => this.saveSource(),
                 isEnabled: () => this.coordinator.isActive &&
+                    !this.coordinator.isReadOnly &&
                     this.host.supports(HostCapability.SAVE_LOCAL_TEXT),
             }),
             this.commands.register({
@@ -84,15 +85,15 @@ export class DspfFileController {
 
     async openSource () {
         this.flushSource?.();
-        if (!await this.#confirmReplace('Open another DSPF source')) return false;
         try {
             const file = await this.host.openTextFile({ accept: '.dspf,.dds,.txt' });
             if (!file) return false;
-            const parsed = parseDspf(file.text);
-            this.documentModel.adopt(parsed, { preserveAidActions: false });
-            this.documentModel.sourceName = ibmiName(file.name.replace(/\.[^.]+$/, ''), 'DSPFILE');
-            this.documentModel.resetHistory({ markClean: true });
-            this.#showLoadedDocument();
+            this.#openParsedSource({
+                text: file.text,
+                sourceName: file.name.replace(/\.[^.]+$/, ''),
+                title: file.name,
+                resourceUri: `local:///${encodeURIComponent(file.name)}`,
+            });
             this.flash?.(
                 `Loaded ${file.name}: ${this.documentModel.records.length} records, ` +
                 `${this.documentModel.itemCount()} items.`, 'ok');
@@ -101,6 +102,30 @@ export class DspfFileController {
             this.#reportFailure('Open', error);
             return false;
         }
+    }
+
+    async openRemoteSource ({ text, sourceName, title, resourceUri }) {
+        if (this.coordinator.activateResource(resourceUri)) return true;
+        this.flushSource?.();
+        this.#openParsedSource({ text, sourceName, title, resourceUri, readOnly: true });
+        this.flash?.(`Opened ${title} in the visual DSPF designer (remote read-only).`, 'ok');
+        return true;
+    }
+
+    activateResource (resourceUri) {
+        return this.coordinator.activateResource(resourceUri);
+    }
+
+    async close (documentId = this.coordinator.activeDocumentId) {
+        const info = this.coordinator.documentInfo(documentId);
+        if (!info) return false;
+        if (info.isDirty && !await this.dialogs.confirm({
+            title: 'Unsaved display file',
+            message: `Close ${info.title} and discard unsaved changes?`,
+            acceptLabel: 'Discard and close',
+            danger: true,
+        })) return false;
+        return this.coordinator.close(documentId);
     }
 
     async saveSource () {
@@ -122,7 +147,6 @@ export class DspfFileController {
 
     async openProject () {
         this.flushSource?.();
-        if (!await this.#confirmReplace('Open another RAD design project')) return false;
         try {
             const file = await this.host.openTextFile({ accept: '.json,.dspfrad.json' });
             if (!file) return false;
@@ -135,12 +159,8 @@ export class DspfFileController {
                 throw new Error('The file does not contain a DSPF-RAD document.');
             }
             const restored = DspfDocument.fromJSON(payload);
-            this.documentModel.sourceName = restored.sourceName;
-            this.documentModel.showOverlay = restored.showOverlay;
-            this.documentModel.hideConditioned = restored.hideConditioned;
-            this.documentModel.adopt(restored, { preserveAidActions: false });
-            this.documentModel.resetHistory({ markClean: true });
-            this.#showLoadedDocument();
+            restored.resetHistory({ markClean: true });
+            this.#showLoadedDocument({ documentModel: restored });
             this.flash?.(`Loaded RAD design project ${file.name}.`, 'ok');
             return true;
         } catch (error) {
@@ -172,22 +192,29 @@ export class DspfFileController {
         }
     }
 
-    #showLoadedDocument () {
+    #openParsedSource ({ text, sourceName, title, resourceUri, readOnly = false }) {
+        const parsed = parseDspf(text);
+        parsed.sourceName = ibmiName(sourceName, 'DSPFILE');
+        parsed.resetHistory({ markClean: true });
+        this.#showLoadedDocument({
+            documentModel: parsed,
+            title,
+            resourceUri,
+            readOnly,
+        });
+    }
+
+    #showLoadedDocument ({
+        documentModel = this.documentModel,
+        title = null,
+        resourceUri = null,
+        readOnly = false,
+    } = {}) {
+        this.coordinator.open({ documentModel, title, resourceUri, readOnly });
         this.modelSelect.value = this.documentModel.modelKey;
         this.document.body.classList.toggle('wide-mode', this.documentModel.modelKey === '27x132');
         this.designer.selectItem(null);
-        this.coordinator.open();
         this.window.requestAnimationFrame(() => this.designer.forceResize());
-    }
-
-    async #confirmReplace (action) {
-        return !this.coordinator.isOpen || !this.documentModel.isDirty ||
-            this.dialogs.confirm({
-                title: 'Unsaved display file',
-                message: `${action} and discard unsaved changes?`,
-                acceptLabel: 'Discard and open',
-                danger: true,
-            });
     }
 
     #reportFailure (operation, error) {

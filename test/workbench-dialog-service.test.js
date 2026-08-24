@@ -36,6 +36,7 @@ test('workbench dialog service normalizes reusable prompt, confirm, and alert re
         message: 'Discard changes?',
         danger: true,
     });
+    await dialogs.secret({ message: 'Authenticate.' });
     await dialogs.alert({ message: 'Complete.' });
     dialogs.stop();
 
@@ -43,9 +44,12 @@ test('workbench dialog service normalizes reusable prompt, confirm, and alert re
     assert.equal(view.stopCalls, 1);
     assert.equal(name, 'Development');
     assert.equal(confirmed, true);
-    assert.deepEqual(requests.map(request => request.kind), ['prompt', 'confirm', 'alert']);
+    assert.deepEqual(requests.map(request => request.kind), [
+        'prompt', 'confirm', 'prompt', 'alert',
+    ]);
     assert.equal(requests[0].label, 'Workspace name');
     assert.equal(requests[1].danger, true);
+    assert.equal(requests[2].inputType, 'password');
 });
 
 test('workbench dialog service rejects invalid prompt validators', () => {

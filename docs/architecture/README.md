@@ -61,6 +61,7 @@ turning domain algorithms into artificial objects.
 | `src/app` | Composition and legacy UI controllers | split between features and workbench |
 | `src/workbench` | New IDE shell controllers | workbench |
 | `src/platform` | Browser/Tauri/IBM i effects | platform |
+| `src/features/ibmi-objects` | ILE library/object/member catalog | feature |
 | `src/workbench/shell`, `start`, `views` | Shell, Start Page, view composition | workbench |
 | `src/workbench/layout`, `explorer` | Persistent IDE regions and project navigation | workbench |
 | `src/features/dspf-designer/*.html, *.css` | DSPF-only editor surface | DSPF designer feature |
@@ -93,6 +94,17 @@ its state through a coordinator; for example, `DspfDocumentCoordinator`
 projects DSPF model title and dirty state into a workbench document without
 making the shell depend on the DSPF model.
 
+`WorkbenchEditorTabsController` renders those descriptors as IDE-wide tabs.
+The tab strip therefore includes both generic source editors and specialized
+designers; close operations are delegated to the owning feature so dirty-state
+and replacement rules remain intact.
+
+The visual DSPF canvas is reused across tabs, while `DspfDocumentCoordinator`
+maintains an independent `DspfEditorSession` for every open display-file
+resource. Switching tabs captures and restores the complete design session,
+including undo/redo and dirty state. Resource-URI indexing makes repeated Tree
+selections activate the existing document instead of duplicating it.
+
 Presentation follows the same ownership boundaries. `styles.css` is an import
 manifest: shared tokens and base typography load around the classic-theme
 compatibility layer, followed by shell, Start Page, and feature styles. New
@@ -120,17 +132,31 @@ See [language services](language-services.md) for the staged intelligence model.
 
 The generic source editor lives under `src/features/source-code`. Its document
 model and document service own lifecycle and workbench projection; its
-CodeMirror adapter owns editing mechanics; and its controller owns commands,
-tabs, and host-mediated local file operations. The original DSPF source pane
+CodeMirror adapter owns editing mechanics; and its controller owns commands
+and host-mediated local file operations. The original DSPF source pane
 remains inside the specialized visual designer and is not the generic IDE
 editor. See [decision 0009](decisions/0009-generic-source-code-editor.md).
 
-The persistent Project Explorer is a projection of workspace and document
-services, not another source of application state. Its view/controller lives
-under `src/workbench/explorer`, while `WorkbenchAreaView` only supplies the
-Explorer and editor layout regions. Open local sources are associated with the
-active project; future local-directory and IBM i member catalogs will enter
-through provider ports. See [decision 0010](decisions/0010-project-explorer.md).
+The persistent Project Explorer is a projection of workspace, document, and
+ILE catalog services, not another source of application state. Its
+view/controller lives under `src/workbench/explorer`, while `WorkbenchAreaView`
+only supplies the Explorer and editor layout regions. Open local sources are
+associated with the active project. IBM i projects expand through the injected
+`IbmiObjectCatalog`, which lists typed library objects and source members without
+turning the workbench into an SFTP file browser. See
+[decision 0010](decisions/0010-project-explorer.md) and
+[decision 0013](decisions/0013-ile-object-catalog.md).
+
+One IBM i project represents one library, but a workspace may attach multiple
+libraries from the same profile and browse them concurrently. Layout ownership
+remains separate: `WorkbenchAreaController` handles the accessible Explorer
+splitter and its workstation-local width preference, while the Explorer
+controller remains concerned only with navigation state.
+
+Remote member reads publish their in-flight state to the Explorer and status
+bar, and duplicate opens of one member share the same pending operation. This
+is especially important because native member-to-stream-file conversion can be
+noticeably slower than opening a local document.
 
 ## Remote IBM i boundary
 
@@ -139,13 +165,50 @@ explicitly unavailable IBM i connection port, so connection commands remain
 disabled rather than simulating a remote session.
 
 The connection lifecycle is modeled by `IbmiConnectionService` and immutable
-`IbmiConnectionSession` metadata. A future desktop adapter will implement the
-transport and secure credential retrieval. CL/PASE execution, member transfer,
-terminal streams, builds, and job-log retrieval will use focused ports tied to
-an established session instead of growing `HostBridge` into a catch-all.
+`IbmiConnectionSession` metadata. The Tauri adapter implements real SSH Agent
+and session-only password sessions with mandatory OpenSSH `known_hosts`
+verification; live transport objects stay in the Rust backend. Each session
+serializes operations and reuses one SFTP subsystem so IBM i channel limits do
+not race concurrent Explorer requests. The first ILE catalog port lists
+library objects through the native `QSYS.LIB` namespace and retrieves member
+names plus authoritative source types through native `DSPFD` metadata. `DSPF`
+members route to the visual designer; other member types resolve through the
+language registry. CL/PASE execution, conflict-aware member writes, terminal
+streams, builds, and job-log retrieval will use additional focused ports tied
+to an established session instead of growing `HostBridge` into a catch-all.
+
+Source members are not decoded as raw SFTP files. The desktop backend stages a
+`CPYTOSTMF` conversion as private UTF-8/LF text, reads it through SFTP, removes
+the staging file, and returns a content revision. The selected editor opens
+that document read-only; remote writes wait for a conflict-aware reverse
+conversion contract.
+
+The connection profile normally requests `DBFCCSID(*FILE)`, preserving the
+source physical file's authoritative CCSID. A validated numeric
+`sourceCcsid` override is available for legacy files whose stored bytes do not
+match that metadata. The value is non-secret profile metadata, is validated in
+both JavaScript and Rust, and is the only value allowed to enter the
+`DBFCCSID(...)` command parameter.
+
+Workspace persistence is hybrid. `WorkspaceCacheStore` automatically retains
+the last session for offline startup, while `WorkspaceStorageLocation` records
+whether the current durable target is a local file or an IBM i IFS stream file.
+`IbmiWorkspaceStoragePort` is the focused remote boundary and carries opaque
+revisions for conflict-aware writes. Storage location and revision remain
+outside the portable workspace manifest. The browser receives an explicitly
+unavailable implementation; the desktop uses the SFTP adapter described in
+[decision 0012](decisions/0012-desktop-ssh-agent-sftp.md). See also
+[decision 0011](decisions/0011-hybrid-workspace-persistence.md).
+
+IFS persistence and ILE projects are deliberately separate. IFS holds portable
+workspace manifests and stream-file resources; an ILE project identifies a
+library as `ibmi://<profile>/<library>` and navigates native objects through
+`IbmiObjectBrowserPort`. See
+[decision 0013](decisions/0013-ile-object-catalog.md).
 
 Credentials must be handled by the desktop platform and must never enter
-project documents, local autosave, logs, session metadata, or domain models.
+project documents, local autosave/cache, logs, session metadata, or domain
+models.
 
 See the architecture decisions in [`decisions`](decisions/) for the rationale
 and constraints that must be preserved.

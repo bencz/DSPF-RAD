@@ -34,6 +34,9 @@ security boundaries, and working agreement in [`AGENTS.md`](AGENTS.md).
   or downgrading them.
 - Keep documentation synchronized with every contract, architecture, behavior,
   setup, persistence, platform, and release change.
+- Verify every new or updated direct Cargo dependency against the latest stable
+  crates.io release and pin the exact version. Document any intentional
+  exception before using an older release.
 - Keep `index.html` as the minimal `#app` host. Put shell markup in
   `src/workbench` and specialized editor markup/styles in the feature that
   owns them; compose them through class-based views.
@@ -52,6 +55,8 @@ security boundaries, and working agreement in [`AGENTS.md`](AGENTS.md).
   tests.
 - A change is complete only after `npm run quality:policy`, `npm test`, and
   `npm run build` pass without warnings.
+- Rust backend changes additionally require `npm run desktop:check` and
+  `cargo test --locked --manifest-path src-tauri/Cargo.toml`.
 
 The dependency rules and migration map are documented in
 [`docs/architecture/README.md`](docs/architecture/README.md).

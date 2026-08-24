@@ -28,6 +28,8 @@ must use IBM i IDE terminology rather than DSPF-specific terminology.
 
 1. **Offline first.** Local editing, workspace navigation, design, validation,
    and other applicable features must continue to work without a connection.
+   IBM i-backed workspaces keep a non-secret local cache, but the cache must not
+   be presented as a durable replacement for the remote IFS source of truth.
 2. **Desktop capable.** Browser-safe features use platform contracts. Native
    filesystem, SSH, SFTP, process, credential, and terminal capabilities belong
    behind the Tauri/desktop host.
@@ -43,6 +45,11 @@ must use IBM i IDE terminology rather than DSPF-specific terminology.
 7. **Secure by construction.** Project and workspace files may reference a
    connection profile ID, but never contain passwords, tokens, passphrases,
    private keys, or other credentials.
+   A session-only password must be requested for every connection, cross the
+   desktop boundary only for that authentication attempt, and be cleared from
+   mutable UI and native buffers immediately afterward. Persisted credentials
+   require an operating-system credential store or another approved secure
+   provider.
 
 ## Architecture and dependency direction
 
@@ -234,6 +241,7 @@ For desktop-shell or Rust changes, also run when system prerequisites exist:
 
 ```sh
 npm run desktop:check
+cargo test --locked --manifest-path src-tauri/Cargo.toml
 ```
 
 If the local machine lacks WebKit/Tauri system libraries, report that fact and
@@ -245,6 +253,9 @@ on IBM i must be clearly identified as requiring a real IBM i compiler/runtime.
 
 - Prefer the existing stack and platform APIs before adding a dependency.
 - Pin direct dependency versions; update the lockfile with dependency changes.
+- Before adding or updating a direct Cargo dependency, verify the latest stable
+  release in the crates.io index. Use that exact version unless a documented
+  compatibility or security constraint requires otherwise.
 - Keep the application runtime self-contained and free of CDN dependencies.
 - Avoid speculative frameworks and infrastructure. Implement the narrowest
   durable contract needed for the next product capability.

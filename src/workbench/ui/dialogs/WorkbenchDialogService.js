@@ -43,6 +43,40 @@ export class WorkbenchDialogService {
             acceptLabel,
             cancelLabel,
             danger: false,
+            inputType: 'text',
+            autocomplete: 'off',
+            validate,
+        });
+    }
+
+    secret ({
+        title = DEFAULT_TITLE,
+        message,
+        label = 'Password',
+        placeholder = '',
+        maxLength = 512,
+        acceptLabel = 'Connect',
+        cancelLabel = 'Cancel',
+        validate = requireValue,
+    }) {
+        if (typeof validate !== 'function') {
+            throw new TypeError('Dialog secret validation must be a function.');
+        }
+        return this.#enqueue({
+            kind: 'prompt',
+            icon: '••',
+            title,
+            message: String(message ?? ''),
+            detail: '',
+            label,
+            value: '',
+            placeholder,
+            maxLength,
+            acceptLabel,
+            cancelLabel,
+            danger: false,
+            inputType: 'password',
+            autocomplete: 'current-password',
             validate,
         });
     }
@@ -68,6 +102,8 @@ export class WorkbenchDialogService {
             acceptLabel,
             cancelLabel,
             danger,
+            inputType: 'text',
+            autocomplete: 'off',
             validate: acceptValue,
         });
     }
@@ -91,6 +127,8 @@ export class WorkbenchDialogService {
             acceptLabel,
             cancelLabel: '',
             danger: false,
+            inputType: 'text',
+            autocomplete: 'off',
             validate: acceptValue,
         });
     }
@@ -104,4 +142,8 @@ export class WorkbenchDialogService {
 
 function acceptValue () {
     return '';
+}
+
+function requireValue (value) {
+    return String(value ?? '').length ? '' : 'A value is required.';
 }

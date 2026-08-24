@@ -19,6 +19,11 @@ Offline-first means that local design, parsing, validation, generation, and
 project editing work without a network. It does not imply silent caching of IBM
 i credentials or remote members.
 
+Workspace manifests are a deliberate exception to “remote data is not silently
+cached”: the last workspace session is non-secret IDE metadata and is cached so
+an IBM i-backed workspace can open offline. The canonical remote copy and its
+revision follow ADR 0011; no authentication material enters the cache.
+
 ## Consequences
 
 - Development requires Node and `npm install`.

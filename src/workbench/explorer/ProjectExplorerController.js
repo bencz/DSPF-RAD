@@ -6,7 +6,10 @@ export class ProjectExplorerController {
     #disposeWorkspace = null;
     #disposeSources = null;
     #disposeDocuments = null;
+    #disposeIbmiCatalog = null;
+    #disposeIbmiMembers = null;
     #collapsedNodes = new Set();
+    #initializedNodes = new Set();
 
     constructor ({
         element,
@@ -14,6 +17,8 @@ export class ProjectExplorerController {
         workspaceSession,
         sourceDocuments,
         workbenchDocuments,
+        ibmiCatalog,
+        ibmiMembers,
         commands,
         logger = globalThis.console,
     }) {
@@ -27,12 +32,20 @@ export class ProjectExplorerController {
         if (!workbenchDocuments) {
             throw new TypeError('ProjectExplorerController requires workbench documents.');
         }
+        if (!ibmiCatalog) {
+            throw new TypeError('ProjectExplorerController requires an IBM i object catalog.');
+        }
+        if (!ibmiMembers) {
+            throw new TypeError('ProjectExplorerController requires an IBM i member controller.');
+        }
         if (!commands) throw new TypeError('ProjectExplorerController requires commands.');
         this.element = element;
         this.summaryElement = summaryElement;
         this.workspaceSession = workspaceSession;
         this.sourceDocuments = sourceDocuments;
         this.workbenchDocuments = workbenchDocuments;
+        this.ibmiCatalog = ibmiCatalog;
+        this.ibmiMembers = ibmiMembers;
         this.commands = commands;
         this.logger = logger;
     }
@@ -52,6 +65,8 @@ export class ProjectExplorerController {
         this.#disposeWorkspace = this.workspaceSession.onDidChange(() => this.render());
         this.#disposeSources = this.sourceDocuments.onDidChange(() => this.render());
         this.#disposeDocuments = this.workbenchDocuments.onDidChange(() => this.render());
+        this.#disposeIbmiCatalog = this.ibmiCatalog.onDidChange(() => this.render());
+        this.#disposeIbmiMembers = this.ibmiMembers.onDidChange(() => this.render());
         this.render();
     }
 
@@ -61,9 +76,13 @@ export class ProjectExplorerController {
         this.#disposeWorkspace?.();
         this.#disposeSources?.();
         this.#disposeDocuments?.();
+        this.#disposeIbmiCatalog?.();
+        this.#disposeIbmiMembers?.();
         this.#disposeWorkspace = null;
         this.#disposeSources = null;
         this.#disposeDocuments = null;
+        this.#disposeIbmiCatalog = null;
+        this.#disposeIbmiMembers = null;
     }
 
     render () {
@@ -93,13 +112,16 @@ export class ProjectExplorerController {
     }
 
     #workspaceNode (workspace) {
+        const location = this.workspaceSession.location;
         const item = this.#node();
         item.append(this.#row({
             icon: 'WS',
             label: `${this.workspaceSession.isDirty ? '* ' : ''}${workspace.name}`,
             labelClass: 'workspace-label',
-            meta: this.workspaceSession.fileName ? 'saved' : 'local',
-            title: this.workspaceSession.fileName ?? 'Unsaved workspace',
+            meta: location?.isRemote
+                ? 'IFS'
+                : this.workspaceSession.fileName ? 'file' : 'local',
+            title: location?.path ?? this.workspaceSession.fileName ?? 'Unsaved workspace',
         }));
         return item;
     }
@@ -166,6 +188,10 @@ export class ProjectExplorerController {
 
     #projectNode (project, activeProjectId) {
         const nodeId = `project:${project.id}`;
+        if (project.kind === WorkspaceProjectKind.IBMI && !this.#initializedNodes.has(nodeId)) {
+            this.#collapsedNodes.add(nodeId);
+            this.#initializedNodes.add(nodeId);
+        }
         const expanded = this.#isExpanded(nodeId);
         const item = this.#node();
         item.append(this.#row({
@@ -180,18 +206,110 @@ export class ProjectExplorerController {
             expanded,
         }));
 
-        const sources = this.sourceDocuments.documents.filter(
-            document => document.projectId === project.id);
         const children = this.#list();
-        if (!sources.length) {
-            children.append(this.#empty(project.kind === WorkspaceProjectKind.IBMI
-                ? 'Remote sources available after connection'
-                : 'Open a source file'));
+        if (project.kind === WorkspaceProjectKind.IBMI) {
+            this.#appendIbmiProjectChildren(children, project);
         } else {
+            const sources = this.sourceDocuments.documents.filter(
+                document => document.projectId === project.id);
+            if (!sources.length) children.append(this.#empty('Open a source file'));
             for (const document of sources) children.append(this.#sourceNode(document));
         }
         children.hidden = !expanded;
         item.append(children);
+        return item;
+    }
+
+    #appendIbmiProjectChildren (children, project) {
+        const state = this.ibmiCatalog.projectState(project.id);
+        if (state.status === 'idle') {
+            children.append(this.#empty('Expand to browse ILE objects'));
+            return;
+        }
+        if (state.status === 'loading') {
+            children.append(this.#empty(`Loading ${project.name}…`));
+            return;
+        }
+        if (state.status === 'error') {
+            children.append(this.#empty(state.error));
+            return;
+        }
+        if (!state.objects.length) {
+            children.append(this.#empty('No visible objects'));
+            return;
+        }
+        for (const object of state.objects) {
+            children.append(this.#ibmiObjectNode(project, state, object));
+        }
+    }
+
+    #ibmiObjectNode (project, projectState, object) {
+        const item = this.#node();
+        if (!object.isSourceFile) {
+            item.append(this.#row({
+                icon: this.#ibmiObjectIcon(object.objectType),
+                label: object.name,
+                meta: `*${object.objectType}`,
+                title: `${projectState.library}/${object.name} *${object.objectType}`,
+            }));
+            return item;
+        }
+
+        const nodeId = `ibmi-source:${project.id}:${object.name}`;
+        if (!this.#initializedNodes.has(nodeId)) {
+            this.#collapsedNodes.add(nodeId);
+            this.#initializedNodes.add(nodeId);
+        }
+        const expanded = this.#isExpanded(nodeId);
+        item.append(this.#row({
+            icon: 'SF',
+            label: object.name,
+            meta: 'SRC',
+            title: `${projectState.library}/${object.name} source physical file`,
+            nodeId,
+            expanded,
+            data: {
+                ibmiProjectId: project.id,
+                ibmiSourceFile: object.name,
+            },
+        }));
+        const members = this.#list();
+        const memberState = projectState.members.get(object.name);
+        if (!memberState || memberState.status === 'idle') {
+            members.append(this.#empty('Expand to list members'));
+        } else if (memberState.status === 'loading') {
+            members.append(this.#empty('Loading members…'));
+        } else if (memberState.status === 'error') {
+            members.append(this.#empty(memberState.error));
+        } else if (!memberState.entries.length) {
+            members.append(this.#empty('No source members'));
+        } else {
+            for (const member of memberState.entries) {
+                const loading = this.ibmiMembers.isLoading({
+                    project,
+                    sourceFile: object.name,
+                    member: member.name,
+                });
+                const memberNode = this.#node();
+                memberNode.append(this.#row({
+                    icon: loading ? '…' : 'M',
+                    label: member.name,
+                    meta: loading ? 'loading…' : member.sourceType || 'MBR',
+                    busy: loading,
+                    title: `${projectState.library}/${object.name}(${member.name})` +
+                        `${member.sourceType ? ` · ${member.sourceType}` : ''}`,
+                    data: {
+                        ibmiProjectId: project.id,
+                        ibmiSourceFile: object.name,
+                        ibmiMember: member.name,
+                        ibmiSourceType: member.sourceType,
+                    },
+                }));
+                members.append(memberNode);
+            }
+        }
+        members.hidden = !expanded;
+        item.append(members);
         return item;
     }
 
@@ -238,13 +356,16 @@ export class ProjectExplorerController {
         data = {},
         nodeId = null,
         expanded = false,
+        busy = false,
     }) {
         const row = this.element.ownerDocument.createElement('button');
         row.type = 'button';
         row.className = 'project-tree-row';
         row.classList.toggle('active', active);
+        row.classList.toggle('is-loading', busy);
         row.setAttribute('role', 'treeitem');
         row.setAttribute('aria-selected', String(active));
+        if (busy) row.setAttribute('aria-busy', 'true');
         row.title = title;
         for (const [key, value] of Object.entries(data)) row.dataset[key] = value;
 
@@ -302,7 +423,8 @@ export class ProjectExplorerController {
         if (!row) return;
         const expanderClicked = Boolean(event.target.closest('.project-tree-expander'));
         if (row.dataset.nodeId && (expanderClicked || !row.dataset.projectId)) {
-            this.#toggleNode(row.dataset.nodeId);
+            const expanded = this.#toggleNode(row.dataset.nodeId);
+            if (expanded) this.#loadIbmiNode(row);
             return;
         }
         if (row.dataset.sourceDocumentId) {
@@ -311,6 +433,19 @@ export class ProjectExplorerController {
         }
         if (row.dataset.documentId) {
             this.workbenchDocuments.activate(row.dataset.documentId);
+            return;
+        }
+        if (row.dataset.ibmiMember) {
+            const project = this.workspaceSession.workspace.projects.find(
+                entry => entry.id === row.dataset.ibmiProjectId);
+            if (project) {
+                void this.ibmiMembers.open({
+                    project,
+                    sourceFile: row.dataset.ibmiSourceFile,
+                    member: row.dataset.ibmiMember,
+                    sourceType: row.dataset.ibmiSourceType,
+                });
+            }
             return;
         }
         if (row.dataset.projectId) {
@@ -332,6 +467,27 @@ export class ProjectExplorerController {
             : kind === WorkbenchDocumentKind.DSPF_DESIGNER ? 'DSPF' : kind;
     }
 
+    #ibmiObjectIcon (objectType) {
+        if (objectType === 'PGM') return 'PG';
+        if (objectType === 'SRVPGM') return 'SV';
+        if (objectType === 'FILE') return 'PF';
+        if (objectType === 'CMD') return 'CM';
+        return 'O';
+    }
+
+    #loadIbmiNode (row) {
+        const projectId = row.dataset.ibmiProjectId ?? row.dataset.projectId;
+        if (!projectId) return;
+        const project = this.workspaceSession.workspace.projects.find(entry => entry.id === projectId);
+        if (!project || project.kind !== WorkspaceProjectKind.IBMI) return;
+        const operation = row.dataset.ibmiSourceFile
+            ? this.ibmiCatalog.loadSourceFile(project, row.dataset.ibmiSourceFile)
+            : this.ibmiCatalog.loadProject(project);
+        void operation.catch(error => {
+            this.logger.error('[ironterm] IBM i explorer load failed:', error);
+        });
+    }
+
     #isExpanded (nodeId) {
         return !this.#collapsedNodes.has(nodeId);
     }
@@ -340,5 +496,6 @@ export class ProjectExplorerController {
         if (this.#collapsedNodes.has(nodeId)) this.#collapsedNodes.delete(nodeId);
         else this.#collapsedNodes.add(nodeId);
         this.render();
+        return this.#isExpanded(nodeId);
     }
 }

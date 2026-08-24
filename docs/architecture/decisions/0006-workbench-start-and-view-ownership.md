@@ -28,6 +28,20 @@ document, and the last active document. Specialized models integrate through
 feature coordinators. The shell switches contextual surfaces based on the
 active document kind.
 
+The workbench also owns the shared editor tab strip. It renders every
+`WorkbenchDocumentService` descriptor, so generic source documents and
+specialized designers remain visible and navigable in the same place. Feature
+controllers retain responsibility for safe close behavior such as dirty-source
+confirmation; the tab controller delegates instead of discarding feature state
+directly.
+
+The DSPF designer is a shared specialized surface, not a singleton document.
+`DspfDocumentCoordinator` owns one `DspfEditorSession` per open resource and
+restores the selected session into the long-lived designer model. Each session
+preserves its model, dirty boundary, undo/redo history, resource identity, and
+read-only state. A resource index activates an existing tab when the same IBM i
+member is selected again.
+
 Markup ownership matches runtime ownership:
 
 - `index.html` contains metadata, the `#app` host, and the module entry only;
@@ -47,6 +61,10 @@ intentional accent rather than the default.
 - DSPF controls and status fields are contextual to the DSPF editor.
 - New editor kinds can add their own view, coordinator, commands, and styles
   without modifying the static HTML root.
+- A specialized designer cannot disappear from the tab strip merely because a
+  generic source editor is active.
+- Multiple DSPF members remain open independently without constructing a full
+  canvas, inspector, and source editor for every tab.
 - The last active editor can be revisited from the Start Page.
 - UI tests remain focused on stable services/controllers with injected fakes;
   no browser automation is introduced.

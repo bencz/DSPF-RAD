@@ -74,3 +74,8 @@ jobs:
         run: cargo check --locked --manifest-path src-tauri/Cargo.toml
         env:
           RUSTFLAGS: -D warnings
+
+      - name: Run native contract tests
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+        env:
+          RUSTFLAGS: -D warnings

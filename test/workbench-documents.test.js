@@ -53,9 +53,20 @@ test('closing the last active document selects a valid return target', () => {
     documents.showStartPage();
 
     documents.close('second');
+    assert.equal(documents.activeDocument, null);
     assert.equal(documents.lastActiveDocument.id, 'first');
     documents.close('first');
     assert.equal(documents.lastActiveDocument, null);
+});
+
+test('closing the active editor activates another open workbench document', () => {
+    const documents = new WorkbenchDocumentService();
+    documents.open(documentDescriptor('designer', 'DISPLAY'));
+    documents.open(documentDescriptor('source', 'PROGRAM'));
+
+    documents.close('source');
+
+    assert.equal(documents.activeDocument.id, 'designer');
 });
 
 test('DSPF coordinator exposes designer state as a workbench document', () => {
@@ -76,6 +87,50 @@ test('DSPF coordinator exposes designer state as a workbench document', () => {
     assert.equal(documents.activeDocument.title, 'ORDENTRY.DSPF');
     assert.equal(documents.activeDocument.resourceUri, 'dspf:ORDENTRY');
     assert.equal(documents.activeDocument.isDirty, true);
+
+    coordinator.stop();
+});
+
+test('DSPF coordinator keeps multiple resources open and restores each design session', () => {
+    const model = new DspfDocument();
+    const documents = new WorkbenchDocumentService();
+    const coordinator = new DspfDocumentCoordinator({
+        documentModel: model,
+        workbenchDocuments: documents,
+    });
+    coordinator.start();
+
+    const first = new DspfDocument();
+    first.sourceName = 'FIRST';
+    first.resetHistory({ markClean: true });
+    coordinator.open({
+        documentModel: first,
+        title: 'FIRST.DSPF',
+        resourceUri: 'ibmi://dev/LIB/QDDSSRC/FIRST',
+        readOnly: true,
+    });
+    model.renameRecord(0, 'FIRSTREC');
+
+    const second = new DspfDocument();
+    second.sourceName = 'SECOND';
+    second.renameRecord(0, 'SECONDREC');
+    second.resetHistory({ markClean: true });
+    coordinator.open({
+        documentModel: second,
+        title: 'SECOND.DSPF',
+        resourceUri: 'ibmi://dev/LIB/QDDSSRC/SECOND',
+        readOnly: true,
+    });
+
+    assert.equal(documents.documents.length, 2);
+    assert.equal(model.sourceName, 'SECOND');
+    assert.equal(model.activeRecord.name, 'SECONDREC');
+    assert.equal(coordinator.activateResource('ibmi://dev/LIB/QDDSSRC/FIRST'), true);
+    assert.equal(model.sourceName, 'FIRST');
+    assert.equal(model.activeRecord.name, 'FIRSTREC');
+    assert.equal(model.canUndo, true);
+    assert.equal(coordinator.activateResource('ibmi://dev/LIB/QDDSSRC/FIRST'), true);
+    assert.equal(documents.documents.length, 2);
 
     coordinator.stop();
 });

@@ -37,10 +37,10 @@
                         <span class="menu-accel">Ctrl+N</span>
                     </button></li>
                     <li><button class="menu-item" data-cmd="file.open">
-                        <span class="menu-label">Open DSPF/DDS design…</span>
+                        <span class="menu-label">Open local DSPF/DDS design…</span>
                     </button></li>
                     <li><button class="menu-item" data-cmd="source.openLocal">
-                        <span class="menu-label"><u>O</u>pen source code…</span>
+                        <span class="menu-label"><u>O</u>pen local source file…</span>
                         <span class="menu-accel">Ctrl+O</span>
                     </button></li>
                     <li><button class="menu-item" data-cmd="file.save">
@@ -56,7 +56,7 @@
                     </button></li>
                     <li class="menu-separator"></li>
                     <li><button class="menu-item" data-cmd="project.open">
-                        <span class="menu-label">Open RAD project…</span>
+                        <span class="menu-label">Open legacy DSPF design project…</span>
                     </button></li>
                     <li><button class="menu-item" data-cmd="project.save">
                         <span class="menu-label">Save RAD project…</span>
@@ -108,6 +108,20 @@
                     <li><button class="menu-item" data-cmd="workspace.save">
                         <span class="menu-label"><u>S</u>ave workspace</span>
                     </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="project.attachIbmiLibrary">
+                        <span class="menu-label">Attach IBM i libraries…</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="workspace.openIbmi">
+                        <span class="menu-label">Open workspace from IBM i IFS…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="workspace.publishIbmi">
+                        <span class="menu-label">Publish workspace to IBM i IFS…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="workspace.syncIbmi">
+                        <span class="menu-label">Synchronize IBM i workspace</span>
+                    </button></li>
                 </ul>
             </li>
 
@@ -126,6 +140,10 @@
             <li class="menu" data-menu="connection">
                 <button class="menu-title" type="button"><u>C</u>onnection</button>
                 <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="connection.manageProfiles">
+                        <span class="menu-label"><u>M</u>anage profiles…</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
                     <li><button class="menu-item" data-cmd="connection.connect">
                         <span class="menu-label"><u>C</u>onnect to IBM i</span>
                     </button></li>

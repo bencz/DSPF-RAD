@@ -45,6 +45,18 @@ class TestConnectionPort extends IbmiConnectionPort {
     }
 }
 
+class TestProfileController {
+    constructor ({ selectedProfile = null } = {}) {
+        this.selectedProfile = selectedProfile;
+        this.chooseCalls = 0;
+    }
+
+    async chooseProfile () {
+        this.chooseCalls++;
+        return this.selectedProfile;
+    }
+}
+
 function createProfiles () {
     const profiles = new ConnectionProfileStore({ storage: new MemoryStorage() }).load();
     profiles.save({
@@ -81,6 +93,7 @@ test('connection service owns the explicit IBM i session lifecycle', async () =>
     assert.equal(session.connectedAt, '2026-08-24T12:00:00.000Z');
     assert.deepEqual(port.connectRequests[0], {
         profile: profiles.get('development').toJSON(),
+        secret: null,
     });
 
     await service.disconnect();
@@ -140,8 +153,10 @@ test('connection controller resolves the active IBM i project profile', async ()
     const controller = new ConnectionController({
         service,
         profiles,
+        profileController: new TestProfileController(),
         workspaceSession: new WorkspaceSession({ workspace }),
         commands,
+        dialogs: { secret: async () => null },
         flash: message => messages.push(message),
     });
     controller.start();
@@ -152,4 +167,26 @@ test('connection controller resolves the active IBM i project profile', async ()
     assert.equal(profiles.activeProfileId, 'development');
     assert.deepEqual(messages, ['Connected to Development.']);
     assert.equal(commands.canExecute(WorkbenchCommand.CONNECTION_DISCONNECT), true);
+});
+
+test('connection command opens profile selection when no profile exists', async () => {
+    const profiles = new ConnectionProfileStore({ storage: new MemoryStorage() }).load();
+    const profileController = new TestProfileController();
+    const commands = new CommandRegistry();
+    const controller = new ConnectionController({
+        service: new IbmiConnectionService({ profiles, port: new TestConnectionPort() }),
+        profiles,
+        profileController,
+        workspaceSession: new WorkspaceSession({ workspace: Workspace.createScratch() }),
+        commands,
+        dialogs: { secret: async () => null },
+    });
+    controller.start();
+
+    assert.equal(commands.canExecute(WorkbenchCommand.CONNECTION_CONNECT), true);
+    const result = await commands.execute(WorkbenchCommand.CONNECTION_CONNECT);
+
+    assert.equal(result.executed, true);
+    assert.equal(result.value, false);
+    assert.equal(profileController.chooseCalls, 1);
 });

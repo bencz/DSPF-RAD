@@ -1,5 +1,13 @@
-<div class="workbench-area">
+<div class="workbench-area" id="workbenchArea">
     <aside class="workbench-explorer-region" id="projectExplorerHost"
            aria-label="Project Explorer"></aside>
-    <div class="workbench-editor-region" id="editorPart"></div>
+    <div class="workbench-explorer-splitter" id="workbenchExplorerSplitter"
+         role="separator" aria-label="Resize Project Explorer"
+         aria-orientation="vertical" aria-valuemin="190" aria-valuemax="520"
+         aria-valuenow="238" tabindex="0"></div>
+    <div class="workbench-editor-region">
+        <div class="workbench-editor-tabs" id="workbenchEditorTabs" role="tablist"
+             aria-label="Open editors" hidden></div>
+        <div class="workbench-editor-content" id="editorPart"></div>
+    </div>
 </div>

@@ -4,6 +4,9 @@ import { WorkbenchShellView } from '../shell/WorkbenchShellView.js';
 import { StartPageView } from '../start/StartPageView.js';
 import { WorkbenchAreaView } from '../layout/WorkbenchAreaView.js';
 import { ProjectExplorerView } from '../explorer/ProjectExplorerView.js';
+import {
+    ConnectionProfileDialogView,
+} from '../../features/ibmi-connections/ConnectionProfileDialogView.js';
 
 export class WorkbenchView {
     constructor ({ documentRef }) {
@@ -11,6 +14,7 @@ export class WorkbenchView {
         this.shell = new WorkbenchShellView({ documentRef });
         this.area = new WorkbenchAreaView({ documentRef });
         this.projectExplorer = new ProjectExplorerView({ documentRef });
+        this.connectionProfiles = new ConnectionProfileDialogView({ documentRef });
         this.startPage = new StartPageView({ documentRef });
         this.dspfEditor = new DspfEditorView({ documentRef });
         this.sourceCodeEditor = new SourceCodeEditorView({ documentRef });
@@ -29,5 +33,6 @@ export class WorkbenchView {
             overlayHost: this.document.body,
         });
         this.sourceCodeEditor.mount(editorHost);
+        this.connectionProfiles.mount(this.document.body);
     }
 }

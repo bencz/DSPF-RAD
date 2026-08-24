@@ -140,6 +140,33 @@ export class DspfDocument {
         this._notify({ clean: true, dirty: false });
     }
 
+    copySessionFrom (source) {
+        if (!(source instanceof DspfDocument)) {
+            throw new TypeError('DSPF session source must be a DspfDocument.');
+        }
+        const restored = DspfDocument.fromJSON(source.toJSON());
+        this.modelKey = restored.modelKey;
+        this.sourceName = restored.sourceName;
+        this.records = restored.records;
+        this.activeRecordIndex = restored.activeRecordIndex;
+        this.showOverlay = restored.showOverlay;
+        this.hideConditioned = restored.hideConditioned;
+        this.aidActions = restored.aidActions;
+        this._history = source._history.map(entry => ({ ...entry }));
+        this._future = source._future.map(entry => ({ ...entry }));
+        this._transactionDepth = 0;
+        this._transactionBefore = null;
+        this._transactionLabel = '';
+        this._transactionTouched = false;
+        this._currentSnapshot = source._currentSnapshot;
+        this._cleanSnapshot = source._cleanSnapshot;
+        this._notify({
+            changed: true,
+            sessionRestored: true,
+            dirty: this.isDirty,
+        });
+    }
+
     // ---- mutations ----
 
     setModel (key) {

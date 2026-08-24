@@ -43,12 +43,16 @@ export class IbmiConnectionService {
     }
 
     canConnect (profileId = this.profiles.activeProfileId) {
-        return this.port.available && Boolean(this.profiles.get(profileId)) &&
+        return Boolean(this.profiles.get(profileId)) && this.canStartConnection();
+    }
+
+    canStartConnection () {
+        return this.port.available &&
             (this.state === IbmiConnectionState.DISCONNECTED ||
              this.state === IbmiConnectionState.FAILED);
     }
 
-    async connect (profileId = this.profiles.activeProfileId) {
+    async connect (profileId = this.profiles.activeProfileId, { secret = null } = {}) {
         const profile = this.profiles.get(profileId);
         if (!profile) throw new Error(`Unknown connection profile: ${profileId ?? 'none'}`);
         if (!this.port.available) throw new IbmiConnectionUnavailableError(this.port.kind);
@@ -69,7 +73,10 @@ export class IbmiConnectionService {
         this.error = null;
         this.#transition(IbmiConnectionState.CONNECTING);
         try {
-            const result = await this.port.connect({ profile: profile.toJSON() });
+            const result = await this.port.connect({
+                profile: profile.toJSON(),
+                secret,
+            });
             this.session = IbmiConnectionSession.fromConnectionResult(
                 profile, result, this.clock());
             this.#transition(IbmiConnectionState.CONNECTED);

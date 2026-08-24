@@ -1,18 +1,37 @@
 import { Workspace } from './Workspace.js';
+import { WorkspaceStorageLocation } from './persistence/WorkspaceStorageLocation.js';
 
 export class WorkspaceSession {
     #workspaceDispose = null;
     #listeners = new Set();
 
-    constructor ({ workspace = Workspace.createScratch(), fileName = null } = {}) {
+    constructor ({
+        workspace = Workspace.createScratch(),
+        fileName = null,
+        location = null,
+        revision = null,
+        markClean = true,
+    } = {}) {
         this.workspace = null;
         this.fileName = fileName;
+        this.location = null;
+        this.revision = null;
         this.isDirty = false;
-        this.replace(workspace, { fileName, markClean: true, emit: false });
+        this.replace(workspace, {
+            fileName,
+            location,
+            revision,
+            markClean,
+            emit: false,
+        });
     }
 
     replace (workspace, {
-        fileName = null, markClean = true, emit = true,
+        fileName = null,
+        location = null,
+        revision = null,
+        markClean = true,
+        emit = true,
     } = {}) {
         if (!(workspace instanceof Workspace)) {
             throw new TypeError('WorkspaceSession requires a Workspace instance.');
@@ -20,6 +39,8 @@ export class WorkspaceSession {
         this.#workspaceDispose?.();
         this.workspace = workspace;
         this.fileName = fileName;
+        this.location = WorkspaceStorageLocation.fromJSON(location);
+        this.revision = optionalText(revision);
         this.isDirty = !markClean;
         this.#workspaceDispose = workspace.onDidChange(event => {
             this.isDirty = true;
@@ -28,9 +49,17 @@ export class WorkspaceSession {
         if (emit) this.#emit('workspace.replaced');
     }
 
-    markClean (fileName = this.fileName) {
-        const changed = this.isDirty || fileName !== this.fileName;
+    markClean (fileName = this.fileName, {
+        location = this.location,
+        revision = this.revision,
+    } = {}) {
+        const normalizedLocation = WorkspaceStorageLocation.fromJSON(location);
+        const normalizedRevision = optionalText(revision);
+        const changed = this.isDirty || fileName !== this.fileName ||
+            normalizedLocation !== this.location || normalizedRevision !== this.revision;
         this.fileName = fileName;
+        this.location = normalizedLocation;
+        this.revision = normalizedRevision;
         this.isDirty = false;
         if (changed) this.#emit('workspace.saved');
     }
@@ -58,8 +87,23 @@ export class WorkspaceSession {
         this.#listeners.clear();
     }
 
+    describe () {
+        return Object.freeze({
+            workspaceId: this.workspace.id,
+            fileName: this.fileName,
+            location: this.location?.toJSON() ?? null,
+            revision: this.revision,
+            isDirty: this.isDirty,
+        });
+    }
+
     #emit (type) {
         const event = Object.freeze({ type, session: this, workspace: this.workspace });
         for (const listener of this.#listeners) listener(event);
     }
+}
+
+function optionalText (value) {
+    const text = String(value ?? '').trim();
+    return text || null;
 }

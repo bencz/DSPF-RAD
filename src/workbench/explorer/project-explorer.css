@@ -15,7 +15,7 @@
 .project-explorer-toolbar {
     flex: 0 0 auto;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 2px;
     padding: 3px;
     border-bottom: 1px solid var(--w98-shadow);
@@ -81,6 +81,16 @@
 .project-tree-row.active {
     color: var(--fg-on-accent);
     background: var(--w98-navy);
+}
+
+.project-tree-row.is-loading .project-tree-icon,
+.project-tree-row.is-loading .project-tree-meta {
+    color: var(--w98-navy);
+}
+
+.project-tree-row.is-loading .project-tree-meta {
+    max-width: 72px;
+    text-transform: none;
 }
 
 .project-tree-icon {

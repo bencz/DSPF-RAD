@@ -101,6 +101,15 @@
     color: var(--fg-text);
 }
 
+.start-actions-secondary {
+    gap: var(--space-2);
+}
+
+.start-actions-secondary > button {
+    min-height: 42px;
+    padding: 5px 8px;
+}
+
 .start-environment {
     margin: 0;
     padding: var(--space-4) var(--space-5);

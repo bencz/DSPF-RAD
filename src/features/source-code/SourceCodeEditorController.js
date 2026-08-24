@@ -46,9 +46,6 @@ export class SourceCodeEditorController {
         this.stop();
         this.#abortController = new AbortController();
         const signal = this.#abortController.signal;
-        this.elements.tabs.addEventListener('click', event => this.#handleTabClick(event), {
-            signal,
-        });
         this.elements.save.addEventListener('click', () => {
             void this.saveActive();
         }, { signal });
@@ -71,6 +68,7 @@ export class SourceCodeEditorController {
                 category: 'File',
                 execute: () => this.saveActive(),
                 isEnabled: () => this.#sourceEditorActive() &&
+                    !this.documents.activeDocument?.readOnly &&
                     this.host.supports(HostCapability.SAVE_LOCAL_TEXT),
             }),
             this.commands.register({
@@ -123,6 +121,10 @@ export class SourceCodeEditorController {
     async saveActive () {
         const document = this.documents.activeDocument;
         if (!document) return false;
+        if (document.readOnly) {
+            this.flash?.(`${document.name} is read-only.`, 'error');
+            return false;
+        }
         try {
             await this.host.saveTextFile({
                 suggestedName: document.name,
@@ -155,8 +157,12 @@ export class SourceCodeEditorController {
         return this.documents.close(document.id);
     }
 
+    async closeWorkbenchDocument (workbenchDocumentId) {
+        const document = this.documents.getForWorkbenchDocument(workbenchDocumentId);
+        return document ? this.close(document.id) : false;
+    }
+
     render () {
-        this.#renderTabs();
         const document = this.documents.activeDocument;
         if (!document || !this.#sourceEditorActive()) return;
         this.editor.open(document);
@@ -165,47 +171,11 @@ export class SourceCodeEditorController {
         this.elements.statusLanguage.textContent =
             document.sourceType || language?.label || document.languageId;
         this.elements.resource.textContent =
-            document.sourceType ? `${document.sourceType} · ${document.resourceUri ?? 'local'}`
+            document.sourceType ? `${document.sourceType} · ${document.resourceUri ?? 'local'}` +
+                `${document.readOnly ? ' · read-only' : ''}`
                 : document.resourceUri ?? 'local';
-        this.elements.save.disabled = !this.host.supports(HostCapability.SAVE_LOCAL_TEXT);
-    }
-
-    #renderTabs () {
-        this.elements.tabs.replaceChildren(...this.documents.documents.map(document => {
-            const tab = this.elements.tabs.ownerDocument.createElement('button');
-            tab.type = 'button';
-            tab.className = 'source-code-tab';
-            tab.dataset.documentId = document.id;
-            tab.setAttribute('role', 'tab');
-            const active = this.documents.activeDocument?.id === document.id &&
-                this.#sourceEditorActive();
-            tab.classList.toggle('active', active);
-            tab.setAttribute('aria-selected', String(active));
-
-            const label = this.elements.tabs.ownerDocument.createElement('span');
-            label.className = 'source-code-tab-label';
-            label.textContent = `${document.isDirty ? '* ' : ''}${document.name}`;
-            tab.append(label);
-
-            const close = this.elements.tabs.ownerDocument.createElement('span');
-            close.className = 'source-code-tab-close';
-            close.dataset.action = 'close';
-            close.setAttribute('aria-label', `Close ${document.name}`);
-            close.textContent = '×';
-            tab.append(close);
-            return tab;
-        }));
-    }
-
-    #handleTabClick (event) {
-        const tab = event.target.closest('[data-document-id]');
-        if (!tab) return;
-        const documentId = tab.dataset.documentId;
-        if (event.target.closest('[data-action="close"]')) {
-            void this.close(documentId);
-            return;
-        }
-        this.documents.activate(documentId);
+        this.elements.save.disabled = document.readOnly ||
+            !this.host.supports(HostCapability.SAVE_LOCAL_TEXT);
     }
 
     #sourceEditorActive () {

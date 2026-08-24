@@ -1,6 +1,7 @@
 import { HostCapability } from '../../platform/host/capabilities.js';
 import { WorkbenchCommand } from '../commands/commandIds.js';
 import { Workspace } from './Workspace.js';
+import { WorkspaceStorageLocation } from './persistence/WorkspaceStorageLocation.js';
 
 export class WorkspaceController {
     #unregister = [];
@@ -81,7 +82,12 @@ export class WorkspaceController {
             const file = await this.host.openTextFile({ accept: '.itworkspace,.json' });
             if (!file) return false;
             const workspace = Workspace.fromJSON(JSON.parse(file.text));
-            this.session.replace(workspace, { fileName: file.name, markClean: true });
+            this.session.replace(workspace, {
+                fileName: file.name,
+                location: WorkspaceStorageLocation.localFile(file.name),
+                revision: null,
+                markClean: true,
+            });
             this.flash?.(`Opened workspace ${workspace.name}.`, 'ok');
             return true;
         } catch (error) {
@@ -99,7 +105,10 @@ export class WorkspaceController {
                 text: JSON.stringify(this.session.workspace.toJSON(), null, 2) + '\n',
                 mime: 'application/json;charset=utf-8',
             });
-            this.session.markClean(name);
+            this.session.markClean(name, {
+                location: WorkspaceStorageLocation.localFile(name),
+                revision: null,
+            });
             this.flash?.(`Saved workspace ${name}.`, 'ok');
             return true;
         } catch (error) {

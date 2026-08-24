@@ -37,3 +37,19 @@ test('source document supports intentionally dirty new documents', () => {
     assert.equal(document.isDirty, true);
     assert.equal(Object.isFrozen(document.describe()), true);
 });
+
+test('read-only remote source documents reject editor mutations', () => {
+    const document = new SourceDocument({
+        id: 'ibmi:member',
+        name: 'PGMRADCHK.RPGLE',
+        languageId: 'rpgle',
+        text: '**free\nreturn;',
+        resourceUri: 'ibmi://pub400/BENCZ1/QRPGLESRC/PGMRADCHK',
+        readOnly: true,
+        revision: 'sha256:source',
+    });
+
+    assert.throws(() => document.replaceText('changed'), /read-only/);
+    assert.equal(document.isDirty, false);
+    assert.equal(document.describe().revision, 'sha256:source');
+});

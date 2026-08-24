@@ -18,12 +18,15 @@ export class WorkspaceStatusController {
     }
 
     render () {
-        const { workspace, isDirty, fileName } = this.session;
+        const { workspace, isDirty, fileName, location } = this.session;
         const active = workspace.activeProject;
+        const storage = location?.isRemote
+            ? `IBM i IFS (${location.path})`
+            : fileName ? `Local file (${fileName})` : 'Local cache';
         this.element.textContent = `${isDirty ? '* ' : ''}${workspace.name}`;
         this.element.classList.toggle('dirty', isDirty);
         this.element.title = active
-            ? `Workspace: ${workspace.name}\nFile: ${fileName ?? 'not saved'}\nActive project: ${active.name} (${active.kind})`
-            : `Workspace: ${workspace.name}\nFile: ${fileName ?? 'not saved'}\nNo active project`;
+            ? `Workspace: ${workspace.name}\nStorage: ${storage}\nActive project: ${active.name} (${active.kind})`
+            : `Workspace: ${workspace.name}\nStorage: ${storage}\nNo active project`;
     }
 }

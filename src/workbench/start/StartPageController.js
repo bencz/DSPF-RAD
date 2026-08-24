@@ -59,6 +59,23 @@ export class StartPageController {
         if (runtime) runtime.textContent = this.host?.kind === 'browser' ? 'Browser · offline ready' : this.host?.kind;
         const connection = this.element.querySelector('[data-role="connection"]');
         if (connection) connection.textContent = this.connectionService?.state ?? 'unavailable';
+        const profile = this.element.querySelector('[data-role="profile"]');
+        if (profile) {
+            const activeProfile = this.connectionService?.profile ??
+                this.connectionService?.profiles?.activeProfile;
+            profile.textContent = activeProfile
+                ? `${activeProfile.name} · ${activeProfile.host}`
+                : 'not configured';
+        }
+        const library = this.element.querySelector('[data-role="library"]');
+        if (library) {
+            const projects = this.workspaceSession?.workspace.projects
+                .filter(project => project.kind === 'ibmi') ?? [];
+            library.textContent = projects.length === 1
+                ? projects[0].name
+                : projects.length ? `${projects.length} attached` : 'not attached';
+            library.title = projects.map(project => project.name).join(', ');
+        }
         this.#syncCommandStates();
     }
 

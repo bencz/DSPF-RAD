@@ -10,6 +10,8 @@ export class SourceDocument {
         text = '',
         resourceUri = null,
         projectId = null,
+        readOnly = false,
+        revision = null,
         markClean = true,
     }) {
         this.id = requiredText(id, 'Source document id');
@@ -18,6 +20,8 @@ export class SourceDocument {
         this.sourceType = String(sourceType ?? '').trim().toUpperCase();
         this.resourceUri = optionalText(resourceUri);
         this.projectId = optionalText(projectId);
+        this.readOnly = Boolean(readOnly);
+        this.revision = optionalText(revision);
         this.text = String(text ?? '');
         this.version = 1;
         this.#cleanText = markClean ? this.text : null;
@@ -28,6 +32,7 @@ export class SourceDocument {
     }
 
     replaceText (text, { source = 'editor' } = {}) {
+        if (this.readOnly) throw new Error(`Source document ${this.name} is read-only.`);
         const next = String(text ?? '');
         if (next === this.text) return false;
         this.text = next;
@@ -70,6 +75,8 @@ export class SourceDocument {
             projectId: this.projectId,
             version: this.version,
             isDirty: this.isDirty,
+            readOnly: this.readOnly,
+            revision: this.revision,
         });
     }
 

@@ -1,0 +1,74 @@
+<dialog class="window connection-profile-dialog" id="connectionProfileDialog"
+        aria-labelledby="connectionProfileDialogTitle">
+    <div class="title-bar">
+        <div class="title-bar-text" id="connectionProfileDialogTitle">IBM i Connection Profiles</div>
+        <div class="title-bar-controls">
+            <button type="button" data-action="close" aria-label="Close"></button>
+        </div>
+    </div>
+    <div class="window-body connection-profile-body">
+        <div class="connection-profile-layout">
+            <section class="connection-profile-list-pane">
+                <label for="connectionProfileList">Profiles</label>
+                <select id="connectionProfileList" size="10"
+                        aria-label="IBM i connection profiles"></select>
+                <div class="connection-profile-list-actions">
+                    <button type="button" data-action="new">New</button>
+                    <button type="button" id="connectionProfileDelete"
+                            data-action="delete">Delete</button>
+                </div>
+            </section>
+            <form id="connectionProfileForm" class="connection-profile-form">
+                <input type="hidden" id="connectionProfileId">
+                <label for="connectionProfileName">Profile name</label>
+                <input id="connectionProfileName" maxlength="80" required>
+
+                <div class="connection-profile-host-row">
+                    <div>
+                        <label for="connectionProfileHost">Host or address</label>
+                        <input id="connectionProfileHost" maxlength="255" required>
+                    </div>
+                    <div>
+                        <label for="connectionProfilePort">SSH port</label>
+                        <input id="connectionProfilePort" type="number" min="1" max="65535"
+                               value="22" required>
+                    </div>
+                </div>
+
+                <label for="connectionProfileUsername">IBM i user</label>
+                <input id="connectionProfileUsername" maxlength="128" autocomplete="username"
+                       required>
+
+                <label for="connectionProfileAuthentication">Authentication</label>
+                <select id="connectionProfileAuthentication">
+                    <option value="agent">SSH Agent</option>
+                    <option value="password">Password (ask each connection)</option>
+                </select>
+                <p class="connection-profile-note" id="connectionProfileAuthenticationNote">
+                    Load an accepted identity into your operating-system SSH Agent.
+                </p>
+
+                <label for="connectionProfileDefaultLibrary">Default library</label>
+                <input id="connectionProfileDefaultLibrary" maxlength="10" value="*CURLIB">
+
+                <label for="connectionProfileLibraryList">Library list</label>
+                <input id="connectionProfileLibraryList"
+                       placeholder="MYLIB, COMMON, QGPL">
+
+                <label for="connectionProfileSourceCcsid">Source member CCSID</label>
+                <input id="connectionProfileSourceCcsid" maxlength="5" value="*FILE"
+                       placeholder="*FILE or 37">
+                <p class="connection-profile-note">
+                    Use *FILE normally. Enter a numeric CCSID only when legacy source bytes do not
+                    match the source physical file metadata.
+                </p>
+                <p class="connection-profile-validation" id="connectionProfileValidation"
+                   role="alert"></p>
+                <div class="connection-profile-form-actions">
+                    <button type="submit">Save and use</button>
+                    <button type="button" data-action="close">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog>

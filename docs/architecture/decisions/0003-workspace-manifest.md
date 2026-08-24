@@ -19,6 +19,11 @@ Connection profiles are separate platform data. A desktop host may place their
 secrets in an operating-system credential store; a workspace only references
 the non-secret profile ID.
 
+The place where the manifest itself is stored is also separate metadata. A
+local file name or IBM i IFS path, its local connection-profile mapping, and an
+opaque remote revision belong to `WorkspaceSession` and its cache, not inside
+the portable manifest. See ADR 0011.
+
 DSPF design state and generated source also remain separate from the workspace.
 The manifest organizes projects; it is not a catch-all persistence container.
 

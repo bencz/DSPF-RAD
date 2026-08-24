@@ -3,6 +3,7 @@ import { EditorState } from '@codemirror/state';
 import { EditorView, basicSetup } from 'codemirror';
 
 import { clCodeMirrorExtensions } from './clCodeMirrorLanguage.js';
+import { ddsCodeMirrorExtensions } from './ddsCodeMirrorLanguage.js';
 
 export class SourceCodeEditor {
     #states = new Map();
@@ -22,7 +23,7 @@ export class SourceCodeEditor {
         this.onDocumentChanged = onDocumentChanged;
         this.onCursorChanged = onCursorChanged;
         this.view = new EditorView({
-            state: this.#createState('', 'plaintext'),
+            state: this.#createState({ text: '', languageId: 'plaintext', readOnly: false }),
             parent,
         });
     }
@@ -39,7 +40,7 @@ export class SourceCodeEditor {
         }
         this.#activeDocument = document;
         const state = this.#states.get(document.id) ??
-            this.#createState(document.text, document.languageId);
+            this.#createState(document);
         this.#states.set(document.id, state);
         this.#internal = true;
         try {
@@ -65,12 +66,14 @@ export class SourceCodeEditor {
         this.view.destroy();
     }
 
-    #createState (text, languageId) {
-        const languageExtensions = languageId === 'cl' ? clCodeMirrorExtensions : [];
+    #createState ({ text, languageId, readOnly = false }) {
+        const languageExtensions = this.#languageExtensions(languageId);
         return EditorState.create({
             doc: text,
             extensions: [
                 basicSetup,
+                EditorState.readOnly.of(readOnly),
+                EditorView.editable.of(!readOnly),
                 ...languageExtensions,
                 autocompletion({
                     override: [context => this.#complete(context, languageId)],
@@ -91,6 +94,12 @@ export class SourceCodeEditor {
                 }, { dark: true }),
             ],
         });
+    }
+
+    #languageExtensions (languageId) {
+        if (languageId === 'cl') return clCodeMirrorExtensions;
+        if (languageId.startsWith('dds')) return ddsCodeMirrorExtensions;
+        return [];
     }
 
     #complete (context, languageId) {

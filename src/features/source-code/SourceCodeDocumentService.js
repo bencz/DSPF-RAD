@@ -25,6 +25,10 @@ export class SourceCodeDocumentService {
         return activeId ? this.#documents.get(activeId) ?? null : null;
     }
 
+    getForWorkbenchDocument (workbenchDocumentId) {
+        return this.#documents.get(String(workbenchDocumentId)) ?? null;
+    }
+
     open (sourceDocument) {
         const workbenchId = this.#workbenchId(sourceDocument.id);
         if (!this.#documents.has(workbenchId)) {
@@ -51,8 +55,6 @@ export class SourceCodeDocumentService {
         this.#disposables.delete(workbenchId);
         this.#documents.delete(workbenchId);
         this.workbenchDocuments.close(workbenchId);
-        const next = this.documents.at(-1);
-        if (next) this.activate(next.id);
         this.#emit('document.closed', document);
         return true;
     }

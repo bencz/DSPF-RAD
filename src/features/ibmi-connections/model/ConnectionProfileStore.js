@@ -29,7 +29,7 @@ export class ConnectionProfileStore {
                 ? data.activeProfileId
                 : profiles[0]?.id ?? null;
         } catch (error) {
-            this.logger.warn('[ironterm] connection profiles could not be loaded:', error);
+            this.logger.error('[ironterm] connection profiles could not be loaded:', error);
             this.#profiles.clear();
             this.activeProfileId = null;
         }

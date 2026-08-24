@@ -1,10 +1,13 @@
 import { BrowserHostBridge } from './BrowserHostBridge.js';
+import { TauriHostBridge } from './TauriHostBridge.js';
 
 export { HostBridge, UnsupportedHostOperationError } from './HostBridge.js';
 export { BrowserHostBridge } from './BrowserHostBridge.js';
+export { TauriHostBridge } from './TauriHostBridge.js';
 export { HostCapability } from './capabilities.js';
 
 export function createHostBridge (options) {
-    // TauriHostBridge will be selected here once the desktop shell lands.
-    return new BrowserHostBridge(options);
+    return typeof globalThis.__TAURI_INTERNALS__ === 'object'
+        ? new TauriHostBridge(options)
+        : new BrowserHostBridge(options);
 }

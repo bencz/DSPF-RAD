@@ -92,6 +92,8 @@ export class WorkbenchDialogView extends HtmlTemplateView {
         elements.field.hidden = specification.kind !== 'prompt';
         elements.label.textContent = specification.label;
         elements.input.value = specification.value;
+        elements.input.type = specification.inputType;
+        elements.input.autocomplete = specification.autocomplete;
         elements.input.placeholder = specification.placeholder;
         elements.input.maxLength = specification.maxLength;
         elements.cancel.textContent = specification.cancelLabel;
@@ -139,6 +141,7 @@ export class WorkbenchDialogView extends HtmlTemplateView {
         const pending = this.#pending;
         if (!pending) return;
         this.#pending = null;
+        if (pending.specification.inputType === 'password') this.elements.input.value = '';
         if (typeof this.elements.dialog.close === 'function') this.elements.dialog.close();
         else this.elements.dialog.removeAttribute('open');
         pending.resolve(result);

@@ -1,4 +1,5 @@
 .workbench-area {
+    --explorer-width: 238px;
     flex: 1 1 auto;
     min-width: 0;
     min-height: 0;
@@ -7,13 +8,39 @@
 }
 
 .workbench-explorer-region {
-    flex: 0 0 238px;
-    width: 238px;
+    flex: 0 0 var(--explorer-width);
+    width: var(--explorer-width);
     min-width: 190px;
     min-height: 0;
     padding: 3px 0 3px 3px;
     box-sizing: border-box;
     background: var(--w98-face);
+}
+
+.workbench-explorer-splitter {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 5px;
+    width: 5px;
+    min-height: 0;
+    cursor: col-resize;
+    background: var(--w98-face);
+    border-left: 1px solid var(--w98-white);
+    border-right: 1px solid var(--w98-shadow);
+    box-sizing: border-box;
+    touch-action: none;
+}
+
+.workbench-explorer-splitter:hover,
+.workbench-explorer-splitter:focus-visible,
+.workbench-area.is-resizing-explorer .workbench-explorer-splitter {
+    background: color-mix(in srgb, var(--w98-navy) 22%, var(--w98-face));
+    outline: none;
+}
+
+.workbench-area.is-resizing-explorer {
+    cursor: col-resize;
+    user-select: none;
 }
 
 .workbench-editor-region {
@@ -25,9 +52,11 @@
     overflow: hidden;
 }
 
-@media (max-width: 820px) {
-    .workbench-explorer-region {
-        flex-basis: 190px;
-        width: 190px;
-    }
+.workbench-editor-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }

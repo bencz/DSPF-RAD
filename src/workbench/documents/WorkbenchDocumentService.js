@@ -71,9 +71,12 @@ export class WorkbenchDocumentService {
         const document = this.#documents.get(documentId);
         if (!document) return false;
         this.#documents.delete(documentId);
-        if (this.activeDocumentId === documentId) this.activeDocumentId = null;
+        if (this.activeDocumentId === documentId) {
+            this.activeDocumentId = this.documents.at(-1)?.id ?? null;
+        }
         if (this.#lastActiveDocumentId === documentId) {
-            this.#lastActiveDocumentId = this.documents.at(-1)?.id ?? null;
+            this.#lastActiveDocumentId = this.activeDocumentId ??
+                this.documents.at(-1)?.id ?? null;
         }
         this.#emit('document.closed', document);
         return true;
