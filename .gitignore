@@ -69,3 +69,6 @@ open-pencil/
 
 # Conversion output written by pnpm generate:*/convert
 generated/
+
+# Design overlay projection output
+design-overrides/

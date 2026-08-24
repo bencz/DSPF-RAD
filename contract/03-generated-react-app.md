@@ -172,11 +172,11 @@ adjust layout/components in OpenPencil → save .fig
 
 ### Override rules
 
-- Node naming convention carries the binding: a node named `dspf:<sourceIdentity>` becomes an override for that source object. Nodes without the prefix are ignored.
-- Overrides may set only **target-side** values: `targetRow`, `targetCol` (1–12 grid), `span`, `component` (must appear in the allowed MUI inventory in section 5), optional `labelPlacement`.
+- Node naming convention carries the binding: a node named `<sourceIdentity>` or `dspf:<sourceIdentity>` (both spellings normalize to the canonical downstream form) becomes an override for that source object. Nodes without the prefix and not matching the identity shape are recorded as info diagnostics.
+- Overrides may set only **target-side** values: `targetRow`, `targetCol` (1–12 grid), `span`, `component` (must appear in the allowed MUI inventory in section 5, matched space-insensitively), optional `labelPlacement`.
 - Overrides never touch `sourceIdentity`, source geometry, or DSPF semantics. The conversion core still owns source truth.
-- Extraction is deterministic and total: unknown nodes land in `diagnostics`, never silently dropped.
-- `layout-overrides.json` is a versioned projection. Hash it into the conversion receipt next to the mapping hash.
+- Extraction is deterministic and total: unknown nodes, malformed identities, duplicate bindings (first wins), and empty overrides land in `diagnostics`, never silently dropped.
+- `layout-overrides.json` is a versioned projection. Hash it into the conversion receipt next to the mapping hash; output directory `design-overrides/` is gitignored.
 
 ### Component libraries and page templates
 
