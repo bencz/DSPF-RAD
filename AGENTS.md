@@ -106,6 +106,23 @@ Use the language already used by the surrounding code. Public names and
 product-facing copy are in English unless a specific localization task says
 otherwise.
 
+## Hard quality rules
+
+These rules are non-negotiable:
+
+- The `any` type is prohibited in TypeScript, JavaScript type annotations,
+  JSDoc, declarations, tests, and application-owned configuration. Use a
+  precise type or `unknown`, then validate and narrow it at the boundary.
+- A warning is an error. New or existing warnings encountered in the changed
+  area must be fixed; do not suppress, hide, downgrade, or ignore them to make
+  validation pass.
+- Documentation is part of the implementation. Every change to product scope,
+  behavior, architecture, public contracts, persisted formats, commands,
+  platform capabilities, setup, or release flow must update the relevant
+  documentation in the same change.
+- Do not merge or hand off code with unresolved warnings, stale documentation,
+  or an untyped escape hatch.
+
 ## UI direction
 
 The shell is inspired by the productive density of Visual Studio 6 and the
@@ -121,6 +138,17 @@ The target shell includes:
 
 Do not hard-code the entire workbench around the DSPF canvas. Designers are
 document/editor types hosted by the broader shell.
+
+`index.html` is only the static application host and metadata boundary. Do not
+place workbench menus, panels, editor markup, feature dialogs, or feature styles
+in it. Class-based views compose feature-owned HTML templates into the shell:
+shared chrome belongs under `src/workbench`, while specialized markup and CSS
+belong under the owning `src/features/<feature>` directory. `styles.css` is
+only the ordered style import manifest.
+
+Use the shared typography and spacing tokens. Pixel fonts are acceptable for
+deliberate terminal/brand accents, not for normal labels, help text, menus,
+forms, inspectors, or status information. Dense should remain readable.
 
 ## IBM i connectivity and credentials
 
@@ -165,6 +193,7 @@ Add focused Node tests for pure behavior and stable contracts, including:
 For normal JavaScript changes, completion requires:
 
 ```sh
+npm run quality:policy
 npm test
 npm run build
 ```
@@ -220,6 +249,8 @@ While editing:
 4. Add or update tests for domain behavior without adding browser automation.
 5. Update documentation when changing an architectural contract, persisted
    format, security boundary, product scope, or release process.
+6. Never introduce `any`; validate `unknown` input at its boundary.
+7. Treat every compiler, linter, test-runner, and build warning as a failure.
 
 Before handing off:
 
@@ -227,6 +258,7 @@ Before handing off:
 2. Review the diff for accidental scope changes, credentials, debug output, and
    stale DSPF-only product language.
 3. State what was completed, what was verified, and any real external blocker.
+4. Confirm that documentation changed with the implementation where required.
 
 Do not commit, push, create releases, delete material user data, or broaden
 native permissions unless the user requested that action. When asked for a
@@ -238,4 +270,3 @@ commit message, use one concise line.
 - `docs/architecture/README.md` describes dependency boundaries and migration.
 - `docs/architecture/decisions/` records durable architectural decisions.
 - `README.md` describes the product, current capabilities, and known limits.
-

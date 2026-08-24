@@ -1,0 +1,213 @@
+<!-- Outer shell fills the viewport. In Tauri, this title bar replaces the
+     operating-system decoration and owns native window gestures. In a browser,
+     the native window controls remain hidden. -->
+<div class="window app-window">
+    <div class="title-bar app-titlebar" id="appTitlebar">
+        <div class="title-bar-text">
+            <span class="app-brand-mark">ILE</span> IronTerm Studio - IBM i Development Environment
+        </div>
+        <div class="title-bar-controls desktop-window-controls"
+             id="desktopWindowControls" hidden>
+            <button id="windowMinimize" type="button" aria-label="Minimize"
+                    title="Minimize"></button>
+            <button id="windowMaximize" type="button" aria-label="Maximize"
+                    title="Maximize or restore"></button>
+            <button id="windowClose" type="button" aria-label="Close"
+                    title="Close"></button>
+        </div>
+    </div>
+
+    <div class="app-body">
+
+        <!-- Classic Win98 menubar.  Each top-level <li> is a menu (File,
+             Record, View, Export, Help) with a .menu-title button and a
+             .menu-dropdown <ul> that appears on click.  Menu items carry
+             a semantic data-cmd resolved by the workbench command registry.
+             Transitional command adapters still invoke existing controls while
+             features are migrated out of the bootstrap incrementally.
+
+             Access keys are marked with <u>X</u> for visual hint only;
+             we don't bind Alt+letter (avoids fighting browser defaults). -->
+        <menu id="menubar" role="menubar">
+            <li class="menu" data-menu="file">
+                <button class="menu-title" type="button"><u>F</u>ile</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="file.new">
+                        <span class="menu-label"><u>N</u>ew</span>
+                        <span class="menu-accel">Ctrl+N</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="file.open">
+                        <span class="menu-label"><u>O</u>pen…</span>
+                        <span class="menu-accel">Ctrl+O</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="file.save">
+                        <span class="menu-label"><u>S</u>ave</span>
+                        <span class="menu-accel">Ctrl+S</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="project.open">
+                        <span class="menu-label">Open RAD project…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="project.save">
+                        <span class="menu-label">Save RAD project…</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="edit">
+                <button class="menu-title" type="button"><u>E</u>dit</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="edit.undo">
+                        <span class="menu-label"><u>U</u>ndo</span>
+                        <span class="menu-accel">Ctrl+Z</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="edit.redo">
+                        <span class="menu-label"><u>R</u>edo</span>
+                        <span class="menu-accel">Ctrl+Y</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="edit.find">
+                        <span class="menu-label"><u>F</u>ind in design…</span>
+                        <span class="menu-accel">Ctrl+F</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="edit.copyItems">
+                        <span class="menu-label"><u>C</u>opy items</span>
+                        <span class="menu-accel">Ctrl+C</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="edit.pasteItems">
+                        <span class="menu-label"><u>P</u>aste items</span>
+                        <span class="menu-accel">Ctrl+V</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="edit.duplicateItems">
+                        <span class="menu-label"><u>D</u>uplicate items</span>
+                        <span class="menu-accel">Ctrl+D</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="project">
+                <button class="menu-title" type="button"><u>P</u>roject</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="workspace.new">
+                        <span class="menu-label"><u>N</u>ew workspace…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="workspace.open">
+                        <span class="menu-label"><u>O</u>pen workspace…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="workspace.save">
+                        <span class="menu-label"><u>S</u>ave workspace</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="view">
+                <button class="menu-title" type="button"><u>V</u>iew</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="view.startPage">
+                        <span class="menu-label"><u>S</u>tart Page</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="view.activeEditor">
+                        <span class="menu-label">Active <u>e</u>ditor</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="connection">
+                <button class="menu-title" type="button"><u>C</u>onnection</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="connection.connect">
+                        <span class="menu-label"><u>C</u>onnect to IBM i</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="connection.disconnect">
+                        <span class="menu-label"><u>D</u>isconnect</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="record">
+                <button class="menu-title" type="button"><u>R</u>ecord</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="record.add">
+                        <span class="menu-label">Add record…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="record.addSubfile">
+                        <span class="menu-label">Add subfile pair…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="record.duplicate">
+                        <span class="menu-label">Duplicate current record</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="record.rename">
+                        <span class="menu-label">Rename current record…</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="record.moveUp">
+                        <span class="menu-label">Move record up</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="record.moveDown">
+                        <span class="menu-label">Move record down</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="record.delete">
+                        <span class="menu-label">Delete current record</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="export">
+                <button class="menu-title" type="button"><u>E</u>xport</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="generate.rpgle">
+                        <span class="menu-label">Generate <u>R</u>PGLE skeleton…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="generate.cobol">
+                        <span class="menu-label">Generate <u>C</u>OBOL skeleton…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="generate.rpgle.regenerate">
+                        <span class="menu-label">Regenerate RPGLE, preserve regions…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="generate.cobol.regenerate">
+                        <span class="menu-label">Regenerate COBOL, preserve regions…</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="debug.copyModel">
+                        <span class="menu-label">Copy model as <u>J</u>SON (debug)</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="help">
+                <button class="menu-title" type="button"><u>H</u>elp</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="help.about">
+                        <span class="menu-label"><u>A</u>bout IronTerm Studio…</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <!-- Flex spacer plus compact IDE context and status feedback. -->
+            <li class="menubar-spacer" aria-hidden="true"></li>
+            <li class="menubar-info">
+                <button id="themeToggle" type="button" class="theme-toggle"
+                        title="Toggle light/dark theme" aria-label="Toggle theme">D</button>
+                <span class="hint" id="interactionHint"
+                      title="Create a new artifact with Ctrl+N or open a local source with Ctrl+O">Ctrl+N new · Ctrl+O open</span>
+                <span id="status" class="toolbar-status">ready</span>
+            </li>
+        </menu>
+
+        <main id="workbenchContent" class="workbench-content"></main>
+        <!-- Classic horizontal status fields updated by workbench controllers. -->
+        <div id="statusbar" class="status-bar" role="status" aria-live="polite">
+            <p class="status-bar-field" id="sbHost" title="Runtime host">Local</p>
+            <p class="status-bar-field" id="sbConnection" title="IBM i connection">IBM i · Unavailable</p>
+            <p class="status-bar-field" id="sbWorkspace" title="Active workspace">Untitled Workspace</p>
+            <p class="status-bar-field" id="sbModel"  title="Display model">24×80</p>
+            <p class="status-bar-field" id="sbRecord" title="Active record">-</p>
+            <p class="status-bar-field" id="sbItems"  title="Item count in active record">0 items</p>
+            <p class="status-bar-field" id="sbCursor" title="Grid cursor (row, col)">(-,-)</p>
+            <p class="status-bar-field" id="sbDirty" title="Document save state">saved</p>
+        </div>
+
+    </div>
+</div>

@@ -17,7 +17,7 @@ export function recoverAutosave (doc) {
         : 'an earlier session';
     const recover = confirm(
         `Recover unsaved ${PRODUCT.name} work from ${when}?\n\n` +
-        'Cancel discards the recovery snapshot and starts with the demo.');
+        'Cancel discards the recovery snapshot and opens the IDE Start Page.');
     if (!recover) {
         clearSnapshot();
         return false;

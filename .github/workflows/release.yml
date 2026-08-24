@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Enforce source quality policy
+        run: npm run quality:policy
+
       - name: Run engine and contract tests
         run: npm test
 
@@ -113,6 +116,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          RUSTFLAGS: -D warnings
         with:
           tagName: ${{ github.ref_name }}
           releaseName: IronTerm Studio ${{ github.ref_name }}

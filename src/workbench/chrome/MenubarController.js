@@ -60,9 +60,10 @@ export class MenubarController {
     }
 
     #syncCommandStates (menu) {
-        menu.querySelectorAll('.menu-item[data-cmd]').forEach(item => {
+        const items = [...menu.querySelectorAll('.menu-item[data-cmd]')];
+        for (const item of items) {
             item.disabled = !this.commands.canExecute(item.dataset.cmd);
-        });
+        }
     }
 
     #dispatch (event) {

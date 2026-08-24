@@ -1,0 +1,64 @@
+html,
+body,
+.window,
+.title-bar,
+button,
+input,
+label,
+legend,
+option,
+select,
+table,
+textarea,
+ul.tree-view {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+    line-height: var(--line-height-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+    color: var(--fg-text);
+    text-shadow: none;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+    color: var(--fg-disabled);
+    text-shadow: none;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 1px dotted var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.application-host {
+    width: 100%;
+    height: 100%;
+}
+
+.workbench-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}

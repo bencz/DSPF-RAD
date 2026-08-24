@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
     Workspace, WorkspaceProjectKind, WORKSPACE_FORMAT, WORKSPACE_VERSION,
 } from '../src/workbench/workspace/Workspace.js';
+import { WorkspaceProject } from '../src/workbench/workspace/WorkspaceProject.js';
 import { WorkspaceSession } from '../src/workbench/workspace/WorkspaceSession.js';
 
 test('workspace manages projects and preserves the active project', () => {
@@ -27,9 +28,25 @@ test('workspace manages projects and preserves the active project', () => {
     workspace.removeProject('local-1');
 
     assert.equal(workspace.activeProject.name, 'Development library');
+    assert.equal(workspace.activeProject instanceof WorkspaceProject, true);
     assert.deepEqual(events, [
         'project.added', 'project.activated', 'project.renamed', 'project.removed',
     ]);
+});
+
+test('workspace project is immutable and controls IBM i profile references', () => {
+    const project = new WorkspaceProject({
+        id: 'remote',
+        name: 'Development',
+        kind: WorkspaceProjectKind.IBMI,
+        rootUri: 'ibmi://development/DEVLIB',
+    });
+    const connected = project.withConnectionProfile('development');
+
+    assert.equal(Object.isFrozen(project), true);
+    assert.equal(project.connectionProfileId, null);
+    assert.equal(connected.connectionProfileId, 'development');
+    assert.deepEqual(WorkspaceProject.fromJSON(connected.toJSON()).toJSON(), connected.toJSON());
 });
 
 test('workspace manifest round-trips through its versioned format', () => {
@@ -47,6 +64,9 @@ test('workspace manifest round-trips through its versioned format', () => {
 });
 
 test('workspace manifests reject credentials and invalid profile placement', () => {
+    assert.throws(() => new Workspace({
+        id: 'unsafe-direct', name: 'Unsafe', password: 'do-not-store-this',
+    }), /Credentials are not allowed/);
     assert.throws(() => Workspace.fromJSON({
         format: WORKSPACE_FORMAT,
         version: WORKSPACE_VERSION,

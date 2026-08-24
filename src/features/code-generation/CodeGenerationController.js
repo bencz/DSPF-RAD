@@ -2,17 +2,20 @@ import { generateCobol } from '../../codegen/cobol.js';
 import { generateRpgle } from '../../codegen/rpgle.js';
 import { usesIndara } from '../../codegen/analysis.js';
 import { ibmiName } from '../../model/factories.js';
+import { HostCapability } from '../../platform/host/capabilities.js';
 import { validateDspf } from '../../validation/validateDspf.js';
+import { WorkbenchCommand } from '../../workbench/commands/commandIds.js';
 
 export class CodeGenerationController {
-    #abortController = null;
+    #unregister = [];
 
     constructor ({
         doc,
         host,
+        commands,
+        coordinator,
         flash,
         flushSource,
-        documentRef = globalThis.document,
         navigatorRef = globalThis.navigator,
         promptRef = globalThis.prompt,
         confirmRef = globalThis.confirm,
@@ -21,11 +24,14 @@ export class CodeGenerationController {
     }) {
         if (!doc) throw new TypeError('CodeGenerationController requires a document.');
         if (!host) throw new TypeError('CodeGenerationController requires a host bridge.');
+        if (!commands) throw new TypeError('CodeGenerationController requires commands.');
+        if (!coordinator) throw new TypeError('CodeGenerationController requires a coordinator.');
         this.doc = doc;
         this.host = host;
+        this.commands = commands;
+        this.coordinator = coordinator;
         this.flash = flash;
         this.flushSource = flushSource;
-        this.document = documentRef;
         this.navigator = navigatorRef;
         this.prompt = promptRef;
         this.confirm = confirmRef;
@@ -35,22 +41,49 @@ export class CodeGenerationController {
 
     start () {
         this.stop();
-        this.#abortController = new AbortController();
-        const signal = this.#abortController.signal;
-        this.#bind('genRpgle', () => this.#exportRpgle(false), signal);
-        this.#bind('regenRpgle', () => this.#exportRpgle(true), signal);
-        this.#bind('genCobol', () => this.#exportCobol(false), signal);
-        this.#bind('regenCobol', () => this.#exportCobol(true), signal);
-        this.#bind('exportJson', () => this.#exportModelJson(), signal);
+        this.#unregister.push(
+            this.#registerGeneration(
+                WorkbenchCommand.GENERATE_RPGLE,
+                'Generate RPGLE',
+                () => this.#exportRpgle(false)),
+            this.#registerGeneration(
+                WorkbenchCommand.GENERATE_COBOL,
+                'Generate COBOL',
+                () => this.#exportCobol(false)),
+            this.#registerGeneration(
+                WorkbenchCommand.REGENERATE_RPGLE,
+                'Regenerate RPGLE',
+                () => this.#exportRpgle(true),
+                { requiresOpen: true }),
+            this.#registerGeneration(
+                WorkbenchCommand.REGENERATE_COBOL,
+                'Regenerate COBOL',
+                () => this.#exportCobol(true),
+                { requiresOpen: true }),
+            this.commands.register({
+                id: WorkbenchCommand.DEBUG_COPY_MODEL,
+                title: 'Copy model as JSON',
+                category: 'Debug',
+                execute: () => this.#exportModelJson(),
+                isEnabled: () => this.coordinator.isActive,
+            }),
+        );
     }
 
     stop () {
-        this.#abortController?.abort();
-        this.#abortController = null;
+        for (const unregister of this.#unregister.splice(0)) unregister();
     }
 
-    #bind (elementId, listener, signal) {
-        this.document.getElementById(elementId)?.addEventListener('click', listener, { signal });
+    #registerGeneration (id, title, execute, { requiresOpen = false } = {}) {
+        return this.commands.register({
+            id,
+            title,
+            category: 'Generate',
+            execute,
+            isEnabled: () => this.coordinator.isActive &&
+                this.host.supports(HostCapability.SAVE_LOCAL_TEXT) &&
+                (!requiresOpen || this.host.supports(HostCapability.OPEN_LOCAL_TEXT)),
+        });
     }
 
     async #exportRpgle (mergeExisting) {

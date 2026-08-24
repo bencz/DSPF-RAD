@@ -1,0 +1,126 @@
+.app-titlebar {
+    min-height: 22px;
+}
+
+.app-titlebar > .title-bar-text,
+.title-bar-text {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+    line-height: 1.25;
+}
+
+.app-brand-mark {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-caption);
+}
+
+#menubar {
+    min-height: 26px;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+}
+
+.menu-title {
+    height: 24px;
+    padding: 3px 9px;
+    font-size: var(--font-size-ui);
+    line-height: 1.2;
+}
+
+.menu-dropdown {
+    min-width: 220px;
+    padding: var(--space-1);
+}
+
+.menu-item {
+    min-height: 25px;
+    padding: 4px 24px 4px 28px;
+    font-size: var(--font-size-ui);
+    line-height: 1.25;
+}
+
+/* Menu entries are flat command surfaces, not classic raised buttons.
+   Keep this contextual contract stronger than the dark-theme button skin. */
+[data-theme="dark"] .menu-title,
+[data-theme="dark"] .menu-item,
+[data-theme="dark"] .menu-title:not(:disabled):active,
+[data-theme="dark"] .menu-item:not(:disabled):active {
+    background: transparent;
+    box-shadow: none;
+    color: var(--fg-text);
+    text-shadow: none;
+}
+
+[data-theme="dark"] .menu-title:hover,
+[data-theme="dark"] #menubar > li.open > .menu-title,
+[data-theme="dark"] .menu-item:hover {
+    background: var(--w98-navy);
+    color: var(--fg-on-accent);
+}
+
+[data-theme="dark"] .menu-item.disabled,
+[data-theme="dark"] .menu-item.disabled:hover {
+    background: transparent;
+    color: var(--fg-disabled);
+}
+
+.menubar-info {
+    gap: var(--space-3);
+}
+
+.hint,
+.toolbar-status {
+    min-height: 19px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-caption);
+    line-height: 1.2;
+}
+
+.hint {
+    padding: 2px 7px;
+    color: var(--fg-muted);
+    white-space: nowrap;
+}
+
+.toolbar-status {
+    min-width: 110px;
+    padding: 2px 8px;
+}
+
+#statusbar.status-bar {
+    min-height: 24px;
+    box-sizing: border-box;
+    padding: 2px 3px;
+}
+
+#statusbar .status-bar-field {
+    min-height: 18px;
+    box-sizing: border-box;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-caption);
+    line-height: 1.2;
+}
+
+#statusbar #sbCursor,
+#statusbar #sbItems {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-caption);
+}
+
+@media (max-width: 900px) {
+    .menubar-info .hint {
+        display: none;
+    }
+}
+
+@media (max-width: 680px) {
+    .menubar-info .toolbar-status {
+        display: none;
+    }
+}

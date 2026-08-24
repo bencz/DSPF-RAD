@@ -1,31 +1,34 @@
+import { WorkspaceProject, WorkspaceProjectKind } from './WorkspaceProject.js';
+
 export const WORKSPACE_FORMAT = 'IRONTERM-WORKSPACE';
 export const WORKSPACE_VERSION = 1;
 
-export const WorkspaceProjectKind = Object.freeze({
-    SCRATCH: 'scratch',
-    LOCAL: 'local',
-    IBMI: 'ibmi',
-});
+export { WorkspaceProjectKind } from './WorkspaceProject.js';
 
-const PROJECT_KINDS = new Set(Object.values(WorkspaceProjectKind));
 const CREDENTIAL_KEY = /(password|passphrase|private.?key|secret|token|credential)/i;
 
 export class Workspace {
     #projects = [];
     #listeners = new Set();
 
-    constructor ({ id = createId('workspace'), name = 'Untitled Workspace', projects = [], activeProjectId = null } = {}) {
+    constructor ({
+        id = createId('workspace'),
+        name = 'Untitled Workspace',
+        projects = [],
+        activeProjectId = null,
+        ...additional
+    } = {}) {
+        assertNoCredentials(additional);
         this.id = requiredText(id, 'Workspace id');
         this.name = requiredText(name, 'Workspace name');
-        this.#projects = projects.map(normalizeProject);
+        this.#projects = projects.map(project => WorkspaceProject.fromJSON(project));
         assertUniqueProjectIds(this.#projects);
         this.activeProjectId = activeProjectId ?? this.#projects[0]?.id ?? null;
         this.#assertKnownActiveProject();
     }
 
-    static createScratch ({ workspaceName = 'Untitled Workspace', projectName = 'Display file design' } = {}) {
-        const project = normalizeProject({
-            id: createId('project'),
+    static createScratch ({ workspaceName = 'Untitled Workspace', projectName = 'Scratch project' } = {}) {
+        const project = new WorkspaceProject({
             name: projectName,
             kind: WorkspaceProjectKind.SCRATCH,
         });
@@ -60,7 +63,7 @@ export class Workspace {
     }
 
     addProject (project) {
-        const normalized = normalizeProject({ id: createId('project'), ...project });
+        const normalized = WorkspaceProject.fromJSON({ id: WorkspaceProject.createId(), ...project });
         if (this.#projects.some(entry => entry.id === normalized.id)) {
             throw new Error(`Duplicate workspace project id: ${normalized.id}`);
         }
@@ -73,10 +76,10 @@ export class Workspace {
     renameProject (projectId, name) {
         const index = this.#projects.findIndex(project => project.id === projectId);
         if (index < 0) return false;
-        const next = requiredText(name, 'Project name');
-        if (this.#projects[index].name === next) return false;
+        const next = this.#projects[index].rename(name);
+        if (next === this.#projects[index]) return false;
         const projects = [...this.#projects];
-        projects[index] = Object.freeze({ ...projects[index], name: next });
+        projects[index] = next;
         this.#projects = projects;
         this.#emit('project.renamed');
         return true;
@@ -115,7 +118,7 @@ export class Workspace {
             version: WORKSPACE_VERSION,
             id: this.id,
             name: this.name,
-            projects: this.#projects.map(project => ({ ...project })),
+            projects: this.#projects.map(project => project.toJSON()),
             activeProjectId: this.activeProjectId,
         };
     }
@@ -130,23 +133,6 @@ export class Workspace {
         const event = Object.freeze({ type, workspace: this });
         for (const listener of this.#listeners) listener(event);
     }
-}
-
-function normalizeProject (value) {
-    assertNoCredentials(value);
-    const kind = value?.kind ?? WorkspaceProjectKind.LOCAL;
-    if (!PROJECT_KINDS.has(kind)) throw new Error(`Unsupported workspace project kind: ${kind}`);
-    const connectionProfileId = optionalText(value?.connectionProfileId);
-    if (kind !== WorkspaceProjectKind.IBMI && connectionProfileId) {
-        throw new Error('Only IBM i projects may reference a connection profile.');
-    }
-    return Object.freeze({
-        id: requiredText(value?.id, 'Project id'),
-        name: requiredText(value?.name, 'Project name'),
-        kind,
-        rootUri: optionalText(value?.rootUri),
-        connectionProfileId,
-    });
 }
 
 function assertNoCredentials (value, path = 'workspace') {
@@ -171,11 +157,6 @@ function requiredText (value, label) {
     const text = String(value ?? '').trim();
     if (!text) throw new TypeError(`${label} is required.`);
     return text;
-}
-
-function optionalText (value) {
-    const text = String(value ?? '').trim();
-    return text || null;
 }
 
 function createId (prefix) {

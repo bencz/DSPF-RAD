@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "desktop": "tauri dev",
     "desktop:build": "tauri build",
-    "desktop:check": "cargo check --manifest-path src-tauri/Cargo.toml",
+    "desktop:check": "cargo check --locked --manifest-path src-tauri/Cargo.toml",
+    "quality:policy": "node scripts/check-quality-policy.js",
     "test": "node --test",
     "samples": "node scripts/generate-codegen-samples.js"
   },

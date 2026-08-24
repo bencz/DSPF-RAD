@@ -25,10 +25,16 @@ browser / desktop UI ─────┘
 - `workbench` owns the IDE shell: commands, menus, panels, editors, status,
   layout, versioned workspace manifests, and shared application state.
 - `platform` implements environment ports. Browser and desktop/Tauri details
-  stay behind explicit contracts such as `HostBridge`.
+  stay behind explicit contracts such as `HostBridge` and
+  `IbmiConnectionPort`.
+- Desktop window decoration is implemented by `DesktopWindowController`; the
+  workbench never calls the Tauri window API directly.
 - The composition root creates concrete implementations and injects them. In
   the current migration that root is the `IronTermApplication` class;
   `src/app/boot.js` is only its error boundary and entry point.
+- `WorkbenchView` composes feature-owned views before controllers start.
+  `index.html` contains only document metadata and the `#app` mount point;
+  workbench and feature markup must not be added back to that root file.
 
 Dependencies point inward. Core never imports features, workbench, app, or
 platform. A feature may depend on a platform contract, but never on a concrete
@@ -55,6 +61,8 @@ turning domain algorithms into artificial objects.
 | `src/app` | Composition and legacy UI controllers | split between features and workbench |
 | `src/workbench` | New IDE shell controllers | workbench |
 | `src/platform` | Browser/Tauri/IBM i effects | platform |
+| `src/workbench/shell`, `start`, `views` | Shell, Start Page, view composition | workbench |
+| `src/features/dspf-designer/*.html, *.css` | DSPF-only editor surface | DSPF designer feature |
 
 Moving directories is not a goal by itself. A module moves only when its public
 contract is clear and its callers can be migrated without mixing unrelated
@@ -77,12 +85,34 @@ The layout is capability-driven. Unsupported desktop-only commands remain
 unavailable in the browser host instead of leaking environment checks through
 feature code.
 
+The workbench starts with no active editor and renders the Start Page. A
+`WorkbenchDocumentService` owns immutable editor descriptors, current
+activation, and last-active-editor navigation. A specialized feature publishes
+its state through a coordinator; for example, `DspfDocumentCoordinator`
+projects DSPF model title and dirty state into a workbench document without
+making the shell depend on the DSPF model.
+
+Presentation follows the same ownership boundaries. `styles.css` is an import
+manifest: shared tokens and base typography load around the classic-theme
+compatibility layer, followed by shell, Start Page, and feature styles. New
+selectors belong to the narrowest owning module. The pixel-style font is
+limited to intentional brand/terminal accents; ordinary menus, hints, forms,
+panels, and status text use the readable antialiased UI stack.
+
 ## Remote IBM i boundary
 
-The browser build remains useful offline and performs no direct SSH. A future
-desktop host will implement SSH/SFTP, CL/PASE execution, member transfer, and
-job-log retrieval. Credentials must be handled by the desktop platform and
-must never enter project documents, local autosave, logs, or domain models.
+The browser build remains useful offline and performs no direct SSH. It uses an
+explicitly unavailable IBM i connection port, so connection commands remain
+disabled rather than simulating a remote session.
+
+The connection lifecycle is modeled by `IbmiConnectionService` and immutable
+`IbmiConnectionSession` metadata. A future desktop adapter will implement the
+transport and secure credential retrieval. CL/PASE execution, member transfer,
+terminal streams, builds, and job-log retrieval will use focused ports tied to
+an established session instead of growing `HostBridge` into a catch-all.
+
+Credentials must be handled by the desktop platform and must never enter
+project documents, local autosave, logs, session metadata, or domain models.
 
 See the architecture decisions in [`decisions`](decisions/) for the rationale
 and constraints that must be preserved.

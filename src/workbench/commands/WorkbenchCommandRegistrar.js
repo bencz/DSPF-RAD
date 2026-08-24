@@ -1,57 +1,55 @@
 import { WorkbenchCommand } from './commandIds.js';
+import { WorkbenchDocumentKind } from '../documents/WorkbenchDocument.js';
 
 // Transitional adapters let the new command system coexist with feature
 // controllers that are still bound to toolbar buttons. Each feature can later
 // register its command directly without changing menus or keyboard shortcuts.
 const DOM_COMMANDS = Object.freeze([
-    [WorkbenchCommand.FILE_NEW, 'newDoc', 'New DSPF', 'File'],
-    [WorkbenchCommand.FILE_OPEN, 'openDoc', 'Open DSPF', 'File'],
-    [WorkbenchCommand.FILE_SAVE, 'saveDoc', 'Save DSPF', 'File'],
-    [WorkbenchCommand.PROJECT_OPEN, 'openProject', 'Open RAD project', 'Project'],
-    [WorkbenchCommand.PROJECT_SAVE, 'saveProject', 'Save RAD project', 'Project'],
-    [WorkbenchCommand.EDIT_UNDO, 'undoDoc', 'Undo', 'Edit'],
-    [WorkbenchCommand.EDIT_REDO, 'redoDoc', 'Redo', 'Edit'],
-    [WorkbenchCommand.EDIT_FIND, 'findDesign', 'Find in design', 'Edit'],
-    [WorkbenchCommand.EDIT_COPY_ITEMS, 'copyItems', 'Copy items', 'Edit'],
-    [WorkbenchCommand.EDIT_PASTE_ITEMS, 'pasteItems', 'Paste items', 'Edit'],
-    [WorkbenchCommand.EDIT_DUPLICATE_ITEMS, 'duplicateItems', 'Duplicate items', 'Edit'],
-    [WorkbenchCommand.RECORD_ADD, 'addRecord', 'Add record', 'Record'],
-    [WorkbenchCommand.RECORD_ADD_SUBFILE, 'addSubfile', 'Add subfile pair', 'Record'],
-    [WorkbenchCommand.RECORD_DUPLICATE, 'cloneRecord', 'Duplicate record', 'Record'],
-    [WorkbenchCommand.RECORD_RENAME, 'renameRecord', 'Rename record', 'Record'],
-    [WorkbenchCommand.RECORD_MOVE_UP, 'recordUp', 'Move record up', 'Record'],
-    [WorkbenchCommand.RECORD_MOVE_DOWN, 'recordDown', 'Move record down', 'Record'],
-    [WorkbenchCommand.RECORD_DELETE, 'deleteRecord', 'Delete record', 'Record'],
-    [WorkbenchCommand.GENERATE_RPGLE, 'genRpgle', 'Generate RPGLE', 'Generate'],
-    [WorkbenchCommand.GENERATE_COBOL, 'genCobol', 'Generate COBOL', 'Generate'],
-    [WorkbenchCommand.REGENERATE_RPGLE, 'regenRpgle', 'Regenerate RPGLE', 'Generate'],
-    [WorkbenchCommand.REGENERATE_COBOL, 'regenCobol', 'Regenerate COBOL', 'Generate'],
-    [WorkbenchCommand.DEBUG_COPY_MODEL, 'exportJson', 'Copy model as JSON', 'Debug'],
+    command(WorkbenchCommand.EDIT_UNDO, 'undoDoc', 'Undo', 'Edit'),
+    command(WorkbenchCommand.EDIT_REDO, 'redoDoc', 'Redo', 'Edit'),
+    command(WorkbenchCommand.EDIT_FIND, 'findDesign', 'Find in design', 'Edit'),
+    command(WorkbenchCommand.EDIT_COPY_ITEMS, 'copyItems', 'Copy items', 'Edit'),
+    command(WorkbenchCommand.EDIT_PASTE_ITEMS, 'pasteItems', 'Paste items', 'Edit'),
+    command(WorkbenchCommand.EDIT_DUPLICATE_ITEMS, 'duplicateItems', 'Duplicate items', 'Edit'),
+    command(WorkbenchCommand.RECORD_ADD, 'addRecord', 'Add record', 'Record'),
+    command(WorkbenchCommand.RECORD_ADD_SUBFILE, 'addSubfile', 'Add subfile pair', 'Record'),
+    command(WorkbenchCommand.RECORD_DUPLICATE, 'cloneRecord', 'Duplicate record', 'Record'),
+    command(WorkbenchCommand.RECORD_RENAME, 'renameRecord', 'Rename record', 'Record'),
+    command(WorkbenchCommand.RECORD_MOVE_UP, 'recordUp', 'Move record up', 'Record'),
+    command(WorkbenchCommand.RECORD_MOVE_DOWN, 'recordDown', 'Move record down', 'Record'),
+    command(WorkbenchCommand.RECORD_DELETE, 'deleteRecord', 'Delete record', 'Record'),
 ]);
 
 export class WorkbenchCommandRegistrar {
     #unregister = [];
 
     constructor ({
-        registry, product, documentRef = globalThis.document, alertRef = globalThis.alert,
+        registry,
+        product,
+        documents,
+        documentRef = globalThis.document,
+        alertRef = globalThis.alert,
     }) {
         if (!registry) throw new TypeError('WorkbenchCommandRegistrar requires a registry.');
         if (!product) throw new TypeError('WorkbenchCommandRegistrar requires product metadata.');
+        if (!documents) throw new TypeError('WorkbenchCommandRegistrar requires documents.');
         this.registry = registry;
         this.product = product;
+        this.documents = documents;
         this.document = documentRef;
         this.alert = alertRef;
     }
 
     start () {
         this.stop();
-        for (const [id, elementId, title, category] of DOM_COMMANDS) {
+        for (const { id, elementId, title, category, documentKind } of DOM_COMMANDS) {
             const element = this.document.getElementById(elementId);
             if (!element) continue;
             this.#unregister.push(this.registry.register({
                 id, title, category,
                 execute: () => element.click(),
-                isEnabled: () => !element.disabled,
+                isEnabled: () => !element.disabled &&
+                    this.documents.activeDocument?.kind === documentKind,
             }));
         }
 
@@ -75,4 +73,14 @@ export class WorkbenchCommandRegistrar {
             'Author: Alexandre Bencz\n' +
             'UI direction: Visual Studio 6 / Win98 workbench');
     }
+}
+
+function command (id, elementId, title, category) {
+    return Object.freeze({
+        id,
+        elementId,
+        title,
+        category,
+        documentKind: WorkbenchDocumentKind.DSPF_DESIGNER,
+    });
 }

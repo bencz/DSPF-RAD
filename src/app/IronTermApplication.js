@@ -12,16 +12,13 @@ import { SourceEditor } from '../source/SourceEditor.js';
 import { parseDspf } from '../parser/parseDspf.js';
 import { writeDspf } from '../writer/writeDspf.js';
 
-import { seedDemo }       from './demoSeed.js';
 import { MenubarController } from '../workbench/chrome/MenubarController.js';
 import { makeChromeSync } from './chromeSync.js';
 import { bindSourceSync } from './sourceSync.js';
 import { bindPanelResize } from './panelResize.js';
-import { bindFileIO } from './fileIO.js';
 import { initTheme }      from './Theme.js';
 import { recoverAutosave, bindPersistence } from './persistence.js';
 import { bindProblemsPanel } from './problemsPanel.js';
-import { bindTemplateDialog } from './templateDialog.js';
 import { bindSimulator } from './simulator.js';
 import { bindRecordTree } from './recordTree.js';
 import { bindDatabaseImportDialog } from './databaseImportDialog.js';
@@ -29,8 +26,9 @@ import { bindKeyFlowDialog } from './keyFlowDialog.js';
 import { bindFindDialog } from './findDialog.js';
 import { validateDspf }   from '../validation/validateDspf.js';
 import { PRODUCT }        from '../product.js';
-import { createHostBridge } from '../platform/host/index.js';
+import { createPlatformServices } from '../platform/index.js';
 import { HostStatusController } from '../workbench/status/HostStatusController.js';
+import { ConnectionStatusController } from '../workbench/status/ConnectionStatusController.js';
 import { CodeGenerationController } from '../features/code-generation/CodeGenerationController.js';
 import { DspfToolbarController } from '../features/dspf-designer/DspfToolbarController.js';
 import { DspfShortcutController } from '../features/dspf-designer/DspfShortcutController.js';
@@ -43,6 +41,17 @@ import { WorkspaceSession } from '../workbench/workspace/WorkspaceSession.js';
 import { WorkspaceController } from '../workbench/workspace/WorkspaceController.js';
 import { WorkspaceStatusController } from '../workbench/status/WorkspaceStatusController.js';
 import { StatusMessageController } from '../workbench/status/StatusMessageController.js';
+import { ConnectionProfileStore } from '../features/ibmi-connections/model/ConnectionProfileStore.js';
+import { IbmiConnectionService } from '../features/ibmi-connections/IbmiConnectionService.js';
+import { ConnectionController } from '../features/ibmi-connections/ConnectionController.js';
+import { WorkbenchDocumentService } from '../workbench/documents/WorkbenchDocumentService.js';
+import { WorkbenchNavigationController } from '../workbench/documents/WorkbenchNavigationController.js';
+import { WorkbenchLayoutController } from '../workbench/chrome/WorkbenchLayoutController.js';
+import { StartPageController } from '../workbench/start/StartPageController.js';
+import { DspfDocumentCoordinator } from '../features/dspf-designer/DspfDocumentCoordinator.js';
+import { DspfFileController } from '../features/dspf-designer/DspfFileController.js';
+import { DspfTemplateController } from '../features/dspf-designer/DspfTemplateController.js';
+import { WorkbenchView } from '../workbench/views/WorkbenchView.js';
 
 export class IronTermApplication {
     constructor ({
@@ -64,28 +73,52 @@ export class IronTermApplication {
     start () {
         this.logger.log('%c[ironterm]', 'color:#6f6',
             `boot - ${PRODUCT.name} ${PRODUCT.version}`);
+        new WorkbenchView({ documentRef: this.document }).mount();
         initTheme();
 
         const els = this.#collectDomRefs();
-        const host = createHostBridge({
+        const platform = createPlatformServices({
             documentRef: this.document,
             urlRef: this.window.URL,
+            logger: this.logger,
         });
+        const { host, ibmiConnections, desktopWindow } = platform;
+        desktopWindow.start();
         const commands = new CommandRegistry();
         const hostStatus = new HostStatusController({ element: els.sbHost, host });
         hostStatus.render();
 
         const doc = new DspfDocument();
-        seedDemo(doc);
         const recovered = recoverAutosave(doc);
         doc.resetHistory({ markClean: !recovered });
+        const workbenchDocuments = new WorkbenchDocumentService();
+        const dspfDocument = new DspfDocumentCoordinator({
+            documentModel: doc,
+            workbenchDocuments,
+        });
+        dspfDocument.start();
 
-        const workspace = Workspace.createScratch({ projectName: doc.sourceName });
+        const workspace = Workspace.createScratch();
         const workspaceSession = new WorkspaceSession({ workspace });
         const workspaceStatus = new WorkspaceStatusController({
             element: els.sbWorkspace, session: workspaceSession,
         });
         workspaceStatus.start();
+
+        const connectionProfiles = new ConnectionProfileStore({
+            storage: this.storage,
+            logger: this.logger,
+        }).load();
+        const ibmiConnection = new IbmiConnectionService({
+            profiles: connectionProfiles,
+            port: ibmiConnections,
+        });
+        const connectionStatus = new ConnectionStatusController({
+            element: els.sbConnection,
+            service: ibmiConnection,
+            profiles: connectionProfiles,
+        });
+        connectionStatus.start();
 
         // Inspector / Palette / Designer selection wiring.
         let selectFromInspector = () => {};
@@ -138,10 +171,21 @@ export class IronTermApplication {
         });
         const flash = statusMessages.show;
         bindPersistence(doc);
-        bindFileIO({
-            doc, designer, modelSel: els.modelSel, host, flash,
+        const dspfFiles = new DspfFileController({
+            documentModel: doc,
+            coordinator: dspfDocument,
+            designer,
+            modelSelect: els.modelSel,
+            host,
+            commands,
+            flash,
             flushSource: sourceSync.flush,
+            documentRef: this.document,
+            windowRef: this.window,
+            confirmRef: this.confirm,
+            logger: this.logger,
         });
+        dspfFiles.start();
         const toolbar = new DspfToolbarController({
             doc, designer, elements: els, flash,
             documentRef: this.document,
@@ -150,9 +194,18 @@ export class IronTermApplication {
             confirmRef: this.confirm,
         });
         toolbar.start();
-        bindTemplateDialog({
-            doc, designer, palette, flash, flushSource: sourceSync.flush,
+        const dspfTemplates = new DspfTemplateController({
+            documentModel: doc,
+            coordinator: dspfDocument,
+            designer,
+            palette,
+            commands,
+            flash,
+            flushSource: sourceSync.flush,
+            documentRef: this.document,
+            confirmRef: this.confirm,
         });
+        dspfTemplates.start();
         bindDatabaseImportDialog({
             doc, designer, host, flash, flushSource: sourceSync.flush,
         });
@@ -162,8 +215,8 @@ export class IronTermApplication {
         bindRecordTree({ doc, designer });
 
         const codeGeneration = new CodeGenerationController({
-            doc, host, flash, flushSource: sourceSync.flush,
-            documentRef: this.document,
+            doc, host, commands, coordinator: dspfDocument,
+            flash, flushSource: sourceSync.flush,
             navigatorRef: this.window.navigator,
             promptRef: this.prompt,
             confirmRef: this.confirm,
@@ -173,11 +226,16 @@ export class IronTermApplication {
         codeGeneration.start();
 
         const commandRegistrar = new WorkbenchCommandRegistrar({
-            registry: commands, product: PRODUCT,
+            registry: commands, product: PRODUCT, documents: workbenchDocuments,
             documentRef: this.document,
             alertRef: this.window.alert.bind(this.window),
         });
         commandRegistrar.start();
+        const navigation = new WorkbenchNavigationController({
+            documents: workbenchDocuments,
+            commands,
+        });
+        navigation.start();
         const workspaceController = new WorkspaceController({
             session: workspaceSession, commands, host, flash,
             promptRef: this.prompt,
@@ -185,6 +243,14 @@ export class IronTermApplication {
             logger: this.logger,
         });
         workspaceController.start();
+        const connectionController = new ConnectionController({
+            service: ibmiConnection,
+            profiles: connectionProfiles,
+            workspaceSession,
+            commands,
+            flash,
+        });
+        connectionController.start();
 
         const shortcuts = new DspfShortcutController({
             commands, designer, palette,
@@ -202,16 +268,50 @@ export class IronTermApplication {
 
         // First paint + workbench chrome.
         refreshChrome();
+        const layout = new WorkbenchLayoutController({
+            documents: workbenchDocuments,
+            startPage: els.startPage,
+            dspfSurface: els.dspfEditorSurface,
+            dspfStatusElements: [
+                els.sbModel, els.sbRecord, els.sbItems, els.sbCursor, els.sbDirty,
+            ],
+            interactionHint: els.interactionHint,
+            documentRef: this.document,
+            windowRef: this.window,
+            onDspfShown: () => designer.forceResize(),
+        });
+        layout.start();
+        const startPage = new StartPageController({
+            element: els.startPage,
+            commands,
+            documents: workbenchDocuments,
+            workspaceSession,
+            connectionService: ibmiConnection,
+            host,
+            logger: this.logger,
+        });
+        startPage.start();
         const menubar = new MenubarController({
             commands, documentRef: this.document, logger: this.logger,
         });
         menubar.start();
-        if (recovered) flash('Recovered unsaved work from the previous session.', 'ok', 4000);
+        if (recovered) {
+            dspfDocument.open();
+            flash('Recovered unsaved work from the previous session.', 'ok', 4000);
+        }
 
         // Console debugging surface.
         this.window.ironTermStudio = {
             product: PRODUCT,
             host: host.describe(),
+            platform: Object.freeze({
+                host: host.describe(),
+                ibmiConnections: ibmiConnections.describe(),
+                desktopWindow: Object.freeze({ available: desktopWindow.available }),
+            }),
+            connectionProfiles,
+            ibmiConnection,
+            documents: workbenchDocuments,
             workspace: () => workspaceSession.workspace,
             workspaceSession,
             doc, designer, palette,
@@ -222,6 +322,7 @@ export class IronTermApplication {
             load: source => {
                 doc.adopt(parseDspf(source));
                 designer.selectItem(null);
+                dspfDocument.open();
             },
         };
         // Temporary compatibility alias for existing console snippets.
@@ -241,11 +342,15 @@ export class IronTermApplication {
             modelSel:     this.#element('modelSel'),
             recordSel:    this.#element('recordSel'),
             statusEl:     this.#element('status'),
+            startPage:    this.#element('startPage'),
+            dspfEditorSurface: this.#element('dspfEditorSurface'),
+            interactionHint: this.#element('interactionHint'),
             helpEl:       this.#element('canvasHelp'),
             overlayBtn:   this.#element('overlayToggle'),
             hideCondBtn:  this.#element('hideCondToggle'),
             deleteBtn:    this.#element('deleteRecord'),
             sbHost:       this.#element('sbHost'),
+            sbConnection: this.#element('sbConnection'),
             sbWorkspace:  this.#element('sbWorkspace'),
             sbModel:      this.#element('sbModel'),
             sbRecord:     this.#element('sbRecord'),

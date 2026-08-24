@@ -14,6 +14,12 @@ shell, a clean browser/desktop boundary, and the foundation for IBM i
 connections. Existing DSPF project files, autosaves, and generated protected
 regions retain their established identifiers for compatibility.
 
+IronTerm Studio now opens on an IDE Start Page instead of constructing a demo
+display file. From there, create or open a workspace, create a display file,
+open DSPF/DDS source, or return to the last active editor. The visual DSPF
+toolbars, toolbox, inspector, source pane, and document status are shown only
+while a DSPF designer document is active.
+
 ## Screenshots
 
 ### Overview
@@ -62,8 +68,15 @@ regions retain their established identifiers for compatibility.
 - Versioned `.itworkspace` manifests for grouping scratch, local, and IBM i
   projects. Workspace files reference connection profile IDs but reject
   passwords, tokens, private keys, and other credentials.
+- Immutable workspace project models plus an explicit IBM i connection
+  lifecycle. The browser reports remote connectivity as unavailable; a future
+  desktop adapter will open real sessions without exposing credentials to the
+  frontend or workspace files.
 - Central workbench command registry shared by menus and keyboard shortcuts,
   with command availability driven by the active host capabilities.
+- Class-based workbench views keep the root HTML as a minimal application host.
+  The IDE shell, Start Page, and DSPF editor own separate markup and style
+  modules, so specialized designers do not become part of the bootstrap.
 
 ## Running it
 
@@ -86,8 +99,14 @@ npm run preview
 ```
 
 The generated `dist/` directory contains the JavaScript and CSS required at
-runtime. A future desktop package will embed the same frontend and provide the
-SSH/SFTP and IBM i command capabilities that browsers cannot safely expose.
+runtime. The Tauri desktop package embeds the same frontend; its future secure
+IBM i adapter will provide the SSH/SFTP and command capabilities that browsers
+cannot safely expose.
+
+Run the Tauri desktop shell with `npm run desktop`. Its borderless main window
+uses the IronTerm Studio title bar for native dragging, minimizing,
+maximizing/restoring, and closing; the browser build keeps those native window
+controls hidden.
 
 ## Engine tests and generated samples
 
@@ -96,6 +115,7 @@ contracts. They intentionally validate model and source semantics rather than
 page markup.
 
 ```sh
+npm run quality:policy
 npm test
 npm run samples
 ```

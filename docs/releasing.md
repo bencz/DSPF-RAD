@@ -31,6 +31,7 @@ Run:
 
 ```sh
 npm ci
+npm run quality:policy
 npm test
 npm run build
 npm run desktop:check
@@ -57,4 +58,3 @@ their values in source control:
 
 The initial workflow deliberately keeps updater metadata disabled until an
 updater endpoint and public-key distribution policy are implemented.
-

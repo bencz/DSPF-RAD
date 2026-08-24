@@ -25,9 +25,6 @@ export class HostBridge {
 
     async openTextFile () { this.unsupported('openTextFile'); }
     async saveTextFile () { this.unsupported('saveTextFile'); }
-    async connectRemote () { this.unsupported('connectRemote'); }
-    async runCl () { this.unsupported('runCl'); }
-    async runPase () { this.unsupported('runPase'); }
 
     unsupported (operation) {
         throw new UnsupportedHostOperationError(operation, this.kind);

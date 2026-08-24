@@ -18,7 +18,9 @@ export class ConnectionProfile {
         authentication = ConnectionAuthentication.AGENT,
         defaultLibrary = '*CURLIB',
         libraryList = [],
+        ...additional
     }) {
+        ConnectionProfile.assertNoCredentials(additional);
         this.id = ConnectionProfile.requiredText(id, 'Profile id');
         this.name = ConnectionProfile.requiredText(name, 'Profile name');
         this.host = ConnectionProfile.requiredText(host, 'Host');

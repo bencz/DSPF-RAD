@@ -3,7 +3,6 @@
 // emit so the toolbar/statusbar always reflect the current doc.
 
 import { MODELS } from '../model/constants.js';
-import { PRODUCT } from '../product.js';
 
 export function makeChromeSync ({ doc, els }) {
     return function refreshChrome () {
@@ -34,8 +33,6 @@ export function makeChromeSync ({ doc, els }) {
         if (els.recordDownBtn) {
             els.recordDownBtn.disabled = !doc.canMoveRecord(doc.activeRecordIndex, 1);
         }
-        document.title = `${doc.isDirty ? '* ' : ''}${doc.sourceName} - ${PRODUCT.name}`;
-
         // 98.css paints the etched-gray look when [disabled] is set.  The
         // handler also flashes an error if invoked with a single record,
         // but disabling here matches what Win98 toolbars did historically.

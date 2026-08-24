@@ -1,0 +1,376 @@
+        <div class="dspf-editor-surface" id="dspfEditorSurface" hidden>
+
+        <!-- Visible toolbar row beneath the menubar.  Holds the controls
+             the user reaches for most often - Model, Record, view toggles.
+             Classic VB6 / Borland layout: menubar for discoverable actions,
+             toolbar for the fast-path controls. The owning feature controllers
+             bind these stable element IDs. -->
+        <div id="toolbar" class="toolbar-row">
+            <button id="templateNew" title="Create a DSPF from a screen template (Ctrl+N)">New…</button>
+            <button id="undoDoc" title="Undo the last design change (Ctrl+Z)" disabled>Undo</button>
+            <button id="redoDoc" title="Redo the last undone change (Ctrl+Y)" disabled>Redo</button>
+            <button id="findDesign" title="Find records and fields (Ctrl+F)">Find…</button>
+
+            <span class="sep" aria-hidden="true"></span>
+
+            <label class="lbl">Model
+                <select id="modelSel" title="Display file geometry">
+                    <option value="24x80"  selected>24×80 (5251-11)</option>
+                    <option value="27x132">27×132 (3477-FC)</option>
+                </select>
+            </label>
+
+            <span class="sep" aria-hidden="true"></span>
+
+            <label class="lbl">Record
+                <select id="recordSel" title="Active record format"></select>
+            </label>
+            <button id="addRecord"    title="Add a new record format">+R</button>
+            <button id="addSubfile"   title="Add a Subfile pair (SFL + SFLCTL) wired with defaults">+SFL</button>
+            <button id="cloneRecord"  title="Duplicate the active record (duplicates linked SFL/SFLCTL together)">Clone</button>
+            <button id="renameRecord" title="Rename the active record format">RN</button>
+            <button id="recordUp"     title="Move the active record up">↑</button>
+            <button id="recordDown"   title="Move the active record down">↓</button>
+            <button id="deleteRecord" title="Delete the active record format">-R</button>
+
+            <span class="sep" aria-hidden="true"></span>
+
+            <button id="overlayToggle" class="toggle"
+                    title="Render the other records faded behind the active one">Overlay</button>
+            <button id="hideCondToggle" class="toggle"
+                    title="Hide items that only render when an indicator is on/off (cleans up screens like CLOCK)">Hide cond</button>
+
+            <span class="sep" aria-hidden="true"></span>
+
+            <button id="copyItems" title="Copy selected items (Ctrl+C)">Copy</button>
+            <button id="pasteItems" title="Paste copied items (Ctrl+V)">Paste</button>
+            <button id="duplicateItems" title="Duplicate selected items (Ctrl+D)">Dup</button>
+            <select id="arrangeSel" title="Alignment/distribution operation">
+                <option value="left">Align left</option>
+                <option value="right">Align right</option>
+                <option value="top">Align top</option>
+                <option value="bottom">Align bottom</option>
+                <option value="hcenter">Center horizontally</option>
+                <option value="vcenter">Center vertically</option>
+                <option value="distribute-horizontal">Distribute horizontally</option>
+                <option value="distribute-vertical">Distribute vertically</option>
+            </select>
+            <button id="arrangeItems" title="Apply to the selected items">Arrange</button>
+
+            <span class="sep" aria-hidden="true"></span>
+            <button id="importDatabaseFields"
+                    title="Import fields from a physical/logical file DDS member">Import PF/LF…</button>
+            <button id="editKeyFlow"
+                    title="Configure generated actions for command keys">Key flow…</button>
+            <button id="simulateToggle" class="toggle"
+                    title="Preview indicator conditions and sample field values">Simulate</button>
+        </div>
+
+        <div id="simulationBar" class="simulation-bar" hidden>
+            <strong>Runtime preview</strong>
+            <label>Indicators ON
+                <input id="simIndicators" type="text" placeholder="03 12 31" maxlength="296">
+            </label>
+            <span class="sep" aria-hidden="true"></span>
+            <label>Field
+                <select id="simFieldSel"></select>
+            </label>
+            <label>Value
+                <input id="simFieldValue" type="text" maxlength="132">
+            </label>
+            <button id="simSetValue" type="button">Set value</button>
+            <button id="simClear" type="button">Reset preview</button>
+            <span class="simulation-hint">Only preview state changes; DSPF source is untouched.</span>
+        </div>
+
+        <!-- 3-column workspace: Palette  |  Canvas  |  Inspector.
+             Each side panel is its own Win98 .window with a title bar -
+             MDI-style nesting that matches IDEs of the era (VB6 / Borland). -->
+        <div class="workspace">
+
+            <aside class="window panel palette" id="palette">
+                <div class="title-bar">
+                    <div class="title-bar-text">DSPF Toolbox</div>
+                </div>
+                <div class="panel-body">
+                    <div class="side-tabs">
+                        <button id="paletteTabBtn" class="active" type="button">Palette</button>
+                        <button id="recordsTabBtn" type="button">Records</button>
+                    </div>
+                    <div id="paletteTabPane">
+                    <div class="palette-group">
+                        <h4>Widgets</h4>
+                        <div class="palette-item" draggable="true" data-kind="constant" data-text="Sample">
+                            <span class="pi-icon">A</span><span class="pi-label">Constant</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="input" data-length="10">
+                            <span class="pi-icon">I</span><span class="pi-label">Input field</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="output" data-length="10">
+                            <span class="pi-icon">O</span><span class="pi-label">Output field</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="both" data-length="10">
+                            <span class="pi-icon">IO</span><span class="pi-label">I/O field</span>
+                        </div>
+                    </div>
+
+                    <div class="palette-group">
+                        <h4>Presets</h4>
+                        <div class="palette-item" draggable="true" data-kind="constant" data-text="================================================================================">
+                            <span class="pi-icon">-</span><span class="pi-label">Rule line</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="constant" data-text="Sign On" data-dspatr="HI" data-color="WHT">
+                            <span class="pi-icon">&gt;</span><span class="pi-label">"Sign On" title</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="input"  data-length="10" data-name="USER" data-dspatr="UL">
+                            <span class="pi-icon">I</span><span class="pi-label">USER (10A, UL)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="input"  data-length="10" data-name="PASSWD" data-dspatr="ND,UL">
+                            <span class="pi-icon">I</span><span class="pi-label">Password (ND·UL)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="output" data-length="6"  data-name="MSG"    data-dspatr="HI" data-color="YLW">
+                            <span class="pi-icon">O</span><span class="pi-label">Message (HI·YLW)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="constant" data-text="F3=Exit   F12=Cancel" data-color="BLU">
+                            <span class="pi-icon">K</span><span class="pi-label">Function-key legend</span>
+                        </div>
+                    </div>
+
+                    <div class="palette-group">
+                        <h4>ENPTUI controls</h4>
+                        <div class="palette-item" draggable="true" data-kind="pushbtn">
+                            <span class="pi-icon">[]</span><span class="pi-label">Push button</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="pushbtnGroup">
+                            <span class="pi-icon">[]</span><span class="pi-label">Push button group (3)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="radio">
+                            <span class="pi-icon">◯</span><span class="pi-label">Radio (single)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="radioGroup">
+                            <span class="pi-icon">◯</span><span class="pi-label">Radio group (3)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="checkbox">
+                            <span class="pi-icon">x</span><span class="pi-label">Checkbox (single)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="checkGroup">
+                            <span class="pi-icon">x</span><span class="pi-label">Check group (3)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="mnubar">
+                            <span class="pi-icon">=</span><span class="pi-label">Menu bar (2 items)</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="cntfld">
+                            <span class="pi-icon">+</span><span class="pi-label">Continued field</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="errmsg">
+                            <span class="pi-icon">!</span><span class="pi-label">Error msg field</span>
+                        </div>
+                    </div>
+
+                    <div class="palette-group">
+                        <h4>System values</h4>
+                        <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="DATE">
+                            <span class="pi-icon">D</span><span class="pi-label">DATE</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="TIME">
+                            <span class="pi-icon">T</span><span class="pi-label">TIME</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="USER">
+                            <span class="pi-icon">U</span><span class="pi-label">USER</span>
+                        </div>
+                        <div class="palette-item" draggable="true" data-kind="sysvalue" data-sys="SYSNAME">
+                            <span class="pi-icon">S</span><span class="pi-label">SYSNAME</span>
+                        </div>
+                    </div>
+
+                    <p class="palette-hint">
+                        Drag onto the grid <em>or</em> click an item then click the grid (click-to-place).
+                    </p>
+                    </div>
+                    <div id="recordsTabPane" hidden>
+                        <div id="recordTree" class="record-tree"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Canvas sits in a sunken 3D well - looks like the embedded
+                 terminal display in a Client Access / PCOMM Win98 window. -->
+            <main class="canvas-wrap">
+                <div class="canvas-frame" id="canvasFrame">
+                    <canvas id="grid" tabindex="0"></canvas>
+                </div>
+                <div class="canvas-help" id="canvasHelp">Drag a widget from the palette onto the grid.</div>
+            </main>
+
+            <aside class="window panel inspector" id="inspector">
+                <div class="title-bar">
+                    <div class="title-bar-text">Inspector</div>
+                </div>
+                <div class="panel-body" id="inspectorBody">
+                    <p class="empty">Nothing selected.</p>
+                </div>
+            </aside>
+
+        </div>
+
+        <!-- Splitter between workspace and source panel.  The classic Win98
+             splitter pattern (dotted gripper in the middle) is drawn via
+             ::after in CSS. -->
+        <div class="resize-handle" id="resizeHandle" role="separator"
+             aria-label="Resize source panel" aria-orientation="horizontal"></div>
+
+        <!-- Bottom source panel: its own Win98 sub-window with a title bar
+             plus a gray sub-toolbar holding the column-marker toggle and
+             the sync-status LED.  The collapse arrow MUST live in the
+             title-bar (not the sub-toolbar) because the sub-toolbar is
+             hidden when collapsed - keeping the arrow inside the title-bar
+             means the user can always click it to re-expand.  The button
+             has no aria-label so 98.css's [aria-label="Minimize"]
+             background-image rule doesn't paint over our v/^ text. -->
+        <section class="window source-panel" id="sourcePanel">
+            <div class="title-bar">
+                <div class="title-bar-text">Source - DSPF</div>
+                <div class="title-bar-controls">
+                    <button id="sourceCollapse" class="source-collapse"
+                            title="Hide source panel">v</button>
+                </div>
+            </div>
+            <div class="source-toolbar">
+                <button id="sourceViewBtn" class="source-chip on" type="button">Source</button>
+                <button id="problemsViewBtn" class="source-chip" type="button">Problems 0</button>
+                <span class="sep" aria-hidden="true"></span>
+                <button id="cursorColToggle" class="source-chip"
+                        title="Vertical column marker at cursor position">| col</button>
+                <span class="source-toolbar-spacer"></span>
+                <span class="source-status ok" id="sourceStatus" title="Sync state">sync</span>
+            </div>
+            <div class="source-editor" id="sourceEditor"></div>
+            <div class="problems-panel" id="problemsPanel" hidden>
+                <p class="problems-empty">No problems found.</p>
+            </div>
+        </section>
+
+        </div>
+
+<dialog id="templateDialog" class="window template-dialog" aria-labelledby="templateDialogTitle">
+    <form id="templateForm">
+        <div class="title-bar">
+            <div class="title-bar-text" id="templateDialogTitle">New DSPF from template</div>
+        </div>
+        <div class="template-body">
+            <p class="template-intro">Choose a starting point. Everything remains editable in the canvas and source.</p>
+            <div class="template-grid">
+                <label>Template
+                    <select id="templateKind"></select>
+                </label>
+                <p id="templateDescription" class="template-description"></p>
+                <label>DSPF name
+                    <input id="templateSourceName" type="text" value="DSPFILE" maxlength="10" required>
+                </label>
+                <label>First record/base name
+                    <input id="templateRecordName" type="text" value="MAIN" maxlength="10" required>
+                </label>
+                <label>Display model
+                    <select id="templateModel">
+                        <option value="24x80">24×80 (5251-11)</option>
+                        <option value="27x132">27×132 (3477-FC)</option>
+                    </select>
+                </label>
+            </div>
+            <div class="template-actions">
+                <button id="templateCancel" type="button">Cancel</button>
+                <button type="submit">Create design</button>
+            </div>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="findDialog" class="window find-dialog" aria-labelledby="findDialogTitle">
+    <form id="findForm">
+        <div class="title-bar">
+            <div class="title-bar-text" id="findDialogTitle">Find in design</div>
+        </div>
+        <div class="find-body">
+            <label class="find-query-label">Record, field, text or keyword
+                <input id="findQuery" type="search" autocomplete="off" placeholder="Type to search…">
+            </label>
+            <div id="findResults" class="find-results"></div>
+            <div class="find-actions">
+                <span id="findCount" class="find-count"></span>
+                <button id="findClose" type="button">Close</button>
+            </div>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="keyFlowDialog" class="window flow-dialog" aria-labelledby="keyFlowTitle">
+    <form id="keyFlowForm">
+        <div class="title-bar">
+            <div class="title-bar-text" id="keyFlowTitle">Command-key flow</div>
+        </div>
+        <div class="flow-body">
+            <p class="flow-intro">Choose what generated RPGLE and COBOL programs do for each AID key. Navigation keeps the selected record active on the next loop.</p>
+            <div class="flow-head" aria-hidden="true">
+                <span>Key / indicator</span><span>Generated behavior</span><span>Target record</span>
+            </div>
+            <div id="keyFlowRows" class="flow-rows"></div>
+            <p class="flow-note">Key actions are RAD metadata. Save a RAD project to keep them; plain DSPF export contains only DDS.</p>
+            <div class="flow-actions">
+                <button id="keyFlowCancel" type="button">Cancel</button>
+                <button type="submit">Apply flow</button>
+            </div>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="databaseImportDialog" class="window import-dialog" aria-labelledby="databaseImportTitle">
+    <form id="databaseImportForm">
+        <div class="title-bar">
+            <div class="title-bar-text" id="databaseImportTitle">Import PF/LF fields</div>
+        </div>
+        <div class="import-body">
+            <p id="databaseImportFile" class="import-file"></p>
+            <div class="import-grid">
+                <label>Source record
+                    <select id="databaseSourceRecord"></select>
+                </label>
+                <label>Target DSPF record
+                    <select id="databaseTargetRecord"></select>
+                </label>
+                <label>Layout
+                    <select id="databaseLayout">
+                        <option value="form">Labeled form</option>
+                        <option value="subfile">Subfile columns</option>
+                    </select>
+                </label>
+                <label>Field usage
+                    <select id="databaseUsage">
+                        <option value="B">B · Input/Output</option>
+                        <option value="I">I · Input</option>
+                        <option value="O">O · Output</option>
+                    </select>
+                </label>
+                <label>Start row
+                    <input id="databaseStartRow" type="number" min="1" max="27" value="3">
+                </label>
+                <label>Label/start column
+                    <input id="databaseLabelCol" type="number" min="1" max="132" value="2">
+                </label>
+                <label id="databaseFieldColLabel">Field column
+                    <input id="databaseFieldCol" type="number" min="2" max="132" value="24">
+                </label>
+                <label class="import-option-row">
+                    <input id="databaseAddOption" type="checkbox"> Add option field to subfile
+                </label>
+            </div>
+            <fieldset class="import-fields-box">
+                <legend>Fields to import</legend>
+                <div id="databaseFields" class="import-fields"></div>
+            </fieldset>
+            <div class="import-actions">
+                <button id="databaseImportCancel" type="button">Cancel</button>
+                <button type="submit">Import selected fields</button>
+            </div>
+        </div>
+    </form>
+</dialog>

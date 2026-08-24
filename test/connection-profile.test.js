@@ -32,6 +32,9 @@ test('connection profile normalizes IBM i metadata without secrets', () => {
 });
 
 test('connection profiles reject embedded credentials and invalid ports', () => {
+    assert.throws(() => new ConnectionProfile({
+        id: 'unsafe-direct', name: 'Unsafe', host: 'localhost', password: 'secret',
+    }), /Credentials are not allowed/);
     assert.throws(() => ConnectionProfile.fromJSON({
         id: 'unsafe', name: 'Unsafe', host: 'localhost', password: 'secret',
     }), /Credentials are not allowed/);

@@ -1,0 +1,162 @@
+.dspf-editor-surface {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#toolbar {
+    min-height: 30px;
+    gap: var(--space-1);
+    padding: 3px var(--space-3);
+    font-size: var(--font-size-ui);
+}
+
+#toolbar .lbl,
+#toolbar button,
+#toolbar select {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+}
+
+#toolbar button,
+#toolbar select {
+    height: var(--control-height-sm);
+}
+
+.simulation-bar {
+    min-height: 31px;
+    font-size: var(--font-size-ui);
+}
+
+.panel.palette {
+    width: 250px;
+    flex-basis: 250px;
+}
+
+.panel.inspector {
+    width: 310px;
+    flex-basis: 310px;
+}
+
+.panel .panel-body {
+    padding: var(--space-3);
+}
+
+.side-tabs button {
+    height: var(--control-height-sm);
+    font-size: var(--font-size-ui);
+}
+
+.palette-group + .palette-group {
+    margin-top: var(--space-4);
+}
+
+.palette-group h4 {
+    margin: 6px 2px 4px;
+    font-size: var(--font-size-caption);
+    line-height: 1.3;
+}
+
+.palette-item {
+    min-height: 26px;
+    box-sizing: border-box;
+    gap: var(--space-3);
+    padding: 4px 6px;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+    line-height: 1.3;
+}
+
+.pi-icon,
+.record-tree,
+.record-tree-row,
+.record-tree-link {
+    font-family: var(--font-mono);
+}
+
+.palette-hint {
+    margin: var(--space-5) 2px 2px;
+    padding: 7px 8px;
+    color: var(--fg-text);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+    line-height: 1.5;
+    background: var(--bg-tooltip);
+    border: 1px solid;
+    border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+}
+
+.palette-hint em {
+    color: var(--fg-accent);
+}
+
+.record-tree-row,
+.record-tree-link {
+    min-height: 25px;
+    box-sizing: border-box;
+    font-size: var(--font-size-caption);
+}
+
+.record-tree-meta {
+    font-size: 10px;
+}
+
+.inspector .empty,
+.insp-tab,
+.insp-section h4,
+.insp-row,
+.insp-row > label,
+.insp-row input,
+.insp-row select,
+.insp-row textarea,
+.insp-chip,
+.insp-kw input,
+.insp-kw select,
+.insp-kw .insp-ind,
+.insp-add-kw,
+.insp-itemrow,
+.insp-ind,
+.insp-raw-select {
+    font-size: var(--font-size-ui);
+    line-height: 1.35;
+}
+
+.insp-row {
+    grid-template-columns: 86px minmax(0, 1fr);
+    margin-bottom: 5px;
+}
+
+.insp-row textarea,
+.insp-chip,
+.insp-kw input,
+.insp-kw select,
+.insp-kw .insp-ind,
+.insp-itemrow,
+.insp-ind {
+    font-family: var(--font-mono);
+}
+
+.source-toolbar,
+.problems-panel {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+}
+
+.source-chip {
+    min-height: var(--control-height-sm);
+    font-size: var(--font-size-caption);
+}
+
+@media (max-width: 1050px) {
+    .panel.palette {
+        width: 220px;
+        flex-basis: 220px;
+    }
+
+    .panel.inspector {
+        width: 270px;
+        flex-basis: 270px;
+    }
+}
