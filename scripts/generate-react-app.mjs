@@ -13,7 +13,10 @@ const args = process.argv.slice(2);
 const flags = {};
 const positional = [];
 for (let index = 0; index < args.length; index++) {
-    if (args[index] === '--overrides') flags.overridesPath = args[++index];
+    if (args[index] === '--overrides') {
+        flags.overridesPath = args[++index];
+        if (!flags.overridesPath) throw new Error('--overrides requires a file path');
+    }
     else positional.push(args[index]);
 }
 const [sourceArg, outputArg = 'generated/react-app'] = positional;
@@ -26,9 +29,10 @@ let overridesHash = null;
 if (flags.overridesPath) {
     overrides = normalizeOverrideInput(JSON.parse((await readFile(resolve(flags.overridesPath), 'utf8')).replace(/^\uFEFF/, '')));
     if (!overrides) throw new Error(`Invalid overrides payload in ${flags.overridesPath}`);
-    overridesHash = hashOverrides(overrides);
+    overridesHash = `fnv1a:${hashOverrides(overrides)}`;
 }
 const contract = buildMappingContract(buildCompleteSemanticIR(parseDspf(source)), { overrides });
+if (contract.overridesHash) overridesHash = contract.overridesHash;
 const files = generateReactApp(contract);
 for (const [relativePath, content] of Object.entries(files)) {
     const target = resolve(outputPath, relativePath);

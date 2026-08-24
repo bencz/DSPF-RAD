@@ -272,7 +272,9 @@ export default function App () {
     useEffect(() => {
         let live = true;
         loadDesignOverrides().then((result) => {
-            if (live) setDesignOverrides(result.overrides);
+            if (!live) return;
+            setDesignOverrides(result.overrides);
+            if (result.error) console.warn('[dspf·rad] design overlay disabled:', result.error);
         });
         return () => { live = false; };
     }, []);

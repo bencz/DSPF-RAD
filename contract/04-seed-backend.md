@@ -55,7 +55,7 @@ Error contract: `400` invalid shape, `404` unknown screen, `409` unknown screen 
 }
 ```
 
-Field entries use the same identity rules as the mapping contract (`runtimeBindingKey`, `domId`). Values are strings padded to source length where known.
+Field entries use the same identity rules as the mapping contract (`runtimeBindingKey`, `domId`). Values are strings padded to source length where known. Note: the seed server's `binding-map.json` intentionally carries identity keys only (`runtimeBindingKey`, `domId`) — the full React-side shape with status/role/visibility lives in the generated app's own binding map.
 
 ## 5. Transaction behavior
 

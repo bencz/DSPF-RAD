@@ -33,8 +33,6 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true, overrides
 
     const semantic = buildSemanticPreview(doc, { overrides });
     const model = buildVisualModel(doc);
-    const unmatchedOverrides = semantic.overrideDiagnostics
-        .filter((diagnostic) => diagnostic.code === 'OVERRIDE_NO_MATCHING_SOURCE').length;
     const reviewTitle = model.warnings.some((warning) => warning.severity === 'manual-review')
         ? 'Manual review' : 'Inferred output';
     const selectedId = bus?.current ?? null;
@@ -58,8 +56,8 @@ export function ConvertedPane ({ doc, bus = EMPTY_BUS, enabled = true, overrides
                         {overrides.length > 0 && (
                             <Chip
                                 data-testid="override-status"
-                                label={`design overrides · ${semantic.overridesByItemId.size} applied`
-                                    + (unmatchedOverrides > 0 ? ` · ${unmatchedOverrides} unmatched` : '')}
+                                label={`design overrides · ${semantic.appliedCount} applied`
+                                    + (semantic.unmatchedCount > 0 ? ` · ${semantic.unmatchedCount} unmatched` : '')}
                                 color="secondary"
                                 size="small"
                             />
@@ -105,6 +103,7 @@ function ConvertedItem ({ item, override, selected }) {
         : item.kind === 'sysvalue'
             ? (item.sysName || 'System value')
             : item.text || ' ';
+    const targetRow = Number(override?.target?.targetRow) || item.row;
     const targetCol = Number(override?.target?.targetCol) || item.targetCol;
     const span = Number(override?.target?.span) || item.span;
     const component = typeof override?.target?.component === 'string' ? override.target.component : null;
@@ -118,7 +117,7 @@ function ConvertedItem ({ item, override, selected }) {
             data-override-applied={override ? 'true' : undefined}
             data-override-component={component ?? undefined}
             sx={{
-                gridRow: item.row,
+                gridRow: targetRow,
                 minWidth: 0,
                 minHeight: 40,
                 display: 'flex',

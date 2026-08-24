@@ -44,6 +44,7 @@ function cloneMapping (mapping) {
 function describeChanges (override) {
     const parts = [];
     if (Number.isFinite(override.target?.targetCol)) parts.push(`col=${override.target.targetCol}`);
+    if (Number.isFinite(override.target?.targetRow)) parts.push(`row=${override.target.targetRow}`);
     if (Number.isFinite(override.target?.span)) parts.push(`span=${override.target.span}`);
     if (typeof override.target?.component === 'string') parts.push(`component=${override.target.component}`);
     return parts.join(', ') || 'no-op';
@@ -65,25 +66,35 @@ export function applyDesignOverrides (contract, overrides) {
             });
             continue;
         }
-        const changes = describeChanges(override);
-        if (Number.isFinite(override.target?.targetCol)) {
+        // A mapping may have no layout target yet (e.g. unresolved display
+        // profile): geometry overrides are skipped, component still applies.
+        const changeParts = [];
+        if (mapping.target && Number.isFinite(override.target?.targetCol)) {
             mapping.target.col = override.target.targetCol;
             mapping.traceability.target.col = override.target.targetCol;
+            changeParts.push(`col=${override.target.targetCol}`);
         }
-        if (Number.isFinite(override.target?.span)) {
+        if (mapping.target && Number.isFinite(override.target?.targetRow)) {
+            mapping.target.row = override.target.targetRow;
+            mapping.traceability.target.row = override.target.targetRow;
+            changeParts.push(`row=${override.target.targetRow}`);
+        }
+        if (mapping.target && Number.isFinite(override.target?.span)) {
             mapping.target.plannedSpan = override.target.span;
             mapping.target.actualSpan = override.target.span;
             mapping.traceability.target.span = override.target.span;
+            changeParts.push(`span=${override.target.span}`);
         }
         if (typeof override.target?.component === 'string' && override.target.component.length > 0) {
             mapping.targetComponent = override.target.component;
             mapping.traceability.target.component = override.target.component;
+            changeParts.push(`component=${override.target.component}`);
         }
         appliedCount += 1;
         diagnostics.push({
             code: 'DESIGN_OVERRIDE_APPLIED',
             severity: 'info',
-            message: `Design override applied (${changes})`,
+            message: `Design override applied (${changeParts.join(', ') || 'no-op'})`,
             sourceIdentity: override.sourceIdentity,
         });
     }

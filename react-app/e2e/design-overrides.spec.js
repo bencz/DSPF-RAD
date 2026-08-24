@@ -61,10 +61,16 @@ test.describe('design overlay (OpenPencil overrides)', () => {
         const placement = await overridden.evaluate((el) => getComputedStyle(el).gridColumnStart + '/' + getComputedStyle(el).gridColumnEnd);
         expect(placement.replace(/\s/g, '')).toBe('7/span4');
 
-        // A sibling without an override keeps the automatic conversion.
-        const untouched = page.locator('#convertedPane [data-testid="converted-item"][data-override-applied]');
-        await expect(overridden).toBeVisible();
-        expect(await untouched.count()).toBeGreaterThanOrEqual(1);
+        // A sibling WITHOUT an override keeps the automatic conversion: the
+        // attribute must be absent on every non-overridden item.
+        const allItems = page.locator('#convertedPane [data-testid="converted-item"]');
+        const total = await allItems.count();
+        expect(total).toBeGreaterThan(1);
+        for (let index = 0; index < total; index++) {
+            const item = allItems.nth(index);
+            if (await item.getAttribute('data-source-id') === locate.id) continue;
+            await expect(item, `item #${index} stays automatic`).not.toHaveAttribute('data-override-applied');
+        }
 
         await expect(page.getByTestId('override-status')).toContainText('1 applied');
         await expect(page.getByTestId('override-status')).toContainText('1 unmatched');
