@@ -30,7 +30,7 @@ Evidence must point at user-observable behavior — rendered output, computed st
 | L4-0A | Generators consume design overrides | None | ✅ DONE 2026-08-24 — overrides flow end-to-end |
 | L4-0B | Receipt persistence (receipt/2) | None | Receipts survive process exit; chain recomputable |
 | L4-1A | `pnpm convert` single-entry orchestrator | L4-0A, L4-0B | One command runs ③④⑤ and prints a receipt |
-| L4-1B | CI workflow running the verification ladder | None | ✅ IMPLEMENTED 2026-08-24 — first remote run pending push |
+| L4-1B | CI workflow running the verification ladder | None | ✅ IMPLEMENTED 2026-08-24 — PR #1 opened; first remote run awaiting owner approval (first-time-contributor policy) |
 | L4-2A | OpenPencil `.fig` adapter via CLI | None | Real exports flow through `extract:overrides` |
 | L4-0C | Semantic profile evidence | None | ✅ DONE 2026-08-24 — manifests self-declare semantic rules |
 | L4-0D | Containment sweep (Gate C5) | None | ✅ DONE 2026-08-24 — 70/70 fixtures, 0 escapes; caught 2 real identity/revision bugs |
@@ -111,7 +111,7 @@ read source → parseDspf → buildCompleteSemanticIR → buildMappingContract(+
 
 **Implemented 2026-08-24.** `.github/workflows/ci.yml`: push/PR on master → pnpm 11 + Node 22 (pnpm cache) → `npm ci` in react-app → **projection consistency check** (`pnpm check:projections`, folded in per design doc §4.4) → L1 → L2 → L3 build → chromium install → L4 Playwright. Concurrency cancel, `contents: read`, 20-min timeout, no deploy jobs (D-17).
 
-**Verification so far:** every command sequence executed green locally on the current tree (81 + 112 + build + 31 browser checks; js-yaml parses the workflow; `check:projections` returns ok with 14 schemas). **Pending:** the first real GitHub Actions run after the next push — confirm green, then break one spec locally and confirm red per original AC.
+**Verification so far:** every command sequence executed green locally on the current tree (81 + 112 + build + 31 browser checks; js-yaml parses the workflow; `check:projections` returns ok with 14 schemas). **Pending:** the first real GitHub Actions run. PR #1 (bencz/DSPF-RAD, branch `v4-contract-and-gates`) was opened 2026-08-24; as a first-time-contributor PR it needs owner approval in the Actions tab before the ladder executes — or enable Actions for the repo.
 
 **Non-goals:** No deploy jobs, no release automation until the seed server epic lands (D-17).
 
