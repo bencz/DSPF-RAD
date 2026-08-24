@@ -91,6 +91,11 @@ while a DSPF designer document is active.
   CL/CLLE syntax, and provides contextual CL completion. Registered RPG,
   COBOL, SQL, DDS, CMD, and panel-group source types already share the same
   document lifecycle and open as plain text while their adapters are built.
+- A persistent Project Explorer keeps the workspace, projects, open editors,
+  project-associated sources, dirty state, and active selections visible while
+  moving between the Start Page, source editor, and DSPF designer. Tree nodes
+  can be collapsed, and sources whose original project is not in the current
+  workspace remain accessible under Loose Sources.
 
 ## Running it
 
@@ -190,6 +195,9 @@ indicator table.
 - The browser host supports local file operations only. Direct IBM i access
   belongs to the future desktop host; credentials will not be stored in project
   documents or autosave data.
+- Local project directory enumeration and IBM i source-member discovery are
+  not implemented yet. The Explorer currently catalogs documents opened in the
+  IDE and associates new local sources with the active workspace project.
 
 ## Architecture
 

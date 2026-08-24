@@ -62,6 +62,7 @@ turning domain algorithms into artificial objects.
 | `src/workbench` | New IDE shell controllers | workbench |
 | `src/platform` | Browser/Tauri/IBM i effects | platform |
 | `src/workbench/shell`, `start`, `views` | Shell, Start Page, view composition | workbench |
+| `src/workbench/layout`, `explorer` | Persistent IDE regions and project navigation | workbench |
 | `src/features/dspf-designer/*.html, *.css` | DSPF-only editor surface | DSPF designer feature |
 
 Moving directories is not a goal by itself. A module moves only when its public
@@ -123,6 +124,13 @@ CodeMirror adapter owns editing mechanics; and its controller owns commands,
 tabs, and host-mediated local file operations. The original DSPF source pane
 remains inside the specialized visual designer and is not the generic IDE
 editor. See [decision 0009](decisions/0009-generic-source-code-editor.md).
+
+The persistent Project Explorer is a projection of workspace and document
+services, not another source of application state. Its view/controller lives
+under `src/workbench/explorer`, while `WorkbenchAreaView` only supplies the
+Explorer and editor layout regions. Open local sources are associated with the
+active project; future local-directory and IBM i member catalogs will enter
+through provider ports. See [decision 0010](decisions/0010-project-explorer.md).
 
 ## Remote IBM i boundary
 

@@ -2,6 +2,8 @@
 @import './src/styles/classic-theme.css';
 @import './src/styles/base.css';
 @import './src/workbench/shell/workbench-shell.css';
+@import './src/workbench/layout/workbench-area.css';
+@import './src/workbench/explorer/project-explorer.css';
 @import './src/workbench/start/start-page.css';
 @import './src/workbench/ui/dialogs/workbench-dialog.css';
 @import './src/features/dspf-designer/dspf-editor.css';

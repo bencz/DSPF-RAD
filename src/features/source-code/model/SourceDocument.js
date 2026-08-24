@@ -9,6 +9,7 @@ export class SourceDocument {
         sourceType = '',
         text = '',
         resourceUri = null,
+        projectId = null,
         markClean = true,
     }) {
         this.id = requiredText(id, 'Source document id');
@@ -16,6 +17,7 @@ export class SourceDocument {
         this.languageId = requiredText(languageId, 'Source language id').toLowerCase();
         this.sourceType = String(sourceType ?? '').trim().toUpperCase();
         this.resourceUri = optionalText(resourceUri);
+        this.projectId = optionalText(projectId);
         this.text = String(text ?? '');
         this.version = 1;
         this.#cleanText = markClean ? this.text : null;
@@ -65,6 +67,7 @@ export class SourceDocument {
             languageId: this.languageId,
             sourceType: this.sourceType,
             resourceUri: this.resourceUri,
+            projectId: this.projectId,
             version: this.version,
             isDirty: this.isDirty,
         });

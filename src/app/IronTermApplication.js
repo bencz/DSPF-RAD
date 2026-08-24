@@ -58,6 +58,7 @@ import { createLanguageServices } from '../languages/createLanguageServices.js';
 import { SourceCodeDocumentService } from '../features/source-code/SourceCodeDocumentService.js';
 import { SourceCodeEditor } from '../features/source-code/SourceCodeEditor.js';
 import { SourceCodeEditorController } from '../features/source-code/SourceCodeEditorController.js';
+import { ProjectExplorerController } from '../workbench/explorer/ProjectExplorerController.js';
 
 export class IronTermApplication {
     constructor ({
@@ -195,6 +196,7 @@ export class IronTermApplication {
         const sourceCodeController = new SourceCodeEditorController({
             documents: sourceCodeDocuments,
             workbenchDocuments,
+            workspaceSession,
             editor: sourceCodeEditor,
             languageServices,
             commands,
@@ -281,6 +283,16 @@ export class IronTermApplication {
             logger: this.logger,
         });
         workspaceController.start();
+        const projectExplorer = new ProjectExplorerController({
+            element: this.#element('projectExplorerTree'),
+            summaryElement: this.#element('projectExplorerSummary'),
+            workspaceSession,
+            sourceDocuments: sourceCodeDocuments,
+            workbenchDocuments,
+            commands,
+            logger: this.logger,
+        });
+        projectExplorer.start();
         const connectionController = new ConnectionController({
             service: ibmiConnection,
             profiles: connectionProfiles,

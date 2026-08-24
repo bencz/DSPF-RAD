@@ -11,11 +11,13 @@ test('source document tracks text versions, dirty state, and save boundaries', (
         sourceType: 'clle',
         text: 'PGM\nENDPGM',
         resourceUri: 'file:///build.clle',
+        projectId: 'project-build',
     });
     const events = [];
     document.onDidChange(event => events.push(event.type));
 
     assert.equal(document.isDirty, false);
+    assert.equal(document.describe().projectId, 'project-build');
     assert.equal(document.replaceText('PGM\nRETURN\nENDPGM'), true);
     assert.equal(document.version, 2);
     assert.equal(document.isDirty, true);

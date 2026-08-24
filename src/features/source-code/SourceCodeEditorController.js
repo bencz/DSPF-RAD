@@ -13,6 +13,7 @@ export class SourceCodeEditorController {
     constructor ({
         documents,
         workbenchDocuments,
+        workspaceSession,
         editor,
         languageServices,
         commands,
@@ -25,8 +26,12 @@ export class SourceCodeEditorController {
         if (!documents) throw new TypeError('SourceCodeEditorController requires documents.');
         if (!editor) throw new TypeError('SourceCodeEditorController requires an editor.');
         if (!commands) throw new TypeError('SourceCodeEditorController requires commands.');
+        if (!workspaceSession) {
+            throw new TypeError('SourceCodeEditorController requires a workspace session.');
+        }
         this.documents = documents;
         this.workbenchDocuments = workbenchDocuments;
+        this.workspaceSession = workspaceSession;
         this.editor = editor;
         this.languageServices = languageServices;
         this.commands = commands;
@@ -104,6 +109,7 @@ export class SourceCodeEditorController {
                 sourceType: inferredSourceType(file.name, language),
                 text: file.text,
                 resourceUri: `local:///${encodeURIComponent(file.name)}`,
+                projectId: this.workspaceSession.workspace.activeProjectId,
             });
             this.documents.open(document);
             this.flash?.(`Opened ${file.name} as ${language.label}.`, 'ok');
