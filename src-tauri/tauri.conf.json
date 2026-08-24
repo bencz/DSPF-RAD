@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "IronTerm Studio",
+  "version": "0.10.0",
+  "identifier": "cc.bencz.irontermstudio",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "IronTerm Studio - IBM i Development Environment",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "capabilities": ["main-capability"],
+      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: data:; font-src 'self' asset:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'",
+      "devCsp": "default-src 'self' http://127.0.0.1:5173; connect-src 'self' ipc: http://ipc.localhost ws://127.0.0.1:5173; img-src 'self' asset: data:; font-src 'self' asset:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "Alexandre Bencz",
+    "category": "DeveloperTool",
+    "shortDescription": "Offline-first IBM i development environment",
+    "longDescription": "IronTerm Studio is an offline-first integrated development environment for IBM i source, workspaces, builds, diagnostics, system access, and specialized development tools.",
+    "copyright": "Copyright © 2026 Alexandre Bencz",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "linux": {
+      "deb": {},
+      "rpm": {},
+      "appimage": {}
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15",
+      "hardenedRuntime": true
+    },
+    "windows": {
+      "allowDowngrades": false,
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      }
+    }
+  }
+}

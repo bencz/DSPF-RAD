@@ -1,8 +1,14 @@
 # IronTerm Studio architecture
 
-IronTerm Studio is evolving from the DSPF designer into an offline-first IBM i
-development environment. The migration is incremental: stable DDS engine code
-remains usable while the workbench and remote runtime are built around it.
+IronTerm Studio is an offline-first integrated development environment for the
+complete IBM i development workflow. Its workbench is designed to host source
+editors, builds, diagnostics, object and member navigation, terminals, remote
+system integration, and specialized designers. The existing DSPF designer is
+the first mature specialized feature, not the boundary of the product.
+
+The migration is incremental: stable DDS engine code remains usable while the
+general-purpose workbench and desktop runtime are built around explicit
+contracts.
 
 ## Dependency direction
 
@@ -17,16 +23,28 @@ browser / desktop UI ─────┘
 - `features` coordinate one user capability, such as DSPF design, source
   editing, compilation, object browsing, or job-log diagnostics.
 - `workbench` owns the IDE shell: commands, menus, panels, editors, status,
-  layout, and shared application state.
+  layout, versioned workspace manifests, and shared application state.
 - `platform` implements environment ports. Browser and desktop/Tauri details
   stay behind explicit contracts such as `HostBridge`.
 - The composition root creates concrete implementations and injects them. In
-  the current migration that root is `src/app/boot.js`; it must become smaller
-  as feature controllers are extracted.
+  the current migration that root is the `IronTermApplication` class;
+  `src/app/boot.js` is only its error boundary and entry point.
 
 Dependencies point inward. Core never imports features, workbench, app, or
 platform. A feature may depend on a platform contract, but never on a concrete
 browser or desktop implementation.
+
+## Code shape
+
+Stateful application behavior is class-based. Controllers own event bindings
+and lifecycle, services own integrations, models protect invariants, and
+registries own discovery and dispatch. Dependencies enter through constructors;
+classes do not discover concrete hosts implicitly.
+
+Standalone functions are reserved for pure transformations where a class would
+add no state or invariant: parsers, writers, validators, formatters, and code
+generators. This keeps both human and automated maintenance localized without
+turning domain algorithms into artificial objects.
 
 ## Current-to-target map
 

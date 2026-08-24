@@ -1494,12 +1494,14 @@ body.source-collapsed .problems-panel { display: none; }
     font-size: 11px;
 }
 #sbHost   { min-width: 110px; font-weight: bold; }
+#sbWorkspace { min-width: 145px; }
 #sbModel  { min-width: 90px; }
 #sbRecord { min-width: 110px; }
 #sbItems  { min-width: 70px; }
 #sbCursor { min-width: 70px; text-align: right; }
 #sbDirty  { min-width: 70px; text-align: center; }
 #sbDirty.dirty { color: var(--status-warn); font-weight: bold; }
+#sbWorkspace.dirty { color: var(--status-warn); font-weight: bold; }
 
 /* ============================================================
    Theme toggle button in the menubar-info row.

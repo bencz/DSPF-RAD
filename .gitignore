@@ -51,5 +51,7 @@ pnpm-debug.log*
 # Build / temp output (no build system today, but here in case)
 dist/
 build/
+src-tauri/target/
+src-tauri/gen/schemas/
 .tmp/
 .cache/

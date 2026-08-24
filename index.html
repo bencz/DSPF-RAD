@@ -6,7 +6,7 @@
 
     <title>IronTerm Studio · IBM i Development Environment</title>
     <meta name="description"
-          content="IronTerm Studio is an offline-first IBM i development environment with a visual DDS display-file designer, live source synchronization, validation, and RPGLE/COBOL generation.">
+          content="IronTerm Studio is an offline-first integrated development environment for IBM i source, workspaces, builds, diagnostics, system access, and specialized development tools.">
     <meta name="keywords"
           content="DSPF, DDS, IBM i, AS/400, AS400, iSeries, System i, 5250, 5251, RPG, RPGLE, COBOL, display file, subfile, SFL, SFLCTL, ENPTUI, terminal designer, RAD, green screen, SDA">
     <meta name="author" content="Alexandre Bencz">
@@ -20,20 +20,20 @@
     <meta property="og:type"          content="website">
     <meta property="og:site_name"     content="IronTerm Studio">
     <meta property="og:title"         content="IronTerm Studio · IBM i Development Environment">
-    <meta property="og:description"   content="Offline-first IBM i workbench with a visual DDS designer, live source synchronization, validation, and RPGLE/COBOL generation.">
+    <meta property="og:description"   content="An offline-first IDE for IBM i source, workspaces, builds, diagnostics, system access, and specialized development tools.">
     <meta property="og:url"           content="https://dspf-rad.bencz.cc/">
     <meta property="og:image"         content="https://github.com/user-attachments/assets/0ece6fdb-8651-4c0f-9ca9-1dc545fc8b5b">
     <meta property="og:image:width"   content="1510">
     <meta property="og:image:height"  content="864">
-    <meta property="og:image:alt"     content="DSPF·RAD designer showing a 5250 sign-on screen with palette, canvas, inspector and live DSPF source.">
+    <meta property="og:image:alt"     content="IronTerm Studio showing its visual DSPF designer with a 5250 canvas, toolbox, inspector, and synchronized source.">
     <meta property="og:locale"        content="en_US">
 
     <!-- Twitter / X card -->
     <meta name="twitter:card"        content="summary_large_image">
     <meta name="twitter:title"       content="IronTerm Studio · IBM i Development Environment">
-    <meta name="twitter:description" content="Offline-first IBM i workbench with a visual DDS designer and live source synchronization.">
+    <meta name="twitter:description" content="An offline-first integrated development environment for the complete IBM i development workflow.">
     <meta name="twitter:image"       content="https://github.com/user-attachments/assets/0ece6fdb-8651-4c0f-9ca9-1dc545fc8b5b">
-    <meta name="twitter:image:alt"   content="DSPF·RAD designer showing a 5250 sign-on screen with palette, canvas, inspector and live DSPF source.">
+    <meta name="twitter:image:alt"   content="IronTerm Studio showing its visual DSPF designer with a 5250 canvas, toolbox, inspector, and synchronized source.">
 
     <!-- Structured data for search engines (schema.org SoftwareApplication) -->
     <script type="application/ld+json">
@@ -42,7 +42,7 @@
       "@type": "SoftwareApplication",
       "name": "IronTerm Studio",
       "url": "https://dspf-rad.bencz.cc/",
-      "description": "Offline-first IBM i development environment with a visual DDS display-file designer, live source synchronization, validation, and RPGLE and COBOL generators.",
+      "description": "Offline-first integrated development environment for IBM i source, workspaces, builds, diagnostics, system access, and specialized development tools.",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any (web browser)",
       "browserRequirements": "Requires a modern browser with ES modules (Chrome, Firefox, Safari, Edge).",
@@ -110,10 +110,9 @@
         <!-- Classic Win98 menubar.  Each top-level <li> is a menu (File,
              Record, View, Export, Help) with a .menu-title button and a
              .menu-dropdown <ul> that appears on click.  Menu items carry
-             a data-cmd that the menubar controller in main.js dispatches
-             to the hidden #legacyControls (where the existing
-             handlers live).  No JS handler in main.js needed to move -
-             we only synthesize clicks/changes on those hidden controls.
+             a semantic data-cmd resolved by the workbench command registry.
+             Transitional command adapters still invoke existing controls while
+             features are migrated out of the bootstrap incrementally.
 
              Access keys are marked with <u>X</u> for visual hint only;
              we don't bind Alt+letter (avoids fighting browser defaults). -->
@@ -121,23 +120,23 @@
             <li class="menu" data-menu="file">
                 <button class="menu-title" type="button"><u>F</u>ile</button>
                 <ul class="menu-dropdown" role="menu">
-                    <li><button class="menu-item" data-cmd="newDoc">
+                    <li><button class="menu-item" data-cmd="file.new">
                         <span class="menu-label"><u>N</u>ew</span>
                         <span class="menu-accel">Ctrl+N</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="openDoc">
+                    <li><button class="menu-item" data-cmd="file.open">
                         <span class="menu-label"><u>O</u>pen…</span>
                         <span class="menu-accel">Ctrl+O</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="saveDoc">
+                    <li><button class="menu-item" data-cmd="file.save">
                         <span class="menu-label"><u>S</u>ave</span>
                         <span class="menu-accel">Ctrl+S</span>
                     </button></li>
                     <li class="menu-separator"></li>
-                    <li><button class="menu-item" data-cmd="openProject">
+                    <li><button class="menu-item" data-cmd="project.open">
                         <span class="menu-label">Open RAD project…</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="saveProject">
+                    <li><button class="menu-item" data-cmd="project.save">
                         <span class="menu-label">Save RAD project…</span>
                     </button></li>
                 </ul>
@@ -146,31 +145,46 @@
             <li class="menu" data-menu="edit">
                 <button class="menu-title" type="button"><u>E</u>dit</button>
                 <ul class="menu-dropdown" role="menu">
-                    <li><button class="menu-item" data-cmd="undoDoc">
+                    <li><button class="menu-item" data-cmd="edit.undo">
                         <span class="menu-label"><u>U</u>ndo</span>
                         <span class="menu-accel">Ctrl+Z</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="redoDoc">
+                    <li><button class="menu-item" data-cmd="edit.redo">
                         <span class="menu-label"><u>R</u>edo</span>
                         <span class="menu-accel">Ctrl+Y</span>
                     </button></li>
                     <li class="menu-separator"></li>
-                    <li><button class="menu-item" data-cmd="findDesign">
+                    <li><button class="menu-item" data-cmd="edit.find">
                         <span class="menu-label"><u>F</u>ind in design…</span>
                         <span class="menu-accel">Ctrl+F</span>
                     </button></li>
                     <li class="menu-separator"></li>
-                    <li><button class="menu-item" data-cmd="copyItems">
+                    <li><button class="menu-item" data-cmd="edit.copyItems">
                         <span class="menu-label"><u>C</u>opy items</span>
                         <span class="menu-accel">Ctrl+C</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="pasteItems">
+                    <li><button class="menu-item" data-cmd="edit.pasteItems">
                         <span class="menu-label"><u>P</u>aste items</span>
                         <span class="menu-accel">Ctrl+V</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="duplicateItems">
+                    <li><button class="menu-item" data-cmd="edit.duplicateItems">
                         <span class="menu-label"><u>D</u>uplicate items</span>
                         <span class="menu-accel">Ctrl+D</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="project">
+                <button class="menu-title" type="button"><u>P</u>roject</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="workspace.new">
+                        <span class="menu-label"><u>N</u>ew workspace…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="workspace.open">
+                        <span class="menu-label"><u>O</u>pen workspace…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="workspace.save">
+                        <span class="menu-label"><u>S</u>ave workspace</span>
                     </button></li>
                 </ul>
             </li>
@@ -178,27 +192,27 @@
             <li class="menu" data-menu="record">
                 <button class="menu-title" type="button"><u>R</u>ecord</button>
                 <ul class="menu-dropdown" role="menu">
-                    <li><button class="menu-item" data-cmd="addRecord">
+                    <li><button class="menu-item" data-cmd="record.add">
                         <span class="menu-label">Add record…</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="addSubfile">
+                    <li><button class="menu-item" data-cmd="record.addSubfile">
                         <span class="menu-label">Add subfile pair…</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="cloneRecord">
+                    <li><button class="menu-item" data-cmd="record.duplicate">
                         <span class="menu-label">Duplicate current record</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="renameRecord">
+                    <li><button class="menu-item" data-cmd="record.rename">
                         <span class="menu-label">Rename current record…</span>
                     </button></li>
                     <li class="menu-separator"></li>
-                    <li><button class="menu-item" data-cmd="recordUp">
+                    <li><button class="menu-item" data-cmd="record.moveUp">
                         <span class="menu-label">Move record up</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="recordDown">
+                    <li><button class="menu-item" data-cmd="record.moveDown">
                         <span class="menu-label">Move record down</span>
                     </button></li>
                     <li class="menu-separator"></li>
-                    <li><button class="menu-item" data-cmd="deleteRecord">
+                    <li><button class="menu-item" data-cmd="record.delete">
                         <span class="menu-label">Delete current record</span>
                     </button></li>
                 </ul>
@@ -207,20 +221,20 @@
             <li class="menu" data-menu="export">
                 <button class="menu-title" type="button"><u>E</u>xport</button>
                 <ul class="menu-dropdown" role="menu">
-                    <li><button class="menu-item" data-cmd="genRpgle">
+                    <li><button class="menu-item" data-cmd="generate.rpgle">
                         <span class="menu-label">Generate <u>R</u>PGLE skeleton…</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="genCobol">
+                    <li><button class="menu-item" data-cmd="generate.cobol">
                         <span class="menu-label">Generate <u>C</u>OBOL skeleton…</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="regenRpgle">
+                    <li><button class="menu-item" data-cmd="generate.rpgle.regenerate">
                         <span class="menu-label">Regenerate RPGLE, preserve regions…</span>
                     </button></li>
-                    <li><button class="menu-item" data-cmd="regenCobol">
+                    <li><button class="menu-item" data-cmd="generate.cobol.regenerate">
                         <span class="menu-label">Regenerate COBOL, preserve regions…</span>
                     </button></li>
                     <li class="menu-separator"></li>
-                    <li><button class="menu-item" data-cmd="exportJson">
+                    <li><button class="menu-item" data-cmd="debug.copyModel">
                         <span class="menu-label">Copy model as <u>J</u>SON (debug)</span>
                     </button></li>
                 </ul>
@@ -229,7 +243,7 @@
             <li class="menu" data-menu="help">
                 <button class="menu-title" type="button"><u>H</u>elp</button>
                 <ul class="menu-dropdown" role="menu">
-                    <li><button class="menu-item" data-cmd="about">
+                    <li><button class="menu-item" data-cmd="help.about">
                         <span class="menu-label"><u>A</u>bout IronTerm Studio…</span>
                     </button></li>
                 </ul>
@@ -329,12 +343,9 @@
             <span class="simulation-hint">Only preview state changes; DSPF source is untouched.</span>
         </div>
 
-        <!-- Legacy controls - originals the JS handlers in main.js are bound
-             to.  Menubar items dispatch by id (e.g. File > New calls
-             #newDoc.click()).  Hidden via [hidden] but present in the DOM so
-             click events still fire.  Visible controls (Model / Record /
-             Overlay / Hide cond) were lifted to #toolbar above; only the
-             menubar-only commands stay here. -->
+        <!-- Transitional command targets. Feature controllers still bind these
+             buttons while the command registry gives menus and shortcuts stable,
+             semantic IDs. They disappear as each feature registers directly. -->
         <div id="legacyControls" hidden>
             <button id="newDoc"  title="Discard the current design and start fresh">New</button>
             <button id="openDoc" title="Open DSPF source">Open…</button>
@@ -520,6 +531,7 @@
              field layout for free.  IDs match what main.js writes to. -->
         <div id="statusbar" class="status-bar" role="status" aria-live="polite">
             <p class="status-bar-field" id="sbHost" title="Runtime host">Local</p>
+            <p class="status-bar-field" id="sbWorkspace" title="Active workspace">Untitled Workspace</p>
             <p class="status-bar-field" id="sbModel"  title="Display model">24×80</p>
             <p class="status-bar-field" id="sbRecord" title="Active record">-</p>
             <p class="status-bar-field" id="sbItems"  title="Item count in active record">0 items</p>

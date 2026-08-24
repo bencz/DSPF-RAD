@@ -1,13 +1,16 @@
 {
   "name": "ironterm-studio",
   "version": "0.10.0",
-  "description": "Offline-first IBM i development environment and visual DDS workbench",
+  "description": "Offline-first integrated development environment for IBM i",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "desktop": "tauri dev",
+    "desktop:build": "tauri build",
+    "desktop:check": "cargo check --manifest-path src-tauri/Cargo.toml",
     "test": "node --test",
     "samples": "node scripts/generate-codegen-samples.js"
   },
@@ -25,10 +28,12 @@
     "@lezer/common": "1.2.3",
     "@lezer/highlight": "1.2.1",
     "@lezer/lr": "1.4.2",
+    "@tauri-apps/api": "2.11.1",
     "98.css": "0.1.21",
     "codemirror": "6.0.1"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "2.11.4",
     "esbuild": "0.28.2",
     "vite": "8.2.2"
   }

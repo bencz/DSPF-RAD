@@ -1,11 +1,16 @@
 # IronTerm Studio
 
-An offline-first IBM i development environment, evolving from DSPF·RAD.
+An offline-first integrated development environment for IBM i application
+development.
 
-Open a `.DSPF` source, drag widgets onto a 5250 grid, tweak attributes in the inspector, and watch the DSPF source regenerate live as you work. Or type into the source pane and watch the canvas catch up. It goes both ways.
+IronTerm Studio is being built to bring RPGLE, COBOL, CL, SQL, DDS, source
+members, IBM i objects, jobs, terminals, builds, and diagnostics into one
+cohesive workbench. The existing visual DSPF editor is its first specialized
+designer: open a `.DSPF` source, edit it visually or as source, and both views
+remain synchronized.
 
-The current branch is establishing the broader Visual Studio 6-inspired
-workbench, a clean browser/desktop boundary, and the foundation for future IBM i
+The current branch is establishing the broader Visual Studio 6-inspired IDE
+shell, a clean browser/desktop boundary, and the foundation for IBM i
 connections. Existing DSPF project files, autosaves, and generated protected
 regions retain their established identifiers for compatibility.
 
@@ -54,6 +59,11 @@ regions retain their established identifiers for compatibility.
   and moved as one unit, with new item IDs and corrected internal links.
 - Global design search across records, fields, constants, descriptions, and
   DDS keywords, with direct navigation back to the canvas and inspector.
+- Versioned `.itworkspace` manifests for grouping scratch, local, and IBM i
+  projects. Workspace files reference connection profile IDs but reject
+  passwords, tokens, private keys, and other credentials.
+- Central workbench command registry shared by menus and keyboard shortcuts,
+  with command availability driven by the active host capabilities.
 
 ## Running it
 
@@ -170,6 +180,8 @@ boundaries and one-way dependencies. Start with the
   or subfile row layout in the active design.
 - Use **Key flow…** to map AID keys to exit or persistent record navigation;
   use **File > Save RAD project…** to preserve those mappings.
+- Use **Project > New/Open/Save workspace** to manage the broader IDE workspace
+  separately from an individual DSPF design project.
 - Use **Simulate** to preview conditioned items, SFL display indicators, choice
   values, and sample field contents. Preview state never modifies the source.
 - Switch the left-side **Project** panel from Palette to Records to navigate

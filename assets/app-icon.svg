@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#050a05"/>
+  <rect x="32" y="32" width="448" height="448" rx="42" fill="none" stroke="#33ff33" stroke-width="18"/>
+  <path d="M91 132h330v48H91zm0 200h330v48H91z" fill="#147814"/>
+  <text x="256" y="294" text-anchor="middle" font-family="monospace" font-size="132" font-weight="700" fill="#33ff33">ILE</text>
+</svg>

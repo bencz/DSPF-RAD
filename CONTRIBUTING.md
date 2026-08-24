@@ -2,10 +2,20 @@
 
 Code organization is a product requirement. The IDE will cover many IBM i
 domains, so a convenient shortcut today must not become permanent coupling.
+All contributors and coding agents must first follow the product scope,
+security boundaries, and working agreement in [`AGENTS.md`](AGENTS.md).
 
 ## Rules
 
 - Put behavior in the narrowest domain or feature that owns it.
+- Use classes for controllers, services, models, registries, adapters, and any
+  component with state, dependencies, or a lifecycle. Class filenames use
+  `PascalCase` and match the primary exported class.
+- Keep setup/teardown inside explicit methods such as `start()` and `stop()`;
+  do not scatter event listeners and mutable state across free functions.
+- Use standalone functions only for small, deterministic transformations with
+  no retained state, such as parsing, formatting, validation, and source
+  generation. Group those functions by a single domain concept.
 - Keep environment effects behind an injected platform contract.
 - Keep core transformations deterministic and independent of the UI.
 - Prefer cohesive modules with a small public surface. Split a file when it has

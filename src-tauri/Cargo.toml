@@ -1,0 +1,26 @@
+[package]
+name = "ironterm-studio"
+version = "0.10.0"
+description = "Offline-first integrated development environment for IBM i"
+authors = ["Alexandre Bencz"]
+edition = "2021"
+license = "GPL-3.0-only"
+repository = "https://github.com/bencz/DSPF-RAD"
+build = "build.rs"
+
+[lib]
+name = "ironterm_studio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "=2.6.3", features = [] }
+
+[dependencies]
+tauri = { version = "=2.11.5", features = [] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
