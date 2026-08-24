@@ -40,7 +40,7 @@ sourceHash (complete source set)
 
 A receipt that cannot recompute its own chain is invalid. Reproducibility check: converting the same input twice must produce identical hashes — this is why all artifacts sort deterministically and carry no timestamps.
 
-Hash format rule: every hash value is written as `<algorithm>:<hex>`. Current tags: `fnv1a:` for `overridesHash` (browser-safe; also carried on the contract as `contract.overridesHash` + `contract.overridesApplied` after L4-0A) and receipt artifact hashes use bare sha256 hex from Node crypto. Unifying all chain members onto tagged sha256 is part of ticket L4-0B — do not mix formats inside one receipt without the tag.
+Hash format rule: every hash value is written as `<algorithm>:<hex>`. Current tags: `fnv1a:` for `overridesHash` (browser-safe; also carried on the contract as `contract.overridesHash` + `contract.overridesApplied` after L4-0A). Receipt artifact hashes are sha256 from Node crypto and keep their `sha256:` tag in receipts; the legacy bare-hex `sourceRevision.sourceHash` inside IR artifacts is fnv1a and gets tagged when ticket L4-0B unifies the chain. Do not mix formats inside one receipt without the tag.
 
 ## 4. Verification ladder
 

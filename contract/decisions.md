@@ -78,7 +78,7 @@ approval, maker-checker, deployment gates as product features
 
 **Date:** 2026-08-24. **Type:** Owner-approved restructuring.
 
-**Change:** The ten numbered documents plus `frontend/` policies merged into four topic documents:
+**Change:** The ten numbered documents plus `frontend/` policies merged into five topic documents:
 
 ```text
 00-system-design            → 01-scope-and-sources
@@ -147,6 +147,6 @@ RPG/RPGLE sources feed **seed extraction** (display values, indicators, messages
 
 **Reason:** The ladder currently depends on manual discipline; automation converts it into a mechanism. Playwright needs a build first (`vite preview` serves `dist/`), so CI order is fixed: install → L1 → L2 → L3 → L4.
 
-**Status:** Designed in `plan/plan_v4_lifecycle_tickets.md` (ticket L4-1B); implementation pending.
+**Status:** Implemented 2026-08-24 — `.github/workflows/ci.yml` runs `check:projections` + the L1→L4 ladder. First remote run pending push.
 
 ---

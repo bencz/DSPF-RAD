@@ -17,7 +17,7 @@
 | [03-generated-react-app.md](03-generated-react-app.md) | Design tokens、介面邊界、MUI 元件清單與邊界、無障礙/響應式政策、Query/error 政策、生成 App 檔案模板、預覽與驗證方法論、測試矩陣 |
 | [04-seed-backend.md](04-seed-backend.md) | Seed-data 示範伺服器：硬邊界（demo 不是 production）、端點、畫面狀態形狀、交易腳本行為、seed 來源（手寫 + RPG 抽取）、專案模板 |
 | [05-lifecycle.md](05-lifecycle.md) | 六段生命週期（source→edit→convert→generate→verify→deliver）、身份與 hash 鏈、驗證梯、receipt 規格、失敗政策、確定性規則、誠實進度表 |
-| [decisions.md](decisions.md) | 決策日誌 D-01…D-14（衝突裁決、範圍變更、整合紀錄） |
+| [decisions.md](decisions.md) | 決策日誌 D-01…D-17（衝突裁決、範圍變更、整合紀錄） |
 | [target_design.md](target_design.md) | Design tokens（唯一 token 來源） |
 | [openapi.yaml](openapi.yaml) | Seed API 的 OpenAPI 3.1 投影 |
 | [schemas/](schemas/) | Semantic IR、identity、relation、SFL、diagnostic、traceability、field-binding、route-manifest 等 JSON schemas |
@@ -41,7 +41,7 @@
 
 ```text
 需要新規則時:
-IF 現有四份主題文件有對應章節:
+IF 現有五份主題文件有對應章節:
     該章節內更新
 ELSE:
     新增編號文件,並更新本索引與 decisions.md

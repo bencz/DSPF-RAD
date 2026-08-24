@@ -18,7 +18,7 @@ The normative endpoint and schema contract is `contract/openapi.yaml`. This docu
 
 The seed server is a demo fixture server. It must never impersonate a production backend:
 
-- Every response includes `"mode": "seed-demo"` so the client can label the UI.
+- Every success payload (`/api/health`, `ScreenState`, `TransactionResponse`) includes `"mode": "seed-demo"` so the client can label the UI. Error bodies carry `code`/`message` per §3; the client labels them from the request context, not from a mode field.
 - No session, CSRF, authentication, authorization, idempotency, or audit enforcement. These remain deferred (decision D-11). If a future production runtime is built, it starts from `openapi.yaml`, not from this server's code.
 - No business authority. A submitted transaction replays scripted seed transitions; it computes nothing real.
 - No secrets in seed files, logs, or generated output.
