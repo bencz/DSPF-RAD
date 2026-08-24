@@ -50,11 +50,12 @@
 
        PROCESS-SCREEN.
       *> [DSPF-RAD-REGION begin=select-subfile-screen]
-      *> Set WS-SCREEN to the SFLCTL format that should be interactive.
+      *> Optionally set WS-SCREEN before the generated route selector.
       *> [DSPF-RAD-REGION end=select-subfile-screen]
       *> [DSPF-RAD-REGION begin=before-display]
       *> Populate fields for the next display operation.
       *> [DSPF-RAD-REGION end=before-display]
+      *> WS-SCREEN is managed by the RAD key-action flow.
            EVALUATE WS-SCREEN
               WHEN "FIRSTCTL"
                  PERFORM LOAD-SUBFILE
@@ -88,8 +89,9 @@
        HANDLE-INPUT.
            EVALUATE TRUE
                  WHEN INDIC-TABLE (03) = B"1"
-      *> [DSPF-RAD-REGION begin=on-in03]
                     MOVE "Y" TO DONE-FLG
+      *> [DSPF-RAD-REGION begin=on-in03]
+      *> Add custom handling for IN03 here.
       *> [DSPF-RAD-REGION end=on-in03]
                  WHEN OTHER
       *> [DSPF-RAD-REGION begin=on-enter]

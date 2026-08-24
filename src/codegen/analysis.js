@@ -40,6 +40,21 @@ export function collectAids (doc) {
     return out.sort((a, b) => a.pos - b.pos);
 }
 
+export function aidActionFor (doc, pos) {
+    return (doc.aidActions ?? []).find(action => action.pos === pos) ?? null;
+}
+
+// Formats that can be displayed directly by generated program flow. SFL
+// records are reached through their SFLCTL; menus/pulldowns are components
+// written around another interactive format.
+export function collectDisplayRecords (doc) {
+    const controls = new Set(pickSubfilePairs(doc).map(pair => pair.sflctl.name));
+    return doc.records.filter(record => {
+        if (controls.has(record.name)) return true;
+        return !['SFL', 'SFLCTL', 'PULLDOWN', 'MNUBAR'].includes(record.type);
+    });
+}
+
 function aidFromKeyword (kw) {
     const name = kw.name;
     if (/^C[AF]\d{1,2}$/.test(name)) {

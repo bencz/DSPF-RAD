@@ -8,6 +8,8 @@
 // wrapper div doesn't block programmatic .click(), so the chain
 // menu → btn.click() → original handler stays intact.
 
+import { PRODUCT } from '../product.js';
+
 export function setupMenubar () {
     const menubar = document.getElementById('menubar');
     if (!menubar) return;
@@ -77,11 +79,11 @@ function bindItemDispatch (menubar, state) {
 function dispatchCmd (cmd) {
     if (cmd === 'about') {
         alert(
-            'DSPF·RAD - IronTerm\n\n' +
-            'Browser-side IBM i (AS/400) display file designer.\n' +
-            'Drag/drop UI builder for DSPF source.\n\n' +
+            `${PRODUCT.name} ${PRODUCT.version}\n` +
+            `${PRODUCT.description}\n\n` +
+            'Offline-first IBM i workbench and visual DDS designer.\n\n' +
             'Author: Alexandre Bencz\n' +
-            'Build: v0.7 (Win98 chrome)');
+            'UI direction: Visual Studio 6 / Win98 workbench');
         return;
     }
     // Everything else: the data-cmd value IS the id of a hidden button -

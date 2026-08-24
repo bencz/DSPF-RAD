@@ -42,6 +42,30 @@ test('generator previousSource option applies the protected-region contract', ()
     assert.match(regenerated, /customStartup\(\);/);
 });
 
+test('AID regeneration replaces old boilerplate but preserves custom handler code', () => {
+    const previous = [
+        '      When WkInd.In03;',
+        '        // [DSPF-RAD-REGION begin=on-in03]',
+        '        done = *On;',
+        '        customNavigation();',
+        '        // [DSPF-RAD-REGION end=on-in03]',
+        '',
+    ].join('\n');
+    const next = [
+        '      When WkInd.In03;',
+        "        WkScreen = 'DETAIL';",
+        '        // [DSPF-RAD-REGION begin=on-in03]',
+        '        // Add custom handling here.',
+        '        // [DSPF-RAD-REGION end=on-in03]',
+        '',
+    ].join('\n');
+
+    const merged = mergeProtectedRegions(previous, next);
+    assert.match(merged, /WkScreen = 'DETAIL';/);
+    assert.match(merged, /customNavigation\(\);/);
+    assert.doesNotMatch(merged, /done = \*On;/);
+});
+
 test('malformed or duplicate protected regions are rejected', () => {
     assert.throws(() => readRegions([
         '// [DSPF-RAD-REGION begin=x]',

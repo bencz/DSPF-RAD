@@ -70,12 +70,14 @@
        HANDLE-INPUT.
            EVALUATE TRUE
                  WHEN INDIC-TABLE (03) = B"1"
-      *> [DSPF-RAD-REGION begin=on-in03]
                     MOVE "Y" TO DONE-FLG
+      *> [DSPF-RAD-REGION begin=on-in03]
+      *> Add custom handling for IN03 here.
       *> [DSPF-RAD-REGION end=on-in03]
                  WHEN INDIC-TABLE (05) = B"1"
-      *> [DSPF-RAD-REGION begin=on-in05]
                     CONTINUE
+      *> [DSPF-RAD-REGION begin=on-in05]
+      *> Add custom handling for IN05 here.
       *> [DSPF-RAD-REGION end=on-in05]
       *> ---- Menu bar actions ----
                  WHEN MNUCHC = 1 AND PULLCHC = 1

@@ -138,7 +138,7 @@ function runParse (text, state, doc, designer, setStatus, applyHighlight) {
     } catch (err) {
         state.sourceIsAuthoritative = false;
         setStatus('error', err.message || 'parse error');
-        console.error('[dspf·rad] source parse failed:', err);
+        console.error('[ironterm] source parse failed:', err);
     }
 }
 

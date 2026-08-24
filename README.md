@@ -1,8 +1,13 @@
-# DSPF·RAD
+# IronTerm Studio
 
-A browser-based RAD designer for IBM i (AS/400) display files.
+An offline-first IBM i development environment, evolving from DSPF·RAD.
 
 Open a `.DSPF` source, drag widgets onto a 5250 grid, tweak attributes in the inspector, and watch the DSPF source regenerate live as you work. Or type into the source pane and watch the canvas catch up. It goes both ways.
+
+The current branch is establishing the broader Visual Studio 6-inspired
+workbench, a clean browser/desktop boundary, and the foundation for future IBM i
+connections. Existing DSPF project files, autosaves, and generated protected
+regions retain their established identifiers for compatibility.
 
 ## Screenshots
 
@@ -29,8 +34,8 @@ Open a `.DSPF` source, drag widgets onto a 5250 grid, tweak attributes in the in
   indicator conditions, ENPTUI choice controls, pulldowns, and COBOL `INDARA`).
 - Document-wide undo/redo, multi-selection, copy/paste/duplicate, and visual
   alignment/distribution tools.
-- Unsaved-work indicator plus local crash/session recovery. A downloaded DSPF
-  remains the portable source of truth.
+- Unsaved-work indicator plus local crash/session recovery. Plain DSPF remains
+  the portable DDS source; a RAD project JSON also preserves generator flow.
 - Navigable Problems view with semantic errors, visual overflow, and overlap
   diagnostics linked back to the record and canvas item.
 - New-design assistant with blank, login, menu, maintenance, subfile, popup,
@@ -39,24 +44,46 @@ Open a `.DSPF` source, drag widgets onto a 5250 grid, tweak attributes in the in
   values without changing the generated DSPF.
 - Project navigator that lists record formats and follows SFL, menu/pulldown,
   and referenced-window relationships.
+- PF/LF DDS importer that selects database fields and lays them out as a
+  labeled maintenance form or as compact subfile columns.
+- Command-key flow editor for default, exit, and record-navigation actions;
+  RPGLE and COBOL generators emit the matching screen state and routes.
+- Native RAD project open/save for design state that does not belong in DDS,
+  including command-key actions.
+- Safe record duplication and reordering. Linked SFL/SFLCTL formats are cloned
+  and moved as one unit, with new item IDs and corrected internal links.
+- Global design search across records, fields, constants, descriptions, and
+  DDS keywords, with direct navigation back to the canvas and inspector.
 
 ## Running it
 
-It's a static page, but you need to serve it over HTTP (not `file://`), otherwise the browser will refuse to load the ES modules and the import map. The fastest way:
+Install the pinned dependencies and start the local development server:
 
 ```sh
-python3 -m http.server 8000
+npm install
+npm run dev
 ```
 
-Then open <http://localhost:8000> in any modern browser. No build step, no Node, no bundler. Any other static server works just as well (`npx serve`, `php -S`, `caddy file-server`, whatever you have handy).
+Vite prints the local address, normally <http://127.0.0.1:5173>. The runtime
+does not fetch CodeMirror, 98.css, or other application dependencies from a
+CDN, so the IDE can start and perform local work without internet access.
 
-CodeMirror 6 is pulled from esm.sh through an import map, so you need an internet connection on first load (or vendor the modules locally if you want it fully offline).
+Create a distributable static build with:
+
+```sh
+npm run build
+npm run preview
+```
+
+The generated `dist/` directory contains the JavaScript and CSS required at
+runtime. A future desktop package will embed the same frontend and provide the
+SSH/SFTP and IBM i command capabilities that browsers cannot safely expose.
 
 ## Engine tests and generated samples
 
-The repository has dependency-free Node tests for the DSPF engine and both
-code generators. They intentionally validate model and source semantics rather
-than page markup.
+The repository has Node tests for the DSPF engine, code generators, and platform
+contracts. They intentionally validate model and source semantics rather than
+page markup.
 
 ```sh
 npm test
@@ -67,7 +94,9 @@ The suite round-trips all 72 DSPFs under `QDDSSRC/`, `TESTS/`, and `SAMPLES/`.
 It also generates RPGLE and ILE COBOL from every fixture, checks compound DDS
 indicator conditions, help specifications, file/record scope, ENPTUI control
 fields, subfile RRN declarations, code-region integrity, and generator source
-limits. `npm run samples` refreshes:
+limits. It also covers PF/LF field parsing/layout, RAD key-flow generation,
+record cloning/reordering, and design search; there are intentionally no
+browser-driven tests. `npm run samples` refreshes:
 
 - `SAMPLES/CGDEMO.RPGLE`
 - `SAMPLES/CGDEMO.CBLLE`
@@ -82,7 +111,7 @@ buttons, and single- and multiple-choice fields.
 two linked data-subfile pairs.
 
 The Export menu has separate **Regenerate** actions. Select a previously edited
-RPGLE or CBLLE source and DSPF·RAD will keep the bodies of matching
+RPGLE or CBLLE source and IronTerm Studio will keep the bodies of matching
 `DSPF-RAD-REGION` blocks while refreshing generated structure. For files with
 multiple data subfiles, every `SFL/SFLCTL` pair receives its own RRN/load/read
 regions and a generated screen selector (`WkScreen` / `WS-SCREEN`). Malformed,
@@ -110,8 +139,21 @@ indicator table.
 
 - Source comments and SEU metadata are canonicalized rather than preserved.
 - `REFFLD` definitions remain inherited in emitted DDS, but the canvas uses a
-  temporary width because it cannot resolve the referenced PF/LF locally.
+  temporary width until their PF/LF definitions are imported explicitly.
+- Command-key actions are RAD metadata and therefore require saving the RAD
+  project JSON in addition to exporting a plain DSPF member.
 - Final CRTDSPF/CRTBNDRPG/CRTBNDCBL acceptance still requires an IBM i system.
+- The browser host supports local file operations only. Direct IBM i access
+  belongs to the future desktop host; credentials will not be stored in project
+  documents or autosave data.
+
+## Architecture
+
+Code organization is treated as a product requirement. Pure IBM i/DDS logic,
+IDE features, workbench UI, and environment integrations have explicit
+boundaries and one-way dependencies. Start with the
+[architecture guide](docs/architecture/README.md) and
+[contribution rules](CONTRIBUTING.md) before adding a new subsystem.
 
 ## Controls
 
@@ -120,6 +162,14 @@ indicator table.
 - **Shift/Ctrl+Click** selects multiple items. **Ctrl+C/V/D** copies, pastes,
   or duplicates the selection; **Ctrl+Z/Y** undo and redo.
 - Use **Arrange** in the toolbar to align or distribute selected items.
+- Use **Clone** and the **↑/↓** buttons to reuse or reorder record formats;
+  linked subfile pairs remain together automatically.
+- Use **Find…** or **Ctrl+F** to jump directly to a record, field, visible text,
+  descriptive `TEXT` value, or DDS keyword.
+- Use **Import PF/LF…** to select fields from database DDS and generate a form
+  or subfile row layout in the active design.
+- Use **Key flow…** to map AID keys to exit or persistent record navigation;
+  use **File > Save RAD project…** to preserve those mappings.
 - Use **Simulate** to preview conditioned items, SFL display indicators, choice
   values, and sample field contents. Preview state never modifies the source.
 - Switch the left-side **Project** panel from Palette to Records to navigate

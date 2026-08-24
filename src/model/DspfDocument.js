@@ -13,6 +13,10 @@ export class DspfDocument {
         this.activeRecordIndex = 0;
         this.showOverlay = false;
         this.hideConditioned = false;
+        // RAD-only program flow metadata. DDS has no standard place to keep
+        // generator navigation intent, so these actions travel in project
+        // JSON and local recovery snapshots.
+        this.aidActions = [];
         this._listeners = new Set();
         this._history = [];
         this._future = [];
@@ -172,6 +176,7 @@ export class DspfDocument {
 
     reset () {
         this.sourceName = 'DSPFILE';
+        this.aidActions = [];
         this.records = [makeRecord({
             name: 'MAIN', keywords: [modelSizeKeyword(this.modelKey)],
         })];
@@ -181,13 +186,16 @@ export class DspfDocument {
 
     // Copy state from another DspfDocument in place so existing references
     // to `this` stay valid after a parser round-trip.
-    adopt (other) {
+    adopt (other, { preserveAidActions = true } = {}) {
         this.modelKey = MODELS[other?.modelKey] ? other.modelKey : '24x80';
         this.records = Array.isArray(other?.records) && other.records.length
             ? other.records
             : [makeRecord({ name: 'MAIN' })];
         this.activeRecordIndex = clampRecordIndex(
             other?.activeRecordIndex, this.records.length);
+        if (!preserveAidActions) {
+            this.aidActions = normalizeAidActions(other?.aidActions);
+        }
         // Overlay and conditioning visibility are workspace preferences,
         // not DSPF source data.  Preserve them while source edits adopt a
         // freshly parsed document.
@@ -237,12 +245,70 @@ export class DspfDocument {
         return { sfl, sflctl };
     }
 
+    duplicateRecord (idx = this.activeRecordIndex) {
+        if (idx < 0 || idx >= this.records.length) return [];
+        const source = this.records[idx];
+        const pair = linkedSubfilePair(this.records, source);
+        let created;
+
+        if (pair) {
+            const sflName = uniqueRecordName(this.records, pair.sfl.name);
+            const sfl = cloneRecord(pair.sfl, sflName);
+            const ctlName = uniqueRecordName([...this.records, sfl], pair.sflctl.name);
+            const sflctl = cloneRecord(pair.sflctl, ctlName);
+            updateRecordReferences([sfl, sflctl], pair.sfl.name, sflName);
+            updateRecordReferences([sfl, sflctl], pair.sflctl.name, ctlName);
+            const insertAt = Math.max(
+                this.records.indexOf(pair.sfl), this.records.indexOf(pair.sflctl)) + 1;
+            this.records.splice(insertAt, 0, sfl, sflctl);
+            this.activeRecordIndex = insertAt + (source.type === 'SFLCTL' ? 1 : 0);
+            created = [sfl, sflctl];
+        } else {
+            const name = uniqueRecordName(this.records, source.name);
+            const duplicate = cloneRecord(source, name);
+            updateRecordReferences([duplicate], source.name, name);
+            this.records.splice(idx + 1, 0, duplicate);
+            this.activeRecordIndex = idx + 1;
+            created = [duplicate];
+        }
+        this.emit({ label: 'Duplicate record' });
+        return created;
+    }
+
+    moveRecord (idx, offset) {
+        if (idx < 0 || idx >= this.records.length) return false;
+        const groups = recordGroups(this.records);
+        const groupIndex = groups.findIndex(group => group.includes(this.records[idx]));
+        const target = Math.min(groups.length - 1, Math.max(0, groupIndex + offset));
+        if (target === groupIndex) return false;
+        const active = this.activeRecord;
+        const [group] = groups.splice(groupIndex, 1);
+        groups.splice(target, 0, group);
+        this.records = groups.flat();
+        moveFileKeywordsToFirstRecord(this.records);
+        this.activeRecordIndex = this.records.indexOf(active);
+        this.emit({ label: 'Reorder records' });
+        return true;
+    }
+
+    canMoveRecord (idx, offset) {
+        if (idx < 0 || idx >= this.records.length) return false;
+        const groups = recordGroups(this.records);
+        const groupIndex = groups.findIndex(group => group.includes(this.records[idx]));
+        return groupIndex + offset >= 0 && groupIndex + offset < groups.length;
+    }
+
     renameRecord (idx, name) {
         if (idx < 0 || idx >= this.records.length) return;
         const oldName = this.records[idx].name;
         const newName = uniqueRecordName(this.records, name, idx);
         this.records[idx].name = newName;
-        if (newName !== oldName) updateRecordReferences(this.records, oldName, newName);
+        if (newName !== oldName) {
+            updateRecordReferences(this.records, oldName, newName);
+            for (const action of this.aidActions) {
+                if (action.target === oldName) action.target = newName;
+            }
+        }
         this.emit();
     }
 
@@ -262,6 +328,7 @@ export class DspfDocument {
 
     deleteRecord (idx) {
         if (this.records.length === 1) return;
+        const deletedName = this.records[idx]?.name;
         const fileKeywords = (this.records[idx]?.keywords ?? []).filter(
             keyword => keyword.scope === 'file');
         this.records.splice(idx, 1);
@@ -276,7 +343,16 @@ export class DspfDocument {
         if (idx < this.activeRecordIndex) this.activeRecordIndex--;
         else if (this.activeRecordIndex >= this.records.length)
             this.activeRecordIndex = this.records.length - 1;
+        this.aidActions = this.aidActions.filter(action =>
+            action.behavior !== 'navigate' || action.target !== deletedName);
         this.emit();
+    }
+
+    setAidActions (actions) {
+        const normalized = normalizeAidActions(actions);
+        if (JSON.stringify(normalized) === JSON.stringify(this.aidActions)) return;
+        this.aidActions = normalized;
+        this.emit({ label: 'Edit key actions' });
     }
 
     setActiveRecord (idx) {
@@ -359,6 +435,7 @@ export class DspfDocument {
             activeRecordIndex: this.activeRecordIndex,
             showOverlay: this.showOverlay,
             hideConditioned: this.hideConditioned,
+            aidActions: this.aidActions.map(action => ({ ...action })),
             records: this.records.map(r => ({
                 name: r.name,
                 type: r.type,
@@ -388,6 +465,7 @@ export class DspfDocument {
         doc.sourceName  = ibmiName(data.sourceName, 'DSPFILE');
         doc.showOverlay = !!data.showOverlay;
         doc.hideConditioned = !!data.hideConditioned;
+        doc.aidActions = normalizeAidActions(data.aidActions);
         const usedIds = new Set();
         const recs = (Array.isArray(data.records) ? data.records : []).map(r => makeRecord({
             name: r.name, type: r.type, keywords: r.keywords,
@@ -412,6 +490,7 @@ export class DspfDocument {
         return JSON.stringify({
             modelKey: this.modelKey,
             sourceName: this.sourceName,
+            aidActions: this.aidActions,
             records: this.toJSON().records,
         });
     }
@@ -421,6 +500,7 @@ export class DspfDocument {
         const parsed = DspfDocument.fromJSON(JSON.parse(snapshot));
         this.modelKey = parsed.modelKey;
         this.sourceName = parsed.sourceName;
+        this.aidActions = parsed.aidActions;
         this.records = parsed.records;
         this.activeRecordIndex = clampRecordIndex(activeRecordIndex, this.records.length);
         this._currentSnapshot = snapshot;
@@ -503,7 +583,87 @@ function updateRecordReferences (records, oldName, newName) {
     }
 }
 
+function linkedSubfilePair (records, source) {
+    if (source.type === 'SFLCTL') {
+        const name = source.keywords.find(keyword => keyword.name === 'SFLCTL')?.args?.[0];
+        const sfl = records.find(record => record.type === 'SFL' && record.name === name);
+        return sfl ? { sfl, sflctl: source } : null;
+    }
+    if (source.type === 'SFL') {
+        const sflctl = records.find(record => record.type === 'SFLCTL' &&
+            record.keywords.some(keyword =>
+                keyword.name === 'SFLCTL' && keyword.args?.[0] === source.name));
+        return sflctl ? { sfl: source, sflctl } : null;
+    }
+    return null;
+}
+
+function cloneRecord (source, name) {
+    const raw = JSON.parse(JSON.stringify(source));
+    return makeRecord({
+        ...raw,
+        name,
+        keywords: (raw.keywords ?? []).filter(keyword => keyword.scope !== 'file'),
+        items: (raw.items ?? []).map(item => makeItem({ ...item, id: null })),
+    });
+}
+
+function moveFileKeywordsToFirstRecord (records) {
+    if (!records.length) return;
+    const fileKeywords = records.flatMap(record => (record.keywords ?? [])
+        .filter(keyword => keyword.scope === 'file'));
+    for (const record of records) {
+        record.keywords = (record.keywords ?? []).filter(keyword => keyword.scope !== 'file');
+    }
+    const seen = new Set();
+    const unique = fileKeywords.filter(keyword => {
+        const key = `${keyword.name}\0${(keyword.args ?? []).join('\0')}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+    records[0].keywords.unshift(...unique);
+}
+
+function recordGroups (records) {
+    const used = new Set();
+    const groups = [];
+    for (const record of records) {
+        if (used.has(record)) continue;
+        const pair = linkedSubfilePair(records, record);
+        if (pair && !used.has(pair.sfl) && !used.has(pair.sflctl)) {
+            groups.push([pair.sfl, pair.sflctl]);
+            used.add(pair.sfl);
+            used.add(pair.sflctl);
+        } else {
+            groups.push([record]);
+            used.add(record);
+        }
+    }
+    return groups;
+}
+
 function clampRecordIndex (value, length) {
     const n = Number.isInteger(value) ? value : 0;
     return Math.min(Math.max(n, 0), Math.max(0, length - 1));
+}
+
+function normalizeAidActions (actions) {
+    const seen = new Set();
+    const normalized = [];
+    for (const raw of Array.isArray(actions) ? actions : []) {
+        const pos = Number.parseInt(raw?.pos, 10);
+        const behavior = ['exit', 'navigate'].includes(raw?.behavior)
+            ? raw.behavior
+            : 'default';
+        if (pos < 1 || pos > 99 || behavior === 'default' || seen.has(pos)) continue;
+        const action = { pos, behavior };
+        if (behavior === 'navigate') {
+            action.target = ibmiName(raw?.target, '');
+            if (!action.target) continue;
+        }
+        seen.add(pos);
+        normalized.push(action);
+    }
+    return normalized.sort((a, b) => a.pos - b.pos);
 }

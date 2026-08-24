@@ -106,3 +106,20 @@ test('optional layout diagnostics report overflow and overlap', () => {
     assert.ok(codes.includes('ITEM_OVERLAP'));
     assert.deepEqual(validateDspf(doc), []);
 });
+
+test('validation reports stale key actions and broken navigation targets', () => {
+    const doc = parseDspf([
+        '     A          R MAIN',
+        "     A                                      CA04(04 'Details')",
+    ].join('\n'));
+    doc.setAidActions([
+        { pos: 4, behavior: 'navigate', target: 'MISSING' },
+        { pos: 5, behavior: 'exit' },
+    ]);
+
+    const diagnostics = validateDspf(doc);
+    assert.ok(diagnostics.some(item => item.code === 'BROKEN_AID_ACTION_TARGET' &&
+        item.severity === 'error'));
+    assert.ok(diagnostics.some(item => item.code === 'ORPHAN_AID_ACTION' &&
+        item.severity === 'warning'));
+});

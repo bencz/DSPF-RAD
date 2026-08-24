@@ -21,6 +21,80 @@ test('record names preserve IBM i national-name characters', () => {
     assert.equal(uniqueRecordName([{ name: '@@CT01' }], '@@CT01'), '@@CT012');
 });
 
+test('record duplication deep-clones items without copying file-level keywords', () => {
+    const doc = new DspfDocument();
+    doc.activeRecord.keywords.push({
+        name: 'INDARA', args: [], indicators: [], scope: 'file',
+    });
+    const original = doc.addItem({
+        kind: 'field', name: 'CUSTOMER', row: 4, col: 10,
+        keywords: [{ name: 'TEXT', args: ["'Customer'"], indicators: [] }],
+    });
+
+    const [duplicate] = doc.duplicateRecord(0);
+
+    assert.equal(duplicate.name, 'MAIN2');
+    assert.notEqual(duplicate.items[0].id, original.id);
+    assert.deepEqual(duplicate.items[0].keywords, original.keywords);
+    assert.notEqual(duplicate.items[0].keywords, original.keywords);
+    assert.equal(duplicate.keywords.some(keyword => keyword.scope === 'file'), false);
+    duplicate.items[0].keywords[0].args[0] = "'Changed'";
+    assert.equal(original.keywords[0].args[0], "'Customer'");
+});
+
+test('duplicating either half of a subfile clones and relinks the complete pair', () => {
+    const doc = new DspfDocument();
+    const { sfl, sflctl } = doc.addSubfile('ORDERS');
+    sfl.items.push({
+        id: 'row-field', kind: 'field', name: 'ORDERNO', row: 8, col: 2,
+        length: 8, decimals: 0, dataType: 'S', usage: 'O',
+        indicators: [], conditionLines: [], alternateLocations: [], keywords: [],
+    });
+
+    const created = doc.duplicateRecord(doc.records.indexOf(sflctl));
+    const [newSfl, newCtl] = created;
+
+    assert.equal(created.length, 2);
+    assert.equal(newSfl.type, 'SFL');
+    assert.equal(newCtl.type, 'SFLCTL');
+    assert.notEqual(newSfl.name, sfl.name);
+    assert.equal(newCtl.keywords.find(keyword => keyword.name === 'SFLCTL').args[0],
+        newSfl.name);
+    assert.notEqual(newSfl.items[0].id, sfl.items[0].id);
+    assert.equal(doc.activeRecord, newCtl);
+});
+
+test('record reordering keeps file keywords on the first format and is undoable', () => {
+    const doc = new DspfDocument();
+    doc.activeRecord.keywords.push({
+        name: 'INDARA', args: [], indicators: [], scope: 'file',
+    });
+    doc.addRecord('SECOND');
+    doc.resetHistory();
+
+    assert.equal(doc.moveRecord(1, -1), true);
+    assert.deepEqual(doc.records.map(record => record.name), ['SECOND', 'MAIN']);
+    assert.equal(doc.records[0].keywords.some(keyword => keyword.name === 'INDARA'), true);
+    assert.equal(doc.records[1].keywords.some(keyword => keyword.scope === 'file'), false);
+    assert.equal(doc.activeRecord.name, 'SECOND');
+
+    assert.equal(doc.undo(), true);
+    assert.deepEqual(doc.records.map(record => record.name), ['MAIN', 'SECOND']);
+    assert.equal(doc.records[0].keywords.some(keyword => keyword.name === 'INDARA'), true);
+});
+
+test('record reordering treats a linked SFL/SFLCTL pair as one ordered unit', () => {
+    const doc = new DspfDocument();
+    const { sflctl } = doc.addSubfile('LINES');
+
+    assert.equal(doc.canMoveRecord(doc.activeRecordIndex, 1), false);
+    assert.equal(doc.moveRecord(doc.activeRecordIndex, -1), true);
+    assert.deepEqual(doc.records.map(record => record.name), ['LINES', 'LINESC', 'MAIN']);
+    assert.equal(doc.activeRecord, sflctl);
+    assert.equal(doc.records[1].keywords.find(keyword => keyword.name === 'SFLCTL').args[0],
+        doc.records[0].name);
+});
+
 test('JSON import repairs duplicate IDs and advances future IDs', () => {
     const doc = DspfDocument.fromJSON({
         records: [{
@@ -61,6 +135,30 @@ test('workspace preferences survive JSON round-trip', () => {
     assert.equal(restored.showOverlay, true);
     assert.equal(restored.hideConditioned, true);
     assert.equal(restored.sourceName, 'ORDERDSP');
+});
+
+test('RAD key actions persist, survive source adoption and follow record renames', () => {
+    const doc = new DspfDocument();
+    doc.addRecord('DETAIL');
+    doc.setAidActions([
+        { pos: 4, behavior: 'navigate', target: 'DETAIL' },
+        { pos: 12, behavior: 'exit' },
+        { pos: 0, behavior: 'exit' },
+    ]);
+
+    const restored = DspfDocument.fromJSON(doc.toJSON());
+    assert.deepEqual(restored.aidActions, [
+        { pos: 4, behavior: 'navigate', target: 'DETAIL' },
+        { pos: 12, behavior: 'exit' },
+    ]);
+
+    restored.adopt(parseDspf('     A          R MAIN'));
+    assert.equal(restored.aidActions.length, 2);
+    restored.addRecord('DETAIL');
+    restored.renameRecord(1, 'EDITREC');
+    assert.equal(restored.aidActions[0].target, 'EDITREC');
+    restored.deleteRecord(1);
+    assert.deepEqual(restored.aidActions, [{ pos: 12, behavior: 'exit' }]);
 });
 
 test('indicator input is canonical and rejects invalid slots', () => {

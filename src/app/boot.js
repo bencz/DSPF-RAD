@@ -11,33 +11,40 @@ import { SourceEditor } from '../source/SourceEditor.js';
 
 import { parseDspf } from '../parser/parseDspf.js';
 import { writeDspf } from '../writer/writeDspf.js';
-import { generateRpgle } from '../codegen/rpgle.js';
-import { generateCobol } from '../codegen/cobol.js';
 
 import { seedDemo }       from './demoSeed.js';
 import { setupMenubar }   from './menubar.js';
 import { makeChromeSync } from './chromeSync.js';
 import { bindSourceSync } from './sourceSync.js';
 import { bindPanelResize } from './panelResize.js';
-import { bindFileIO, downloadText } from './fileIO.js';
+import { bindFileIO } from './fileIO.js';
 import { initTheme }      from './Theme.js';
 import { recoverAutosave, bindPersistence } from './persistence.js';
 import { bindProblemsPanel } from './problemsPanel.js';
 import { bindTemplateDialog } from './templateDialog.js';
 import { bindSimulator } from './simulator.js';
 import { bindRecordTree } from './recordTree.js';
-import { usesIndara }     from '../codegen/analysis.js';
+import { bindDatabaseImportDialog } from './databaseImportDialog.js';
+import { bindKeyFlowDialog } from './keyFlowDialog.js';
+import { bindFindDialog } from './findDialog.js';
 import { validateDspf }   from '../validation/validateDspf.js';
-import { ibmiName }       from '../model/factories.js';
+import { PRODUCT }        from '../product.js';
+import { createHostBridge } from '../platform/host/index.js';
+import { HostStatusController } from '../workbench/status/HostStatusController.js';
+import { bindCodeGenerationActions } from '../features/code-generation/bindCodeGenerationActions.js';
 
 const $ = (id) => document.getElementById(id);
 
 function main () {
-    console.log('%c[dspf·rad]', 'color:#6f6', 'boot - DSPF-RAD designer (v0.7)');
+    console.log('%c[ironterm]', 'color:#6f6',
+        `boot - ${PRODUCT.name} ${PRODUCT.version}`);
 
     initTheme();
 
     const els = collectDomRefs();
+    const host = createHostBridge();
+    const hostStatus = new HostStatusController({ element: els.sbHost, host });
+    hostStatus.render();
     const doc = new DspfDocument();
     seedDemo(doc);
     const recovered = recoverAutosave(doc);
@@ -91,7 +98,7 @@ function main () {
     const flash = makeFlasher(els.statusEl);
     bindPersistence(doc);
     bindFileIO({
-        doc, designer, modelSel: els.modelSel, fileInput: els.fileInput, flash,
+        doc, designer, modelSel: els.modelSel, host, flash,
         flushSource: sourceSync.flush,
     });
     bindToolbarActions({
@@ -101,9 +108,14 @@ function main () {
     bindTemplateDialog({
         doc, designer, palette, flash, flushSource: sourceSync.flush,
     });
+    bindDatabaseImportDialog({
+        doc, designer, host, flash, flushSource: sourceSync.flush,
+    });
+    bindKeyFlowDialog({ doc, flash, flushSource: sourceSync.flush });
+    bindFindDialog({ doc, designer, flushSource: sourceSync.flush });
     bindSimulator({ doc, designer, flash });
     bindRecordTree({ doc, designer });
-    bindExportActions({ doc, flash, flushSource: sourceSync.flush });
+    bindCodeGenerationActions({ doc, host, flash, flushSource: sourceSync.flush });
     bindGlobalKeys({ doc, designer, palette });
     bindCanvasCursor(els, palette, designer);
 
@@ -113,13 +125,15 @@ function main () {
     if (recovered) flash('Recovered unsaved work from the previous session.', 'ok', 4000);
 
     // Console debugging surface.
-    window.dspfRad = {
-        doc, designer, palette,
+    window.ironTermStudio = {
+        product: PRODUCT, host: host.describe(), doc, designer, palette,
         parse: (s) => parseDspf(s),
         write: () => writeDspf(doc),
         validate: (options) => validateDspf(doc, options),
         load:  (s) => { doc.adopt(parseDspf(s)); designer.selectItem(null); },
     };
+    // Temporary compatibility alias for existing console snippets.
+    window.dspfRad = window.ironTermStudio;
 }
 
 // ---- DOM references -----------------------------------------------------
@@ -134,7 +148,7 @@ function collectDomRefs () {
         overlayBtn:   $('overlayToggle'),
         hideCondBtn:  $('hideCondToggle'),
         deleteBtn:    $('deleteRecord'),
-        fileInput:    $('fileInput'),
+        sbHost:       $('sbHost'),
         sbModel:      $('sbModel'),
         sbRecord:     $('sbRecord'),
         sbItems:      $('sbItems'),
@@ -142,6 +156,8 @@ function collectDomRefs () {
         sbDirty:      $('sbDirty'),
         undoBtn:      $('undoDoc'),
         redoBtn:      $('redoDoc'),
+        recordUpBtn:  $('recordUp'),
+        recordDownBtn: $('recordDown'),
     };
 }
 
@@ -197,6 +213,20 @@ function bindToolbarActions ({
         flash(`Created subfile pair: ${sflName} + ${sflctl.name}.`, 'ok');
     });
 
+    $('cloneRecord')?.addEventListener('click', () => {
+        const created = doc.duplicateRecord(doc.activeRecordIndex);
+        if (!created.length) return;
+        designer.selectItem(null);
+        flash(created.length === 2
+            ? `Duplicated subfile pair as ${created[0].name} + ${created[1].name}.`
+            : `Duplicated record as ${created[0].name}.`, 'ok', 4000);
+    });
+
+    $('recordUp')?.addEventListener('click', () =>
+        doc.moveRecord(doc.activeRecordIndex, -1));
+    $('recordDown')?.addEventListener('click', () =>
+        doc.moveRecord(doc.activeRecordIndex, 1));
+
     $('renameRecord').addEventListener('click', () => {
         const cur = doc.activeRecord.name;
         const name = prompt('Rename record format:', cur);
@@ -224,127 +254,6 @@ function bindToolbarActions ({
     els.hideCondBtn?.addEventListener('click', () => {
         doc.setHideConditioned(!doc.hideConditioned);
     });
-}
-
-function bindExportActions ({ doc, flash, flushSource }) {
-    $('genRpgle')?.addEventListener('click', () => exportRpgle(false));
-    $('regenRpgle')?.addEventListener('click', () => exportRpgle(true));
-    $('genCobol')?.addEventListener('click', () => exportCobol(false));
-    $('regenCobol')?.addEventListener('click', () => exportCobol(true));
-
-    async function exportRpgle (mergeExisting) {
-        flushSource?.();
-        if (!confirmValidGeneration(doc, 'rpgle', flash)) return;
-        const dspfName = ibmiName(doc.sourceName, 'DSPFILE');
-        const prog = ibmiName(
-            prompt('Program name (max 10 chars, RPGLE):', dspfName + 'R'), '');
-        if (!prog) return;
-        const previousSource = mergeExisting
-            ? await selectSourceFile('.rpgle,.sqlrpgle,.txt')
-            : null;
-        if (mergeExisting && previousSource == null) {
-            flash('RPGLE regeneration cancelled.', 'error');
-            return;
-        }
-        try {
-            const src = generateRpgle(doc, {
-                programName: prog, dspfName, previousSource,
-            });
-            downloadText(prog + '.RPGLE', src);
-            flash(`${mergeExisting ? 'Regenerated' : 'Generated'} ${prog}.RPGLE.`, 'ok');
-        } catch (err) {
-            console.error('[dspf·rad] RPGLE generation failed:', err);
-            flash(`RPGLE generation failed: ${err.message}`, 'error', 5000);
-        }
-    }
-
-    async function exportCobol (mergeExisting) {
-        flushSource?.();
-        if (!usesIndara(doc)) {
-            const add = confirm(
-                'ILE COBOL needs a stable separate indicator area. ' +
-                'Add the file-level INDARA keyword before generating?');
-            if (!add) {
-                flash('COBOL generation cancelled: INDARA is required.', 'error', 4000);
-                return;
-            }
-            doc.records[0].keywords.unshift({
-                name: 'INDARA', args: [], indicators: [], scope: 'file',
-            });
-            doc.emit();
-        }
-        if (!confirmValidGeneration(doc, 'cobol', flash)) return;
-        const dspfName = ibmiName(doc.sourceName, 'DSPFILE');
-        const prog = ibmiName(
-            prompt('Program name (max 10 chars, COBOL):', dspfName + 'C'), '');
-        if (!prog) return;
-        const previousSource = mergeExisting
-            ? await selectSourceFile('.cblle,.cobol,.cbl,.txt')
-            : null;
-        if (mergeExisting && previousSource == null) {
-            flash('COBOL regeneration cancelled.', 'error');
-            return;
-        }
-        try {
-            const src = generateCobol(doc, {
-                programName: prog, dspfName, previousSource,
-            });
-            downloadText(prog + '.CBLLE', src);
-            flash(`${mergeExisting ? 'Regenerated' : 'Generated'} ${prog}.CBLLE.`, 'ok');
-        } catch (err) {
-            console.error('[dspf·rad] COBOL generation failed:', err);
-            flash(`COBOL generation failed: ${err.message}`, 'error', 5000);
-        }
-    }
-
-    $('exportJson').addEventListener('click', async () => {
-        const json = JSON.stringify(doc.toJSON(), null, 2);
-        console.log(json);
-        try {
-            await navigator.clipboard.writeText(json);
-            flash('Internal model copied to clipboard.', 'ok');
-        } catch {
-            flash('Internal model dumped to console.', 'ok');
-        }
-    });
-}
-
-function selectSourceFile (accept) {
-    return new Promise(resolve => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = accept;
-        input.hidden = true;
-        document.body.appendChild(input);
-        let settled = false;
-        const finish = async file => {
-            if (settled) return;
-            settled = true;
-            input.remove();
-            resolve(file ? await file.text() : null);
-        };
-        input.addEventListener('change', () => finish(input.files?.[0] ?? null),
-            { once: true });
-        input.addEventListener('cancel', () => finish(null), { once: true });
-        input.click();
-    });
-}
-
-function confirmValidGeneration (doc, language, flash) {
-    const diagnostics = validateDspf(doc, { language });
-    const errors = diagnostics.filter(item => item.severity === 'error');
-    if (errors.length) {
-        const detail = errors.slice(0, 8)
-            .map(item => `${item.code}: ${item.message}`).join('\n');
-        alert(`Code generation stopped: ${errors.length} DSPF error(s).\n\n${detail}`);
-        flash(`Generation stopped: ${errors.length} DSPF error(s).`, 'error', 5000);
-        return false;
-    }
-    const warnings = diagnostics.filter(item => item.severity === 'warning');
-    if (!warnings.length) return true;
-    const detail = warnings.slice(0, 8)
-        .map(item => `${item.code}: ${item.message}`).join('\n');
-    return confirm(`Generate with ${warnings.length} warning(s)?\n\n${detail}`);
 }
 
 // ---- misc bindings ------------------------------------------------------
@@ -376,6 +285,12 @@ function bindGlobalKeys ({ doc, designer, palette }) {
             return;
         }
         if (isTextEditingTarget(ev.target)) return;
+
+        if (key === 'f') {
+            ev.preventDefault();
+            $('findDesign')?.click();
+            return;
+        }
 
         if (key === 'z') {
             ev.preventDefault();
@@ -422,6 +337,7 @@ function bindCanvasCursor (els, palette, designer) {
 }
 
 // Column-marker preference (persisted in localStorage).
+// Preserve the established preference key across the product rebrand.
 const COL_MARKER_KEY = 'dspf-rad:col-marker';
 function bindColumnMarkerPref (sourceEditor, toggleBtn) {
     let initial = false;
@@ -460,12 +376,12 @@ export function boot () {
         // Surface bootstrap errors so they don't fail silently and leave
         // every toolbar button wireless.  Common cause: a TDZ violation
         // from reordering initialisation.
-        console.error('[dspf·rad] boot failed:', err);
+        console.error('[ironterm] boot failed:', err);
         const status = document.getElementById('status');
         if (status) {
             status.textContent = 'BOOT ERROR (see console): ' + (err.message || err);
             status.className   = 'error';
         }
-        document.title = '[!] dspf·rad boot error';
+        document.title = `[!] ${PRODUCT.name} boot error`;
     }
 }

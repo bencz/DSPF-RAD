@@ -1,13 +1,35 @@
 {
-  "name": "dspf-rad",
-  "version": "0.7.0",
+  "name": "ironterm-studio",
+  "version": "0.10.0",
+  "description": "Offline-first IBM i development environment and visual DDS workbench",
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "node --test",
     "samples": "node scripts/generate-codegen-samples.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "6.18.0",
+    "@codemirror/commands": "6.7.0",
+    "@codemirror/language": "6.10.0",
+    "@codemirror/lint": "6.8.0",
+    "@codemirror/search": "6.5.6",
+    "@codemirror/state": "6.5.0",
+    "@codemirror/view": "6.34.0",
+    "@lezer/common": "1.2.3",
+    "@lezer/highlight": "1.2.1",
+    "@lezer/lr": "1.4.2",
+    "98.css": "0.1.21",
+    "codemirror": "6.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "vite": "8.2.2"
   }
 }

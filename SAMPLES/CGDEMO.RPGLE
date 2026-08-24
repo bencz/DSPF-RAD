@@ -58,11 +58,13 @@ Dcl-Proc CGDEMO_main;
 
     Select;
       When WkInd.In03;
-        // [DSPF-RAD-REGION begin=on-in03]
         done = *On;
+        // [DSPF-RAD-REGION begin=on-in03]
+        // Add custom handling for In03 here.
         // [DSPF-RAD-REGION end=on-in03]
       When WkInd.In05;
         // [DSPF-RAD-REGION begin=on-in05]
+        // Add custom handling for In05 here.
         // [DSPF-RAD-REGION end=on-in05]
       // ---- Menu bar actions ----
       When MNUCHC = 1 And PULLCHC = 1;

@@ -6,7 +6,7 @@ import {
     collectAids, collectMenuArms, collectPushbtnArms, collectChoiceArms,
     indicatorConditionsOf, usesIndara,
     uniqueRegionKeyGroups, pickMainRecord, pickSubfilePairs,
-    pickPulldownRecords, pad2,
+    pickPulldownRecords, collectDisplayRecords, aidActionFor, pad2,
 } from './analysis.js';
 import { ibmiName } from '../model/factories.js';
 import { mergeProtectedRegions } from './protectedRegions.js';
@@ -27,11 +27,17 @@ export function generateCobol (doc, {
     const sflPairs   = prepareSubfilePairs(pickSubfilePairs(doc));
     const pulldowns  = pickPulldownRecords(doc);
     const mainRecord = pickMainRecord(doc) ?? sflPairs[0]?.sflctl;
+    const routes     = prepareDisplayRoutes(doc, sflPairs);
+    const routed     = sflPairs.length > 1 || aids.some(aid => {
+        const action = aidActionFor(doc, aid.pos);
+        return action?.behavior === 'navigate' &&
+            routes.some(route => route.record.name === action.target);
+    });
     const [menuArms, btnArms, chcArms] = uniqueRegionKeyGroups([
         collectMenuArms(doc), collectPushbtnArms(doc), collectChoiceArms(doc),
     ]);
 
-    const aidEvals   = renderAidEvals(aids);
+    const aidEvals   = renderAidEvals(aids, doc, routes, routed);
     const menuBlk    = renderArmsBlock('Menu bar actions', menuArms);
     const btnBlk     = renderArmsBlock('Push buttons',     btnArms);
     const chcBlk     = renderArmsBlock('Choice fields',    chcArms);
@@ -39,9 +45,9 @@ export function generateCobol (doc, {
     const out = [];
     out.push(...identificationDiv(programName, dspfName, doc));
     out.push(...environmentDiv(dspfName, sflPairs.length > 0));
-    out.push(...dataDiv(doc, dspfName, sflPairs));
+    out.push(...dataDiv(doc, dspfName, sflPairs, routes, routed, mainRecord));
     out.push(...procedureDiv(
-        dspfName, mainRecord, sflPairs, pulldowns,
+        dspfName, mainRecord, sflPairs, routes, routed, pulldowns,
         aidEvals, menuBlk, btnBlk, chcBlk));
     const generated = out.join('\n') + '\n';
     return mergeProtectedRegions(previousSource, generated);
@@ -60,6 +66,19 @@ function prepareSubfilePairs (pairs) {
             regionKey: count === 1 ? base : `${base}-${count}`,
         };
     });
+}
+
+function prepareDisplayRoutes (doc, sflPairs) {
+    return collectDisplayRecords(doc).map(record => ({
+        record,
+        pair: sflPairs.find(candidate => candidate.sflctl.name === record.name) ?? null,
+    }));
+}
+
+function initialRoute (mainRecord, routes) {
+    return routes.some(route => route.record.name === mainRecord?.name)
+        ? mainRecord.name
+        : routes[0]?.record.name ?? '';
 }
 
 function regionPart (name) {
@@ -118,7 +137,7 @@ function environmentDiv (dspfName, hasSubfiles) {
     return lines;
 }
 
-function dataDiv (doc, dspfName, sflPairs) {
+function dataDiv (doc, dspfName, sflPairs, routes, routed, mainRecord) {
     const lines = [];
     lines.push(`       DATA DIVISION.`);
     lines.push(`       FILE SECTION.`);
@@ -132,9 +151,9 @@ function dataDiv (doc, dspfName, sflPairs) {
     if (sflPairs.length) {
         lines.push(`           05  WS-SFL-RRN        PIC 9(5)    COMP-4 VALUE 0.`);
     }
-    if (sflPairs.length > 1) {
+    if (routed) {
         lines.push(
-            `           05  WS-SCREEN         PIC X(10)   VALUE "${sflPairs[0].sflctl.name}".`);
+            `           05  WS-SCREEN         PIC X(10)   VALUE "${initialRoute(mainRecord, routes)}".`);
     }
     lines.push(`       01  INDICATORS.`);
     lines.push(`           05  INDIC-TABLE OCCURS 99 PIC 1 INDICATOR 1.`);
@@ -145,7 +164,7 @@ function dataDiv (doc, dspfName, sflPairs) {
 }
 
 function procedureDiv (
-    dspfName, mainRecord, sflPairs, pulldowns,
+    dspfName, mainRecord, sflPairs, routes, routed, pulldowns,
     aidEvals, menuBlk, btnBlk, chcBlk,
 ) {
     const lines = [];
@@ -180,27 +199,34 @@ function procedureDiv (
     lines.push(`       PROCESS-SCREEN.`);
     if (sflPairs.length > 1) {
         lines.push(`      *> [DSPF-RAD-REGION begin=select-subfile-screen]`);
-        lines.push(`      *> Set WS-SCREEN to the SFLCTL format that should be interactive.`);
+        lines.push(`      *> Optionally set WS-SCREEN before the generated route selector.`);
         lines.push(`      *> [DSPF-RAD-REGION end=select-subfile-screen]`);
     }
     lines.push(`      *> [DSPF-RAD-REGION begin=before-display]`);
     lines.push(`      *> Populate fields for the next display operation.`);
     lines.push(`      *> [DSPF-RAD-REGION end=before-display]`);
-    if (sflPairs.length === 1) {
-        lines.push(`           PERFORM LOAD-${sflPairs[0].paragraph}`);
-        lines.push(...renderRecordExchange(dspfName, sflPairs[0].sflctl, '           '));
-    } else if (sflPairs.length > 1) {
+    if (routed) {
+        const fallback = initialRoute(mainRecord, routes);
+        lines.push(`      *> WS-SCREEN is managed by the RAD key-action flow.`);
         lines.push(`           EVALUATE WS-SCREEN`);
-        for (const pair of sflPairs) {
-            lines.push(`              WHEN "${pair.sflctl.name}"`);
-            lines.push(`                 PERFORM LOAD-${pair.paragraph}`);
-            lines.push(...renderRecordExchange(dspfName, pair.sflctl, '                 '));
+        for (const route of routes) {
+            lines.push(`              WHEN "${route.record.name}"`);
+            if (route.pair) lines.push(`                 PERFORM LOAD-${route.pair.paragraph}`);
+            lines.push(...renderRecordExchange(dspfName, route.record, '                 '));
         }
         lines.push(`              WHEN OTHER`);
-        lines.push(`                 MOVE "${sflPairs[0].sflctl.name}" TO WS-SCREEN`);
-        lines.push(`                 PERFORM LOAD-${sflPairs[0].paragraph}`);
-        lines.push(...renderRecordExchange(dspfName, sflPairs[0].sflctl, '                 '));
+        lines.push(`                 MOVE "${fallback}" TO WS-SCREEN`);
+        const fallbackRoute = routes.find(route => route.record.name === fallback);
+        if (fallbackRoute?.pair) {
+            lines.push(`                 PERFORM LOAD-${fallbackRoute.pair.paragraph}`);
+        }
+        if (fallbackRoute) {
+            lines.push(...renderRecordExchange(dspfName, fallbackRoute.record, '                 '));
+        }
         lines.push(`           END-EVALUATE`);
+    } else if (sflPairs.length === 1) {
+        lines.push(`           PERFORM LOAD-${sflPairs[0].paragraph}`);
+        lines.push(...renderRecordExchange(dspfName, sflPairs[0].sflctl, '           '));
     } else if (mainRecord) {
         lines.push(...renderRecordExchange(dspfName, mainRecord, '           '));
     }
@@ -308,16 +334,24 @@ function renderCobolIndicatorMoves (conditions, invert = false) {
 
 // ---- evaluate arms -----------------------------------------------------
 
-function renderAidEvals (aids) {
+function renderAidEvals (aids, doc, routes, routed) {
     // Use the positional indicator name (IN03, IN12, …) - friendly names
     // like "Exit" / "Cancel" collide with COBOL reserved words.
     return aids.map(a => {
         const nm = `IN${pad2(a.pos)}`;
-        const exitLike = /^C[AF](03|12)$/.test(a.aid);
+        const action = aidActionFor(doc, a.pos);
+        const validRoute = action?.behavior === 'navigate' && routed &&
+            routes.some(route => route.record.name === action.target);
+        const exitLike = action?.behavior === 'exit' ||
+            (!action && /^C[AF](03|12)$/.test(a.aid));
+        const inner = validRoute
+            ? `MOVE "${action.target}" TO WS-SCREEN`
+            : (exitLike ? 'MOVE "Y" TO DONE-FLG' : 'CONTINUE');
         return [
             `                 WHEN INDIC-TABLE (${pad2(a.pos)}) = B"1"`,
+            `                    ${inner}`,
             `      *> [DSPF-RAD-REGION begin=on-${nm.toLowerCase()}]`,
-            `                    ${exitLike ? 'MOVE "Y" TO DONE-FLG' : 'CONTINUE'}`,
+            `      *> Add custom handling for ${nm} here.`,
             `      *> [DSPF-RAD-REGION end=on-${nm.toLowerCase()}]`,
         ].join('\n');
     }).join('\n');

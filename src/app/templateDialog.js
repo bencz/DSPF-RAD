@@ -52,7 +52,7 @@ export function bindTemplateDialog ({
             modelKey: model.value,
         });
         doc.sourceName = created.sourceName;
-        doc.adopt(created);
+        doc.adopt(created, { preserveAidActions: false });
         // A generated starting point has not been downloaded yet.
         doc.resetHistory({ markClean: false });
         designer.selectItem(null);

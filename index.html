@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>DSPF·RAD · Browser-based IBM i (AS/400) display file designer</title>
+    <title>IronTerm Studio · IBM i Development Environment</title>
     <meta name="description"
-          content="DSPF·RAD is a browser-based RAD designer for IBM i (AS/400) display files. Drag widgets onto a 5250 grid (24x80 or 27x132) and watch DSPF source regenerate live. Supports subfiles (SFL/SFLCTL), ENPTUI controls, and RPGLE / COBOL skeleton generation.">
+          content="IronTerm Studio is an offline-first IBM i development environment with a visual DDS display-file designer, live source synchronization, validation, and RPGLE/COBOL generation.">
     <meta name="keywords"
           content="DSPF, DDS, IBM i, AS/400, AS400, iSeries, System i, 5250, 5251, RPG, RPGLE, COBOL, display file, subfile, SFL, SFLCTL, ENPTUI, terminal designer, RAD, green screen, SDA">
     <meta name="author" content="Alexandre Bencz">
@@ -18,9 +18,9 @@
 
     <!-- Open Graph (Facebook, LinkedIn, Discord, Slack, ...) -->
     <meta property="og:type"          content="website">
-    <meta property="og:site_name"     content="DSPF·RAD">
-    <meta property="og:title"         content="DSPF·RAD · Browser-based IBM i display file designer">
-    <meta property="og:description"   content="Drag-and-drop RAD designer for DSPF (display files) on IBM i / AS/400. Live two-way sync between canvas and source, with RPGLE and COBOL skeleton generation.">
+    <meta property="og:site_name"     content="IronTerm Studio">
+    <meta property="og:title"         content="IronTerm Studio · IBM i Development Environment">
+    <meta property="og:description"   content="Offline-first IBM i workbench with a visual DDS designer, live source synchronization, validation, and RPGLE/COBOL generation.">
     <meta property="og:url"           content="https://dspf-rad.bencz.cc/">
     <meta property="og:image"         content="https://github.com/user-attachments/assets/0ece6fdb-8651-4c0f-9ca9-1dc545fc8b5b">
     <meta property="og:image:width"   content="1510">
@@ -30,8 +30,8 @@
 
     <!-- Twitter / X card -->
     <meta name="twitter:card"        content="summary_large_image">
-    <meta name="twitter:title"       content="DSPF·RAD · Browser-based IBM i display file designer">
-    <meta name="twitter:description" content="Drag-and-drop RAD designer for DSPF on IBM i / AS/400. Two-way sync between canvas and source.">
+    <meta name="twitter:title"       content="IronTerm Studio · IBM i Development Environment">
+    <meta name="twitter:description" content="Offline-first IBM i workbench with a visual DDS designer and live source synchronization.">
     <meta name="twitter:image"       content="https://github.com/user-attachments/assets/0ece6fdb-8651-4c0f-9ca9-1dc545fc8b5b">
     <meta name="twitter:image:alt"   content="DSPF·RAD designer showing a 5250 sign-on screen with palette, canvas, inspector and live DSPF source.">
 
@@ -40,12 +40,12 @@
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "DSPF·RAD",
+      "name": "IronTerm Studio",
       "url": "https://dspf-rad.bencz.cc/",
-      "description": "Browser-based RAD designer for IBM i (AS/400) display files (DSPF). Drag widgets onto a 5250 grid with live two-way sync between the canvas and DSPF source. Includes RPGLE and COBOL skeleton generators with protected regions.",
+      "description": "Offline-first IBM i development environment with a visual DDS display-file designer, live source synchronization, validation, and RPGLE and COBOL generators.",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any (web browser)",
-      "browserRequirements": "Requires a modern browser with ES modules and import maps (Chrome, Firefox, Safari, Edge).",
+      "browserRequirements": "Requires a modern browser with ES modules (Chrome, Firefox, Safari, Edge).",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -65,15 +65,11 @@
     </script>
 
     <link rel="icon" type="image/svg+xml"
-          href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23050a05'/><text x='32' y='44' font-family='monospace' font-size='18' font-weight='bold' fill='%2333ff33' text-anchor='middle'>DSPF</text></svg>">
+          href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23050a05'/><text x='32' y='42' font-family='monospace' font-size='22' font-weight='bold' fill='%2333ff33' text-anchor='middle'>ILE</text></svg>">
 
-    <!-- 98.css gives us the Win98 chrome - bitmap MS Sans Serif font, raised/sunken
-         3D borders, native button/input/select look, .window + .title-bar + .status-bar
-         primitives.  Loaded BEFORE our styles.css so we can override what doesn't
-         fit (compact menubar buttons, the dark embedded canvas, the dark CodeMirror
-         editor inside its Win98 frame, the custom palette items, etc.). -->
-    <link rel="stylesheet" href="https://unpkg.com/98.css@0.1.21">
-    <link rel="stylesheet" href="styles.css">
+    <!-- Application CSS and third-party chrome are imported by src/main.js.
+         Vite bundles both locally, in deterministic order, so the IDE starts
+         without a network connection. -->
 
     <!-- No-FOUC theme application - runs BEFORE styles.css paints.
          Reads localStorage first (explicit user choice wins).  If empty,
@@ -96,32 +92,8 @@
       })();
     </script>
 
-    <!-- Import map so CodeMirror 6 sub-packages share a single instance
-         of @codemirror/state / @codemirror/view across the dep graph.
-         Without this, esm.sh serves a fresh copy of @codemirror/state to
-         each sub-package and the EditorView's instanceof checks fail with
-         "Unrecognized extension value".  Every package is fetched with
-         ?external= for its sub-deps so esm.sh emits bare imports, which
-         the browser resolves through this map to ONE URL per package. -->
-    <script type="importmap">
-    {
-      "imports": {
-        "@codemirror/state":         "https://esm.sh/@codemirror/state@6.5.0",
-        "@codemirror/view":          "https://esm.sh/@codemirror/view@6.34.0?external=@codemirror/state",
-        "@codemirror/language":      "https://esm.sh/@codemirror/language@6.10.0?external=@codemirror/state,@codemirror/view,@lezer/common,@lezer/highlight",
-        "@codemirror/autocomplete":  "https://esm.sh/@codemirror/autocomplete@6.18.0?external=@codemirror/state,@codemirror/view,@codemirror/language",
-        "@codemirror/commands":      "https://esm.sh/@codemirror/commands@6.7.0?external=@codemirror/state,@codemirror/view,@codemirror/language",
-        "@codemirror/search":        "https://esm.sh/@codemirror/search@6.5.6?external=@codemirror/state,@codemirror/view",
-        "@codemirror/lint":          "https://esm.sh/@codemirror/lint@6.8.0?external=@codemirror/state,@codemirror/view",
-        "@lezer/common":             "https://esm.sh/@lezer/common@1.2.3",
-        "@lezer/highlight":          "https://esm.sh/@lezer/highlight@1.2.1?external=@lezer/common",
-        "@lezer/lr":                 "https://esm.sh/@lezer/lr@1.4.2?external=@lezer/common",
-        "codemirror":                "https://esm.sh/codemirror@6.0.1?external=@codemirror/state,@codemirror/view,@codemirror/language,@codemirror/autocomplete,@codemirror/commands,@codemirror/search,@codemirror/lint"
-      }
-    }
-    </script>
 </head>
-<body class="dspf-rad">
+<body class="dspf-rad ironterm-studio">
 
 <!-- Outer "shell" window fills the viewport.  Title-bar is the classic Win98
      blue gradient; the controls on the right are decorative (tabindex=-1)
@@ -129,7 +101,7 @@
 <div class="window app-window">
     <div class="title-bar">
         <div class="title-bar-text">
-            <span class="app-brand-mark">DSPF</span> · RAD - IronTerm Display File Designer
+            <span class="app-brand-mark">ILE</span> IronTerm Studio - IBM i Development Environment
         </div>
     </div>
 
@@ -161,6 +133,13 @@
                         <span class="menu-label"><u>S</u>ave</span>
                         <span class="menu-accel">Ctrl+S</span>
                     </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="openProject">
+                        <span class="menu-label">Open RAD project…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="saveProject">
+                        <span class="menu-label">Save RAD project…</span>
+                    </button></li>
                 </ul>
             </li>
 
@@ -176,6 +155,11 @@
                         <span class="menu-accel">Ctrl+Y</span>
                     </button></li>
                     <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="findDesign">
+                        <span class="menu-label"><u>F</u>ind in design…</span>
+                        <span class="menu-accel">Ctrl+F</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
                     <li><button class="menu-item" data-cmd="copyItems">
                         <span class="menu-label"><u>C</u>opy items</span>
                         <span class="menu-accel">Ctrl+C</span>
@@ -187,6 +171,35 @@
                     <li><button class="menu-item" data-cmd="duplicateItems">
                         <span class="menu-label"><u>D</u>uplicate items</span>
                         <span class="menu-accel">Ctrl+D</span>
+                    </button></li>
+                </ul>
+            </li>
+
+            <li class="menu" data-menu="record">
+                <button class="menu-title" type="button"><u>R</u>ecord</button>
+                <ul class="menu-dropdown" role="menu">
+                    <li><button class="menu-item" data-cmd="addRecord">
+                        <span class="menu-label">Add record…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="addSubfile">
+                        <span class="menu-label">Add subfile pair…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="cloneRecord">
+                        <span class="menu-label">Duplicate current record</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="renameRecord">
+                        <span class="menu-label">Rename current record…</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="recordUp">
+                        <span class="menu-label">Move record up</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="recordDown">
+                        <span class="menu-label">Move record down</span>
+                    </button></li>
+                    <li class="menu-separator"></li>
+                    <li><button class="menu-item" data-cmd="deleteRecord">
+                        <span class="menu-label">Delete current record</span>
                     </button></li>
                 </ul>
             </li>
@@ -217,7 +230,7 @@
                 <button class="menu-title" type="button"><u>H</u>elp</button>
                 <ul class="menu-dropdown" role="menu">
                     <li><button class="menu-item" data-cmd="about">
-                        <span class="menu-label"><u>A</u>bout DSPF·RAD…</span>
+                        <span class="menu-label"><u>A</u>bout IronTerm Studio…</span>
                     </button></li>
                 </ul>
             </li>
@@ -242,6 +255,7 @@
             <button id="templateNew" title="Create a DSPF from a screen template (Ctrl+N)">New…</button>
             <button id="undoDoc" title="Undo the last design change (Ctrl+Z)" disabled>Undo</button>
             <button id="redoDoc" title="Redo the last undone change (Ctrl+Y)" disabled>Redo</button>
+            <button id="findDesign" title="Find records and fields (Ctrl+F)">Find…</button>
 
             <span class="sep" aria-hidden="true"></span>
 
@@ -259,7 +273,10 @@
             </label>
             <button id="addRecord"    title="Add a new record format">+R</button>
             <button id="addSubfile"   title="Add a Subfile pair (SFL + SFLCTL) wired with defaults">+SFL</button>
+            <button id="cloneRecord"  title="Duplicate the active record (duplicates linked SFL/SFLCTL together)">Clone</button>
             <button id="renameRecord" title="Rename the active record format">RN</button>
+            <button id="recordUp"     title="Move the active record up">↑</button>
+            <button id="recordDown"   title="Move the active record down">↓</button>
             <button id="deleteRecord" title="Delete the active record format">-R</button>
 
             <span class="sep" aria-hidden="true"></span>
@@ -287,6 +304,10 @@
             <button id="arrangeItems" title="Apply to the selected items">Arrange</button>
 
             <span class="sep" aria-hidden="true"></span>
+            <button id="importDatabaseFields"
+                    title="Import fields from a physical/logical file DDS member">Import PF/LF…</button>
+            <button id="editKeyFlow"
+                    title="Configure generated actions for command keys">Key flow…</button>
             <button id="simulateToggle" class="toggle"
                     title="Preview indicator conditions and sample field values">Simulate</button>
         </div>
@@ -318,7 +339,8 @@
             <button id="newDoc"  title="Discard the current design and start fresh">New</button>
             <button id="openDoc" title="Open DSPF source">Open…</button>
             <button id="saveDoc" title="Generate DSPF source">Save</button>
-            <input  id="fileInput" type="file">
+            <button id="openProject">Open RAD project</button>
+            <button id="saveProject">Save RAD project</button>
 
             <button id="genRpgle" title="Generate RPGLE skeleton with protected regions">RPGLE</button>
             <button id="genCobol" title="Generate COBOL skeleton with protected regions">COBOL</button>
@@ -497,6 +519,7 @@
         <!-- 98.css .status-bar gets the classic horizontal-striped bottom
              field layout for free.  IDs match what main.js writes to. -->
         <div id="statusbar" class="status-bar" role="status" aria-live="polite">
+            <p class="status-bar-field" id="sbHost" title="Runtime host">Local</p>
             <p class="status-bar-field" id="sbModel"  title="Display model">24×80</p>
             <p class="status-bar-field" id="sbRecord" title="Active record">-</p>
             <p class="status-bar-field" id="sbItems"  title="Item count in active record">0 items</p>
@@ -535,6 +558,96 @@
             <div class="template-actions">
                 <button id="templateCancel" type="button">Cancel</button>
                 <button type="submit">Create design</button>
+            </div>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="findDialog" class="window find-dialog" aria-labelledby="findDialogTitle">
+    <form id="findForm">
+        <div class="title-bar">
+            <div class="title-bar-text" id="findDialogTitle">Find in design</div>
+        </div>
+        <div class="find-body">
+            <label class="find-query-label">Record, field, text or keyword
+                <input id="findQuery" type="search" autocomplete="off" placeholder="Type to search…">
+            </label>
+            <div id="findResults" class="find-results"></div>
+            <div class="find-actions">
+                <span id="findCount" class="find-count"></span>
+                <button id="findClose" type="button">Close</button>
+            </div>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="keyFlowDialog" class="window flow-dialog" aria-labelledby="keyFlowTitle">
+    <form id="keyFlowForm">
+        <div class="title-bar">
+            <div class="title-bar-text" id="keyFlowTitle">Command-key flow</div>
+        </div>
+        <div class="flow-body">
+            <p class="flow-intro">Choose what generated RPGLE and COBOL programs do for each AID key. Navigation keeps the selected record active on the next loop.</p>
+            <div class="flow-head" aria-hidden="true">
+                <span>Key / indicator</span><span>Generated behavior</span><span>Target record</span>
+            </div>
+            <div id="keyFlowRows" class="flow-rows"></div>
+            <p class="flow-note">Key actions are RAD metadata. Save a RAD project to keep them; plain DSPF export contains only DDS.</p>
+            <div class="flow-actions">
+                <button id="keyFlowCancel" type="button">Cancel</button>
+                <button type="submit">Apply flow</button>
+            </div>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="databaseImportDialog" class="window import-dialog" aria-labelledby="databaseImportTitle">
+    <form id="databaseImportForm">
+        <div class="title-bar">
+            <div class="title-bar-text" id="databaseImportTitle">Import PF/LF fields</div>
+        </div>
+        <div class="import-body">
+            <p id="databaseImportFile" class="import-file"></p>
+            <div class="import-grid">
+                <label>Source record
+                    <select id="databaseSourceRecord"></select>
+                </label>
+                <label>Target DSPF record
+                    <select id="databaseTargetRecord"></select>
+                </label>
+                <label>Layout
+                    <select id="databaseLayout">
+                        <option value="form">Labeled form</option>
+                        <option value="subfile">Subfile columns</option>
+                    </select>
+                </label>
+                <label>Field usage
+                    <select id="databaseUsage">
+                        <option value="B">B · Input/Output</option>
+                        <option value="I">I · Input</option>
+                        <option value="O">O · Output</option>
+                    </select>
+                </label>
+                <label>Start row
+                    <input id="databaseStartRow" type="number" min="1" max="27" value="3">
+                </label>
+                <label>Label/start column
+                    <input id="databaseLabelCol" type="number" min="1" max="132" value="2">
+                </label>
+                <label id="databaseFieldColLabel">Field column
+                    <input id="databaseFieldCol" type="number" min="2" max="132" value="24">
+                </label>
+                <label class="import-option-row">
+                    <input id="databaseAddOption" type="checkbox"> Add option field to subfile
+                </label>
+            </div>
+            <fieldset class="import-fields-box">
+                <legend>Fields to import</legend>
+                <div id="databaseFields" class="import-fields"></div>
+            </fieldset>
+            <div class="import-actions">
+                <button id="databaseImportCancel" type="button">Cancel</button>
+                <button type="submit">Import selected fields</button>
             </div>
         </div>
     </form>

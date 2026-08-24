@@ -633,6 +633,166 @@ body.simulation-active { --chrome-h: 172px; }
 .template-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 14px; }
 .template-actions button { min-width: 90px; }
 
+/* PF/LF field importer.  It stays deliberately compact: this is a layout
+   assistant, not a database modelling screen. */
+.import-dialog {
+    width: min(700px, calc(100vw - 30px));
+    padding: 3px;
+    border: 0;
+    color: var(--fg-text);
+    background: var(--w98-face);
+}
+.import-dialog::backdrop { background: rgba(0, 0, 0, 0.48); }
+.import-dialog form { margin: 0; }
+.import-body { padding: 12px; }
+.import-file { margin: 0 0 10px; color: var(--fg-muted); }
+.import-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 12px;
+}
+.import-grid > label:not(.import-option-row) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.import-grid input[type="number"],
+.import-grid select { width: 100%; box-sizing: border-box; height: 24px; }
+.import-option-row { display: flex; align-items: center; gap: 5px; padding-top: 18px; }
+.import-fields-box { margin-top: 12px; padding: 8px; }
+.import-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3px 10px;
+    max-height: 220px;
+    overflow: auto;
+    padding: 2px;
+}
+.import-field-row { display: flex; align-items: flex-start; gap: 5px; min-width: 0; }
+.import-field-row span { display: flex; flex-direction: column; min-width: 0; }
+.import-field-row strong { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.import-field-row small {
+    color: var(--fg-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.import-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; }
+.import-actions button { min-width: 120px; }
+
+@media (max-width: 620px) {
+    .import-grid, .import-fields { grid-template-columns: 1fr; }
+    .import-option-row { padding-top: 0; }
+}
+
+/* Command-key flow editor. */
+.flow-dialog {
+    width: min(720px, calc(100vw - 30px));
+    padding: 3px;
+    border: 0;
+    color: var(--fg-text);
+    background: var(--w98-face);
+}
+.flow-dialog::backdrop { background: rgba(0, 0, 0, 0.48); }
+.flow-dialog form { margin: 0; }
+.flow-body { padding: 12px; }
+.flow-intro { margin: 0 0 10px; color: var(--fg-muted); }
+.flow-head, .flow-row {
+    display: grid;
+    grid-template-columns: minmax(130px, .8fr) minmax(180px, 1.1fr) minmax(170px, 1fr);
+    gap: 8px;
+    align-items: center;
+}
+.flow-head {
+    padding: 4px 6px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--w98-shadow);
+}
+.flow-rows { max-height: 330px; overflow: auto; }
+.flow-row { padding: 5px 6px; border-bottom: 1px dotted var(--w98-shadow); }
+.flow-key { display: flex; flex-direction: column; }
+.flow-key strong { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.flow-key small { color: var(--fg-muted); }
+.flow-row select { width: 100%; height: 24px; }
+.flow-note {
+    margin: 10px 0 0;
+    padding: 6px;
+    color: var(--fg-muted);
+    background: var(--bg-tooltip);
+    border: 1px solid var(--w98-shadow);
+}
+.flow-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; }
+.flow-actions button { min-width: 100px; }
+
+@media (max-width: 620px) {
+    .flow-head { display: none; }
+    .flow-row { grid-template-columns: 1fr; }
+}
+
+/* Global design search. */
+.find-dialog {
+    width: min(580px, calc(100vw - 30px));
+    padding: 3px;
+    border: 0;
+    color: var(--fg-text);
+    background: var(--w98-face);
+}
+.find-dialog::backdrop { background: rgba(0, 0, 0, 0.48); }
+.find-dialog form { margin: 0; }
+.find-body { padding: 12px; }
+.find-query-label { display: flex; flex-direction: column; gap: 5px; }
+.find-query-label input { width: 100%; height: 27px; box-sizing: border-box; }
+.find-results {
+    min-height: 110px;
+    max-height: 340px;
+    overflow: auto;
+    margin-top: 8px;
+    padding: 2px;
+    background: var(--bg-input);
+    border: 2px solid;
+    border-color: var(--w98-shadow) var(--w98-white) var(--w98-white) var(--w98-shadow);
+}
+.find-result {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    min-height: 36px;
+    padding: 4px 6px;
+    border: 0;
+    box-shadow: none;
+    text-align: left;
+    background: transparent;
+    color: var(--fg-text);
+}
+.find-result:hover, .find-result:focus {
+    background: var(--w98-navy);
+    color: var(--fg-on-accent);
+    outline: none;
+}
+.find-result-badge {
+    flex: 0 0 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--fg-accent);
+    border: 1px solid currentColor;
+}
+.find-result:hover .find-result-badge,
+.find-result:focus .find-result-badge { color: inherit; }
+.find-result-text { display: flex; flex-direction: column; min-width: 0; }
+.find-result-text strong, .find-result-text small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.find-result-text small { color: var(--fg-muted); }
+.find-result:hover small, .find-result:focus small { color: inherit; }
+.find-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.find-count { flex: 1; color: var(--fg-muted); }
+.find-actions button { min-width: 90px; }
+
 /* ============================================================
    Canvas - dark 5250 terminal embedded in a deep Win98 sunken well.
    Keeps the original aspect-ratio + height calc so the grid scales
@@ -1333,6 +1493,7 @@ body.source-collapsed .problems-panel { display: none; }
     font-family: "SF Mono", Menlo, Consolas, monospace;
     font-size: 11px;
 }
+#sbHost   { min-width: 110px; font-weight: bold; }
 #sbModel  { min-width: 90px; }
 #sbRecord { min-width: 110px; }
 #sbItems  { min-width: 70px; }

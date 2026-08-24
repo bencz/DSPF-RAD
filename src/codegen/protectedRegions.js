@@ -31,12 +31,27 @@ export function mergeProtectedRegions (previousSource, generatedSource) {
         if (end >= lines.length) {
             throw new Error(`Unclosed generated protected region: ${key}`);
         }
-        if (previous.has(key)) out.push(...previous.get(key));
+        if (previous.has(key)) out.push(...migrateRegionBody(key, previous.get(key)));
         else out.push(...lines.slice(i + 1, end));
         out.push(lines[end]);
         i = end;
     }
     return out.join(eol) + (trailingEol ? eol : '');
+}
+
+// Before v0.8, the generator-owned default AID statement lived inside the
+// protected region. Strip only that known boilerplate during regeneration so
+// changing a key action in the RAD takes effect while handwritten lines remain.
+function migrateRegionBody (key, body) {
+    if (!/^on-in\d{2}$/.test(key)) return body;
+    return body.filter(line => {
+        const value = line.trim();
+        return value !== 'done = *On;' &&
+            value !== 'MOVE "Y" TO DONE-FLG' &&
+            value !== 'CONTINUE' &&
+            !/^WkScreen = '[A-Z0-9_$#@]{1,10}';$/.test(value) &&
+            !/^MOVE "[A-Z0-9_$#@]{1,10}" TO WS-SCREEN$/.test(value);
+    });
 }
 
 export function readRegions (source) {

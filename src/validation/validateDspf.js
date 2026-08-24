@@ -1,4 +1,6 @@
-import { pickMainRecord, usesIndara } from '../codegen/analysis.js';
+import {
+    pickMainRecord, usesIndara, collectAids, collectDisplayRecords,
+} from '../codegen/analysis.js';
 import { itemWidth, itemHeight } from '../canvas/metrics.js';
 import { parseWindowSpec } from '../canvas/windowSpec.js';
 
@@ -66,7 +68,24 @@ export function validateDspf (doc, { language = null, layout = false } = {}) {
             'ILE COBOL generation requires file-level INDARA for a stable ' +
             '99-position separate indicator area.');
     }
+    validateAidActions(doc, add);
     return diagnostics;
+}
+
+function validateAidActions (doc, add) {
+    const aidPositions = new Set(collectAids(doc).map(aid => aid.pos));
+    const displayRecords = new Set(collectDisplayRecords(doc).map(record => record.name));
+    for (const action of doc.aidActions ?? []) {
+        if (!aidPositions.has(action.pos)) {
+            add('warning', 'ORPHAN_AID_ACTION',
+                `Key action IN${String(action.pos).padStart(2, '0')} has no matching AID keyword.`);
+        }
+        if (action.behavior === 'navigate' && !displayRecords.has(action.target)) {
+            add('error', 'BROKEN_AID_ACTION_TARGET',
+                `Key action IN${String(action.pos).padStart(2, '0')} targets missing or non-displayable record ${action.target}.`,
+                { record: action.target });
+        }
+    }
 }
 
 function validateItem (item, record, doc, add) {

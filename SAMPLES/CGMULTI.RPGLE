@@ -39,8 +39,9 @@ Dcl-Proc CGMULTI_main;
     // Populate fields for the next display operation.
     // [DSPF-RAD-REGION end=before-display]
     // [DSPF-RAD-REGION begin=select-subfile-screen]
-    // Set WkScreen to the SFLCTL format that should be interactive.
+    // Optionally set WkScreen before the generated route selector.
     // [DSPF-RAD-REGION end=select-subfile-screen]
+    // WkScreen is managed by the RAD key-action flow.
     Select;
       When WkScreen = 'FIRSTCTL';
         // [DSPF-RAD-REGION begin=load-firstsfl]
@@ -81,8 +82,9 @@ Dcl-Proc CGMULTI_main;
 
     Select;
       When WkInd.In03;
-        // [DSPF-RAD-REGION begin=on-in03]
         done = *On;
+        // [DSPF-RAD-REGION begin=on-in03]
+        // Add custom handling for In03 here.
         // [DSPF-RAD-REGION end=on-in03]
       Other;
         // [DSPF-RAD-REGION begin=on-enter]

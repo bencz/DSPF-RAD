@@ -10,6 +10,7 @@ import {
     conditionGroupsOf, indicatorConditionsOf, pickMainRecord, pickSubfilePairs,
 } from '../src/codegen/analysis.js';
 import { parseDspf } from '../src/parser/parseDspf.js';
+import { DspfDocument } from '../src/model/DspfDocument.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sampleSource = fs.readFileSync(
@@ -104,6 +105,35 @@ test('COBOL refuses to pretend positional indicators are safe without INDARA', (
         () => generateCobol(doc, { programName: 'CGDEMO', dspfName: 'CGDEMO' }),
         /requires the DSPF INDARA keyword/,
     );
+});
+
+test('configured AID flow generates persistent record routing in RPGLE and COBOL', () => {
+    const doc = new DspfDocument();
+    doc.activeRecord.keywords = [
+        { name: 'INDARA', args: [], indicators: [], scope: 'file' },
+        { name: 'CA03', args: ['03', "'Exit'"], indicators: [] },
+        { name: 'CA04', args: ['04', "'Details'"], indicators: [] },
+    ];
+    doc.addRecord('DETAIL');
+    doc.setAidActions([
+        { pos: 3, behavior: 'navigate', target: 'DETAIL' },
+        { pos: 4, behavior: 'exit' },
+    ]);
+
+    const rpg = generateRpgle(doc, { programName: 'FLOWR', dspfName: 'FLOWD' });
+    assert.match(rpg, /Dcl-S WkScreen Char\(10\) Inz\('MAIN'\);/);
+    assert.match(rpg, /When WkScreen = 'MAIN';[\s\S]*?Exfmt MAIN;/);
+    assert.match(rpg, /When WkScreen = 'DETAIL';[\s\S]*?Exfmt DETAIL;/);
+    assert.match(rpg, /When WkInd\.In03;[\s\S]*?WkScreen = 'DETAIL';/);
+    assert.match(rpg, /When WkInd\.In04;[\s\S]*?done = \*On;/);
+
+    const cobol = generateCobol(doc, { programName: 'FLOWC', dspfName: 'FLOWD' });
+    assert.match(cobol, /05  WS-SCREEN\s+PIC X\(10\)\s+VALUE "MAIN"\./);
+    assert.match(cobol, /WHEN "DETAIL"[\s\S]*?FORMAT IS "DETAIL"/);
+    assert.match(cobol,
+        /WHEN INDIC-TABLE \(03\) = B"1"[\s\S]*?MOVE "DETAIL" TO WS-SCREEN/);
+    assert.match(cobol,
+        /WHEN INDIC-TABLE \(04\) = B"1"[\s\S]*?MOVE "Y" TO DONE-FLG/);
 });
 
 test('code generation analysis understands complete AND/OR conditions', () => {

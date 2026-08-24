@@ -13,10 +13,8 @@
 //   2. DSPF source is fixed-column.  Tokenisation + the sticky ruler
 //      both live in their own modules and key off canvas columns.
 
-// Imports resolve through the import map in index.html so every
-// @codemirror/* package shares a single @codemirror/state instance.
-// Hard-coded esm.sh URLs would each pull their own copy of state,
-// breaking the `instanceof` checks the View runs on extensions.
+// Vite resolves these local packages and deduplicates their shared
+// @codemirror/state instance. No editor dependency is fetched at runtime.
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState, Transaction } from '@codemirror/state';
 import { showPanel } from '@codemirror/view';

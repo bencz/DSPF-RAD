@@ -6,7 +6,7 @@ import {
     collectAids, collectMenuArms, collectPushbtnArms, collectChoiceArms,
     collectIndicatorPositions, indicatorConditionsOf, usesIndara,
     uniqueRegionKeyGroups, pickMainRecord, pickSubfilePairs,
-    pickPulldownRecords, pad2,
+    pickPulldownRecords, collectDisplayRecords, aidActionFor, pad2,
 } from './analysis.js';
 import { ibmiName } from '../model/factories.js';
 import { mergeProtectedRegions } from './protectedRegions.js';
@@ -21,6 +21,12 @@ export function generateRpgle (doc, {
     const aids       = collectAids(doc);
     const mainRecord = pickMainRecord(doc);
     const sflPairs   = prepareSubfilePairs(pickSubfilePairs(doc));
+    const routes     = prepareDisplayRoutes(doc, sflPairs);
+    const routed     = sflPairs.length > 1 || aids.some(aid => {
+        const action = aidActionFor(doc, aid.pos);
+        return action?.behavior === 'navigate' &&
+            routes.some(route => route.record.name === action.target);
+    });
     const pulldowns  = pickPulldownRecords(doc);
     const [menuArms, btnArms, chcArms] = uniqueRegionKeyGroups([
         collectMenuArms(doc), collectPushbtnArms(doc), collectChoiceArms(doc),
@@ -28,7 +34,7 @@ export function generateRpgle (doc, {
     const indara     = usesIndara(doc);
 
     const indDS    = renderIndDS(collectIndicatorPositions(doc));
-    const aidArms  = renderAidArms(aids, indara);
+    const aidArms  = renderAidArms(aids, indara, doc, routes, routed);
     const menuBlk  = renderArmsBlock('Menu bar actions', menuArms);
     const btnBlk   = renderArmsBlock('Push buttons',     btnArms);
     const chcBlk   = renderArmsBlock('Choice fields',    chcArms);
@@ -44,8 +50,8 @@ export function generateRpgle (doc, {
     for (const pair of sflPairs) {
         out.push(`Dcl-S ${pair.rrn} Packed(5:0) Inz(0);`);
     }
-    if (sflPairs.length > 1) {
-        out.push(`Dcl-S WkScreen Char(10) Inz('${sflPairs[0].sflctl.name}');`);
+    if (routed) {
+        out.push(`Dcl-S WkScreen Char(10) Inz('${initialRoute(mainRecord, routes)}');`);
     }
     if (indara) {
         out.push(``);
@@ -67,7 +73,7 @@ export function generateRpgle (doc, {
     out.push(`    // [DSPF-RAD-REGION begin=before-display]`);
     out.push(`    // Populate fields for the next display operation.`);
     out.push(`    // [DSPF-RAD-REGION end=before-display]`);
-    out.push(...renderDisplayLoop(sflPairs, mainRecord, dspfName, indara));
+    out.push(...renderDisplayLoop(sflPairs, mainRecord, dspfName, indara, routes, routed));
     out.push(``);
     out.push(`    Select;`);
     if (aidArms)  out.push(aidArms);
@@ -103,6 +109,19 @@ function prepareSubfilePairs (pairs) {
             regionKey: count === 1 ? base : `${base}-${count}`,
         };
     });
+}
+
+function prepareDisplayRoutes (doc, sflPairs) {
+    return collectDisplayRecords(doc).map(record => ({
+        record,
+        pair: sflPairs.find(candidate => candidate.sflctl.name === record.name) ?? null,
+    }));
+}
+
+function initialRoute (mainRecord, routes) {
+    return routes.some(route => route.record.name === mainRecord?.name)
+        ? mainRecord.name
+        : routes[0]?.record.name ?? '';
 }
 
 function regionPart (name) {
@@ -177,18 +196,25 @@ function renderIndDS (positions) {
     return lines.join('\n');
 }
 
-function renderAidArms (aids, indara) {
+function renderAidArms (aids, indara, doc, routes, routed) {
     return aids.map(aid => {
         const key        = `In${pad2(aid.pos)}`;
         const ref        = indara ? `WkInd.${key}` : `*${key}`;
-        const isExitLike = /^C[AF](03|12)$/.test(aid.aid);
-        const inner      = isExitLike ? `done = *On;` : '';
+        const action     = aidActionFor(doc, aid.pos);
+        const validRoute = action?.behavior === 'navigate' && routed &&
+            routes.some(route => route.record.name === action.target);
+        const isExitLike = action?.behavior === 'exit' ||
+            (!action && /^C[AF](03|12)$/.test(aid.aid));
+        const inner = validRoute
+            ? `WkScreen = '${action.target}';`
+            : (isExitLike ? `done = *On;` : '');
         return [
             `      When ${ref};`,
+            inner ? `        ${inner}` : null,
             `        // [DSPF-RAD-REGION begin=on-${key.toLowerCase()}]`,
-            `        ${inner}`.trimEnd(),
+            `        // Add custom handling for ${key} here.`,
             `        // [DSPF-RAD-REGION end=on-${key.toLowerCase()}]`,
-        ].filter(Boolean).join('\n');
+        ].filter(line => line != null).join('\n');
     }).join('\n');
 }
 
@@ -204,23 +230,28 @@ function renderArmsBlock (title, list) {
     return lines.join('\n');
 }
 
-function renderDisplayLoop (sflPairs, mainRecord, dspfName, indara) {
+function renderDisplayLoop (sflPairs, mainRecord, dspfName, indara, routes, routed) {
     const out = [];
-    if (sflPairs.length === 1) {
-        out.push(...renderSubfileDisplay(sflPairs[0], indara, '    '));
-    } else if (sflPairs.length > 1) {
-        out.push(`    // [DSPF-RAD-REGION begin=select-subfile-screen]`);
-        out.push(`    // Set WkScreen to the SFLCTL format that should be interactive.`);
-        out.push(`    // [DSPF-RAD-REGION end=select-subfile-screen]`);
+    if (routed) {
+        const fallback = initialRoute(mainRecord, routes);
+        if (sflPairs.length > 1) {
+            out.push(`    // [DSPF-RAD-REGION begin=select-subfile-screen]`);
+            out.push(`    // Optionally set WkScreen before the generated route selector.`);
+            out.push(`    // [DSPF-RAD-REGION end=select-subfile-screen]`);
+        }
+        out.push(`    // WkScreen is managed by the RAD key-action flow.`);
         out.push(`    Select;`);
-        for (const pair of sflPairs) {
-            out.push(`      When WkScreen = '${pair.sflctl.name}';`);
-            out.push(...renderSubfileDisplay(pair, indara, '        '));
+        for (const route of routes) {
+            out.push(`      When WkScreen = '${route.record.name}';`);
+            if (route.pair) out.push(...renderSubfileDisplay(route.pair, indara, '        '));
+            else out.push(`        Exfmt ${route.record.name};`);
         }
         out.push(`      Other;`);
-        out.push(`        WkScreen = '${sflPairs[0].sflctl.name}';`);
+        out.push(`        WkScreen = '${fallback}';`);
         out.push(`        Iter;`);
         out.push(`    EndSl;`);
+    } else if (sflPairs.length === 1) {
+        out.push(...renderSubfileDisplay(sflPairs[0], indara, '    '));
     } else if (mainRecord) {
         out.push(``);
         out.push(`    Exfmt ${mainRecord.name};`);

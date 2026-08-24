@@ -2,7 +2,9 @@
 // portable file; this local snapshot only protects work between downloads.
 
 import { DspfDocument } from '../model/DspfDocument.js';
+import { PRODUCT } from '../product.js';
 
+// Legacy key is intentionally retained so the rebrand does not strand work.
 const STORAGE_KEY = 'dspf-rad:autosave:v1';
 const SAVE_DELAY_MS = 700;
 
@@ -14,7 +16,7 @@ export function recoverAutosave (doc) {
         ? new Date(saved.savedAt).toLocaleString()
         : 'an earlier session';
     const recover = confirm(
-        `Recover unsaved DSPF·RAD work from ${when}?\n\n` +
+        `Recover unsaved ${PRODUCT.name} work from ${when}?\n\n` +
         'Cancel discards the recovery snapshot and starts with the demo.');
     if (!recover) {
         clearSnapshot();
@@ -26,10 +28,10 @@ export function recoverAutosave (doc) {
         doc.sourceName = restored.sourceName;
         doc.showOverlay = restored.showOverlay;
         doc.hideConditioned = restored.hideConditioned;
-        doc.adopt(restored);
+        doc.adopt(restored, { preserveAidActions: false });
         return true;
     } catch (error) {
-        console.warn('[dspf·rad] autosave recovery failed:', error);
+        console.warn('[ironterm] autosave recovery failed:', error);
         clearSnapshot();
         return false;
     }
@@ -51,7 +53,7 @@ export function bindPersistence (doc) {
                 document: doc.toJSON(),
             }));
         } catch (error) {
-            console.warn('[dspf·rad] autosave unavailable:', error);
+            console.warn('[ironterm] autosave unavailable:', error);
         }
     };
 
