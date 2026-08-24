@@ -10,7 +10,7 @@ export class Inspector {
     constructor (rootEl, {
         documentRef, activeRecordRef,
         onItemPatch, onItemDelete, onRecordPatch,
-        onChange, onSelectItem,
+        onChange, onSelectItem, dialogs,
     }) {
         this.root            = rootEl;
         this.documentRef     = documentRef;
@@ -20,6 +20,7 @@ export class Inspector {
         this.onRecordPatch   = onRecordPatch;
         this.onChange        = onChange;
         this.onSelectItem    = onSelectItem;
+        this.dialogs         = dialogs;
 
         this.activeTab    = 'item';
         this.selectedItem = null;
@@ -75,6 +76,7 @@ export class Inspector {
             onRecordPatch: this.onRecordPatch,
             onChange:     this.onChange,
             onSelectItem: this.onSelectItem,
+            dialogs:      this.dialogs,
             setTab:       (tab) => this.setTab(tab),
         };
     }

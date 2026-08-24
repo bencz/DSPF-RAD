@@ -1,10 +1,19 @@
 import { WorkbenchCommand } from '../../workbench/commands/commandIds.js';
+import { WorkbenchDocumentKind } from '../../workbench/documents/WorkbenchDocument.js';
 
 export class DspfShortcutController {
     #abortController = null;
 
-    constructor ({ commands, designer, palette, documentRef = globalThis.document, logger = globalThis.console }) {
+    constructor ({
+        commands,
+        documents,
+        designer,
+        palette,
+        documentRef = globalThis.document,
+        logger = globalThis.console,
+    }) {
         this.commands = commands;
+        this.documents = documents;
         this.designer = designer;
         this.palette = palette;
         this.document = documentRef;
@@ -32,11 +41,14 @@ export class DspfShortcutController {
         if (!event.ctrlKey && !event.metaKey) return;
 
         const key = event.key.toLowerCase();
-        const directCommand = {
-            s: WorkbenchCommand.FILE_SAVE,
-            o: WorkbenchCommand.FILE_OPEN,
-            n: WorkbenchCommand.FILE_NEW,
-        }[key];
+        const sourceCodeActive = this.documents.activeDocument?.kind ===
+            WorkbenchDocumentKind.SOURCE_CODE;
+        const directCommand = key === 's'
+            ? sourceCodeActive ? WorkbenchCommand.SOURCE_SAVE : WorkbenchCommand.FILE_SAVE
+            : key === 'o' ? WorkbenchCommand.SOURCE_OPEN_LOCAL
+                : key === 'n' ? WorkbenchCommand.FILE_NEW
+                    : key === 'w' && sourceCodeActive ? WorkbenchCommand.SOURCE_CLOSE
+                        : null;
         if (directCommand) {
             event.preventDefault();
             this.#run(directCommand);

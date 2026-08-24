@@ -52,29 +52,38 @@ import { DspfDocumentCoordinator } from '../features/dspf-designer/DspfDocumentC
 import { DspfFileController } from '../features/dspf-designer/DspfFileController.js';
 import { DspfTemplateController } from '../features/dspf-designer/DspfTemplateController.js';
 import { WorkbenchView } from '../workbench/views/WorkbenchView.js';
+import { WorkbenchDialogService } from '../workbench/ui/dialogs/WorkbenchDialogService.js';
+import { WorkbenchDialogView } from '../workbench/ui/dialogs/WorkbenchDialogView.js';
+import { createLanguageServices } from '../languages/createLanguageServices.js';
+import { SourceCodeDocumentService } from '../features/source-code/SourceCodeDocumentService.js';
+import { SourceCodeEditor } from '../features/source-code/SourceCodeEditor.js';
+import { SourceCodeEditorController } from '../features/source-code/SourceCodeEditorController.js';
 
 export class IronTermApplication {
     constructor ({
         documentRef = globalThis.document,
         windowRef = globalThis.window,
         storage = globalThis.localStorage,
-        promptRef = globalThis.prompt,
-        confirmRef = globalThis.confirm,
         logger = globalThis.console,
     } = {}) {
         this.document = documentRef;
         this.window = windowRef;
         this.storage = storage;
-        this.prompt = promptRef.bind(windowRef);
-        this.confirm = confirmRef.bind(windowRef);
         this.logger = logger;
     }
 
-    start () {
+    async start () {
         this.logger.log('%c[ironterm]', 'color:#6f6',
             `boot - ${PRODUCT.name} ${PRODUCT.version}`);
         new WorkbenchView({ documentRef: this.document }).mount();
         initTheme();
+        const dialogs = new WorkbenchDialogService({
+            view: new WorkbenchDialogView({
+                documentRef: this.document,
+                windowRef: this.window,
+            }),
+        });
+        dialogs.start();
 
         const els = this.#collectDomRefs();
         const platform = createPlatformServices({
@@ -85,11 +94,12 @@ export class IronTermApplication {
         const { host, ibmiConnections, desktopWindow } = platform;
         desktopWindow.start();
         const commands = new CommandRegistry();
+        const languageServices = createLanguageServices();
         const hostStatus = new HostStatusController({ element: els.sbHost, host });
         hostStatus.render();
 
         const doc = new DspfDocument();
-        const recovered = recoverAutosave(doc);
+        const recovered = await recoverAutosave(doc, dialogs);
         doc.resetHistory({ markClean: !recovered });
         const workbenchDocuments = new WorkbenchDocumentService();
         const dspfDocument = new DspfDocumentCoordinator({
@@ -97,6 +107,9 @@ export class IronTermApplication {
             workbenchDocuments,
         });
         dspfDocument.start();
+        const sourceCodeDocuments = new SourceCodeDocumentService({
+            workbenchDocuments,
+        });
 
         const workspace = Workspace.createScratch();
         const workspaceSession = new WorkspaceSession({ workspace });
@@ -133,6 +146,7 @@ export class IronTermApplication {
             },
             onChange:     () => doc.emit(),
             onSelectItem: id => selectFromInspector(id),
+            dialogs,
         });
 
         const palette = new Palette(this.#element('palette'));
@@ -170,6 +184,34 @@ export class IronTermApplication {
             element: els.statusEl, windowRef: this.window,
         });
         const flash = statusMessages.show;
+        const sourceCodeEditor = new SourceCodeEditor({
+            parent: this.#element('sourceCodeEditorHost'),
+            languageServices,
+            onDocumentChanged: (document, text) => document.replaceText(text),
+            onCursorChanged: ({ line, column }) => {
+                els.sbSourcePosition.textContent = `Ln ${line}, Col ${column}`;
+            },
+        });
+        const sourceCodeController = new SourceCodeEditorController({
+            documents: sourceCodeDocuments,
+            workbenchDocuments,
+            editor: sourceCodeEditor,
+            languageServices,
+            commands,
+            host,
+            dialogs,
+            flash,
+            elements: {
+                tabs: this.#element('sourceCodeTabs'),
+                language: this.#element('sourceCodeLanguage'),
+                resource: this.#element('sourceCodeResource'),
+                save: this.#element('sourceCodeSave'),
+                close: this.#element('sourceCodeClose'),
+                statusLanguage: els.sbLanguage,
+            },
+            logger: this.logger,
+        });
+        sourceCodeController.start();
         bindPersistence(doc);
         const dspfFiles = new DspfFileController({
             documentModel: doc,
@@ -182,7 +224,7 @@ export class IronTermApplication {
             flushSource: sourceSync.flush,
             documentRef: this.document,
             windowRef: this.window,
-            confirmRef: this.confirm,
+            dialogs,
             logger: this.logger,
         });
         dspfFiles.start();
@@ -190,8 +232,7 @@ export class IronTermApplication {
             doc, designer, elements: els, flash,
             documentRef: this.document,
             windowRef: this.window,
-            promptRef: this.prompt,
-            confirmRef: this.confirm,
+            dialogs,
         });
         toolbar.start();
         const dspfTemplates = new DspfTemplateController({
@@ -203,7 +244,7 @@ export class IronTermApplication {
             flash,
             flushSource: sourceSync.flush,
             documentRef: this.document,
-            confirmRef: this.confirm,
+            dialogs,
         });
         dspfTemplates.start();
         bindDatabaseImportDialog({
@@ -218,9 +259,7 @@ export class IronTermApplication {
             doc, host, commands, coordinator: dspfDocument,
             flash, flushSource: sourceSync.flush,
             navigatorRef: this.window.navigator,
-            promptRef: this.prompt,
-            confirmRef: this.confirm,
-            alertRef: this.window.alert.bind(this.window),
+            dialogs,
             logger: this.logger,
         });
         codeGeneration.start();
@@ -228,7 +267,7 @@ export class IronTermApplication {
         const commandRegistrar = new WorkbenchCommandRegistrar({
             registry: commands, product: PRODUCT, documents: workbenchDocuments,
             documentRef: this.document,
-            alertRef: this.window.alert.bind(this.window),
+            dialogs,
         });
         commandRegistrar.start();
         const navigation = new WorkbenchNavigationController({
@@ -238,8 +277,7 @@ export class IronTermApplication {
         navigation.start();
         const workspaceController = new WorkspaceController({
             session: workspaceSession, commands, host, flash,
-            promptRef: this.prompt,
-            confirmRef: this.confirm,
+            dialogs,
             logger: this.logger,
         });
         workspaceController.start();
@@ -253,7 +291,7 @@ export class IronTermApplication {
         connectionController.start();
 
         const shortcuts = new DspfShortcutController({
-            commands, designer, palette,
+            commands, documents: workbenchDocuments, designer, palette,
             documentRef: this.document,
             logger: this.logger,
         });
@@ -272,9 +310,11 @@ export class IronTermApplication {
             documents: workbenchDocuments,
             startPage: els.startPage,
             dspfSurface: els.dspfEditorSurface,
+            sourceCodeSurface: els.sourceCodeSurface,
             dspfStatusElements: [
                 els.sbModel, els.sbRecord, els.sbItems, els.sbCursor, els.sbDirty,
             ],
+            sourceCodeStatusElements: [els.sbLanguage, els.sbSourcePosition],
             interactionHint: els.interactionHint,
             documentRef: this.document,
             windowRef: this.window,
@@ -311,7 +351,11 @@ export class IronTermApplication {
             }),
             connectionProfiles,
             ibmiConnection,
+            dialogs,
+            languageServices,
             documents: workbenchDocuments,
+            sourceCodeDocuments,
+            sourceCodeEditor,
             workspace: () => workspaceSession.workspace,
             workspaceSession,
             doc, designer, palette,
@@ -344,6 +388,7 @@ export class IronTermApplication {
             statusEl:     this.#element('status'),
             startPage:    this.#element('startPage'),
             dspfEditorSurface: this.#element('dspfEditorSurface'),
+            sourceCodeSurface: this.#element('sourceCodeSurface'),
             interactionHint: this.#element('interactionHint'),
             helpEl:       this.#element('canvasHelp'),
             overlayBtn:   this.#element('overlayToggle'),
@@ -357,6 +402,8 @@ export class IronTermApplication {
             sbItems:      this.#element('sbItems'),
             sbCursor:     this.#element('sbCursor'),
             sbDirty:      this.#element('sbDirty'),
+            sbLanguage:   this.#element('sbLanguage'),
+            sbSourcePosition: this.#element('sbSourcePosition'),
             undoBtn:      this.#element('undoDoc'),
             redoBtn:      this.#element('redoDoc'),
             recordUpBtn:  this.#element('recordUp'),

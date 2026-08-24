@@ -77,6 +77,20 @@ while a DSPF designer document is active.
 - Class-based workbench views keep the root HTML as a minimal application host.
   The IDE shell, Start Page, and DSPF editor own separate markup and style
   modules, so specialized designers do not become part of the bootstrap.
+- Reusable workbench dialogs replace browser-native prompts, confirmations, and
+  alerts. Workspace, DSPF, generation, recovery, and inspector flows now share
+  the same keyboard-accessible Visual Studio 6/Win98-styled control.
+- IBM i language services now have an editor-independent foundation: immutable
+  source-type definitions, compile-command metadata, source documents, a
+  provider-based completion engine, and the first CL contextual provider.
+  CL completion distinguishes commands, unused parameters, valid parameter
+  values, declared variables, comments, strings, continuations, and nested
+  commands such as `SBMJOB CMD(...)`.
+- A tabbed generic source editor opens and saves local IBM i source through the
+  active host bridge, tracks clean/dirty state in the workbench, highlights
+  CL/CLLE syntax, and provides contextual CL completion. Registered RPG,
+  COBOL, SQL, DDS, CMD, and panel-group source types already share the same
+  document lifecycle and open as plain text while their adapters are built.
 
 ## Running it
 
@@ -202,6 +216,9 @@ boundaries and one-way dependencies. Start with the
   use **File > Save RAD project…** to preserve those mappings.
 - Use **Project > New/Open/Save workspace** to manage the broader IDE workspace
   separately from an individual DSPF design project.
+- Use **File > Open IBM i source...** or **Ctrl+O** for the generic source
+  editor. **Ctrl+Space** requests contextual completion, **Ctrl+S** saves the
+  active source, and **Ctrl+W** closes it with dirty-state protection.
 - Use **Simulate** to preview conditioned items, SFL display indicators, choice
   values, and sample field contents. Preview state never modifies the source.
 - Switch the left-side **Project** panel from Palette to Records to navigate

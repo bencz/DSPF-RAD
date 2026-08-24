@@ -16,10 +16,16 @@ export function renderFunctionKeys (pane, rec, ctx) {
     const add = document.createElement('button');
     add.className   = 'insp-add-kw';
     add.textContent = '+ Add function key';
-    add.addEventListener('click', () => {
-        const name = prompt(
-            'Function key name (e.g. CA03, CF12, HELP, ROLLUP):',
-            'CA03');
+    add.addEventListener('click', async () => {
+        const name = await ctx.dialogs.prompt({
+            title: 'Add function key',
+            message: 'Add an AID keyword to this record format.',
+            label: 'Function key name',
+            value: 'CA03',
+            placeholder: 'CA03, CF12, HELP, ROLLUP…',
+            maxLength: 10,
+            acceptLabel: 'Add',
+        });
         if (!name) return;
         rec.keywords.push({
             name: name.toUpperCase().trim(),

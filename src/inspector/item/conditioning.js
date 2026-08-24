@@ -24,7 +24,7 @@ export function renderOtherKeywords (pane, item, ctx) {
     for (const kw of others) {
         sec.appendChild(renderKeywordCard(item, kw, ctx.onChange));
     }
-    sec.appendChild(renderAddKeywordButton(item, ctx.onChange));
+    sec.appendChild(renderAddKeywordButton(item, ctx.onChange, ctx.dialogs));
 }
 
 export function renderItemActions (pane, item, ctx) {

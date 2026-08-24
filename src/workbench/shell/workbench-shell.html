@@ -37,12 +37,22 @@
                         <span class="menu-accel">Ctrl+N</span>
                     </button></li>
                     <li><button class="menu-item" data-cmd="file.open">
-                        <span class="menu-label"><u>O</u>pen…</span>
+                        <span class="menu-label">Open DSPF/DDS design…</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="source.openLocal">
+                        <span class="menu-label"><u>O</u>pen source code…</span>
                         <span class="menu-accel">Ctrl+O</span>
                     </button></li>
                     <li><button class="menu-item" data-cmd="file.save">
-                        <span class="menu-label"><u>S</u>ave</span>
+                        <span class="menu-label">Save DSPF design</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="source.save">
+                        <span class="menu-label"><u>S</u>ave source code</span>
                         <span class="menu-accel">Ctrl+S</span>
+                    </button></li>
+                    <li><button class="menu-item" data-cmd="source.close">
+                        <span class="menu-label">Close source editor</span>
+                        <span class="menu-accel">Ctrl+W</span>
                     </button></li>
                     <li class="menu-separator"></li>
                     <li><button class="menu-item" data-cmd="project.open">
@@ -207,6 +217,8 @@
             <p class="status-bar-field" id="sbItems"  title="Item count in active record">0 items</p>
             <p class="status-bar-field" id="sbCursor" title="Grid cursor (row, col)">(-,-)</p>
             <p class="status-bar-field" id="sbDirty" title="Document save state">saved</p>
+            <p class="status-bar-field" id="sbLanguage" title="Source language" hidden>Plain Text</p>
+            <p class="status-bar-field" id="sbSourcePosition" title="Source cursor position" hidden>Ln 1, Col 1</p>
         </div>
 
     </div>

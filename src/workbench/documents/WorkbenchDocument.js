@@ -1,5 +1,6 @@
 export const WorkbenchDocumentKind = Object.freeze({
     DSPF_DESIGNER: 'dspf-designer',
+    SOURCE_CODE: 'source-code',
 });
 
 const DOCUMENT_KINDS = new Set(Object.values(WorkbenchDocumentKind));

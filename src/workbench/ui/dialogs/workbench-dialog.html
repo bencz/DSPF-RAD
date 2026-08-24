@@ -1,0 +1,26 @@
+<dialog class="window workbench-dialog" aria-labelledby="workbenchDialogTitle">
+    <form class="workbench-dialog-form" novalidate>
+        <div class="title-bar workbench-dialog-titlebar">
+            <div class="title-bar-text" id="workbenchDialogTitle"></div>
+            <div class="title-bar-controls">
+                <button type="button" data-role="close" aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="workbench-dialog-body">
+            <div class="workbench-dialog-icon" data-role="icon" aria-hidden="true"></div>
+            <div class="workbench-dialog-content">
+                <p class="workbench-dialog-message" data-role="message"></p>
+                <p class="workbench-dialog-detail" data-role="detail" hidden></p>
+                <label class="workbench-dialog-field" data-role="field" hidden>
+                    <span data-role="label"></span>
+                    <input type="text" data-role="input" autocomplete="off">
+                </label>
+                <p class="workbench-dialog-error" data-role="error" role="alert" hidden></p>
+            </div>
+        </div>
+        <div class="workbench-dialog-actions">
+            <button type="button" data-role="cancel">Cancel</button>
+            <button type="submit" data-role="accept" class="default">OK</button>
+        </div>
+    </form>
+</dialog>

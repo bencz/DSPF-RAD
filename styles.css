@@ -3,4 +3,6 @@
 @import './src/styles/base.css';
 @import './src/workbench/shell/workbench-shell.css';
 @import './src/workbench/start/start-page.css';
+@import './src/workbench/ui/dialogs/workbench-dialog.css';
 @import './src/features/dspf-designer/dspf-editor.css';
+@import './src/features/source-code/source-code-editor.css';

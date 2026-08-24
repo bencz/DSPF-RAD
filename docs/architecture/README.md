@@ -99,6 +99,31 @@ selectors belong to the narrowest owning module. The pixel-style font is
 limited to intentional brand/terminal accents; ordinary menus, hints, forms,
 panels, and status text use the readable antialiased UI stack.
 
+Reusable IDE controls belong under `src/workbench/ui`. The first shared control
+is the dialog system: `WorkbenchDialogService` is the application-facing
+asynchronous API and owns request serialization, while `WorkbenchDialogView`
+owns markup, focus, keyboard cancellation, validation feedback, and result
+resolution. Features receive the service through constructor injection and
+must not call browser-native `prompt`, `confirm`, or `alert`.
+
+See [UI controls](ui-controls.md) for usage and extension rules.
+
+Language intelligence lives under `src/languages`, independent from
+CodeMirror and from remote transport. `IbmiLanguageRegistry` resolves IBM i
+member types and local extensions; `ContextualCompletionEngine` combines
+language providers; language-specific analyzers determine lexical, syntactic,
+and semantic context. The generic `SourceDocument` model belongs to the
+source-code feature and publishes dirty/version state without owning an editor.
+
+See [language services](language-services.md) for the staged intelligence model.
+
+The generic source editor lives under `src/features/source-code`. Its document
+model and document service own lifecycle and workbench projection; its
+CodeMirror adapter owns editing mechanics; and its controller owns commands,
+tabs, and host-mediated local file operations. The original DSPF source pane
+remains inside the specialized visual designer and is not the generic IDE
+editor. See [decision 0009](decisions/0009-generic-source-code-editor.md).
+
 ## Remote IBM i boundary
 
 The browser build remains useful offline and performs no direct SSH. It uses an

@@ -1,4 +1,5 @@
 import { DspfEditorView } from '../../features/dspf-designer/DspfEditorView.js';
+import { SourceCodeEditorView } from '../../features/source-code/SourceCodeEditorView.js';
 import { WorkbenchShellView } from '../shell/WorkbenchShellView.js';
 import { StartPageView } from '../start/StartPageView.js';
 
@@ -8,6 +9,7 @@ export class WorkbenchView {
         this.shell = new WorkbenchShellView({ documentRef });
         this.startPage = new StartPageView({ documentRef });
         this.dspfEditor = new DspfEditorView({ documentRef });
+        this.sourceCodeEditor = new SourceCodeEditorView({ documentRef });
     }
 
     mount () {
@@ -20,5 +22,6 @@ export class WorkbenchView {
             contentHost,
             overlayHost: this.document.body,
         });
+        this.sourceCodeEditor.mount(contentHost);
     }
 }

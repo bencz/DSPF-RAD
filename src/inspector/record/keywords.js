@@ -10,7 +10,7 @@ export function renderKeywordsCatchAll (pane, rec, ctx) {
     for (const kw of rec.keywords) {
         sec.appendChild(renderKeywordCard(rec, kw, ctx.onChange));
     }
-    sec.appendChild(renderAddKeywordButton(rec, ctx.onChange));
+    sec.appendChild(renderAddKeywordButton(rec, ctx.onChange, ctx.dialogs));
 }
 
 // Item list - useful for hidden fields and for big records like CLOCK

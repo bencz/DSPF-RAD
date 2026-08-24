@@ -17,15 +17,14 @@ export class CodeGenerationController {
         flash,
         flushSource,
         navigatorRef = globalThis.navigator,
-        promptRef = globalThis.prompt,
-        confirmRef = globalThis.confirm,
-        alertRef = globalThis.alert,
+        dialogs,
         logger = globalThis.console,
     }) {
         if (!doc) throw new TypeError('CodeGenerationController requires a document.');
         if (!host) throw new TypeError('CodeGenerationController requires a host bridge.');
         if (!commands) throw new TypeError('CodeGenerationController requires commands.');
         if (!coordinator) throw new TypeError('CodeGenerationController requires a coordinator.');
+        if (!dialogs) throw new TypeError('CodeGenerationController requires dialogs.');
         this.doc = doc;
         this.host = host;
         this.commands = commands;
@@ -33,9 +32,7 @@ export class CodeGenerationController {
         this.flash = flash;
         this.flushSource = flushSource;
         this.navigator = navigatorRef;
-        this.prompt = promptRef;
-        this.confirm = confirmRef;
-        this.alert = alertRef;
+        this.dialogs = dialogs;
         this.logger = logger;
     }
 
@@ -88,9 +85,9 @@ export class CodeGenerationController {
 
     async #exportRpgle (mergeExisting) {
         this.flushSource?.();
-        if (!this.#confirmValidGeneration('rpgle')) return;
+        if (!await this.#confirmValidGeneration('rpgle')) return;
         const dspfName = ibmiName(this.doc.sourceName, 'DSPFILE');
-        const programName = this.#requestProgramName('RPGLE', dspfName + 'R');
+        const programName = await this.#requestProgramName('RPGLE', dspfName + 'R');
         if (!programName) return;
 
         try {
@@ -115,10 +112,10 @@ export class CodeGenerationController {
 
     async #exportCobol (mergeExisting) {
         this.flushSource?.();
-        if (!this.#ensureCobolIndara()) return;
-        if (!this.#confirmValidGeneration('cobol')) return;
+        if (!await this.#ensureCobolIndara()) return;
+        if (!await this.#confirmValidGeneration('cobol')) return;
         const dspfName = ibmiName(this.doc.sourceName, 'DSPFILE');
-        const programName = this.#requestProgramName('COBOL', dspfName + 'C');
+        const programName = await this.#requestProgramName('COBOL', dspfName + 'C');
         if (!programName) return;
 
         try {
@@ -152,11 +149,14 @@ export class CodeGenerationController {
         }
     }
 
-    #ensureCobolIndara () {
+    async #ensureCobolIndara () {
         if (usesIndara(this.doc)) return true;
-        const add = this.confirm(
-            'ILE COBOL needs a stable separate indicator area. ' +
-            'Add the file-level INDARA keyword before generating?');
+        const add = await this.dialogs.confirm({
+            title: 'COBOL indicator area',
+            message: 'ILE COBOL needs a stable separate indicator area.',
+            detail: 'Add the file-level INDARA keyword before generating?',
+            acceptLabel: 'Add INDARA',
+        });
         if (!add) {
             this.flash('COBOL generation cancelled: INDARA is required.', 'error', 4000);
             return false;
@@ -168,9 +168,16 @@ export class CodeGenerationController {
         return true;
     }
 
-    #requestProgramName (language, suggestedName) {
-        return ibmiName(
-            this.prompt(`Program name (max 10 chars, ${language}):`, suggestedName), '');
+    async #requestProgramName (language, suggestedName) {
+        const value = await this.dialogs.prompt({
+            title: `Generate ${language}`,
+            message: 'Choose the IBM i program name for the generated source.',
+            label: 'Program name',
+            value: suggestedName,
+            maxLength: 10,
+            acceptLabel: 'Generate',
+        });
+        return ibmiName(value, '');
     }
 
     async #selectSourceFile (accept) {
@@ -178,13 +185,17 @@ export class CodeGenerationController {
         return file?.text ?? null;
     }
 
-    #confirmValidGeneration (language) {
+    async #confirmValidGeneration (language) {
         const diagnostics = validateDspf(this.doc, { language });
         const errors = diagnostics.filter(item => item.severity === 'error');
         if (errors.length) {
             const detail = errors.slice(0, 8)
                 .map(item => `${item.code}: ${item.message}`).join('\n');
-            this.alert(`Code generation stopped: ${errors.length} DSPF error(s).\n\n${detail}`);
+            await this.dialogs.alert({
+                title: 'Code generation stopped',
+                message: `${errors.length} DSPF error(s) must be fixed before generation.`,
+                detail,
+            });
             this.flash(`Generation stopped: ${errors.length} DSPF error(s).`, 'error', 5000);
             return false;
         }
@@ -192,7 +203,12 @@ export class CodeGenerationController {
         if (!warnings.length) return true;
         const detail = warnings.slice(0, 8)
             .map(item => `${item.code}: ${item.message}`).join('\n');
-        return this.confirm(`Generate with ${warnings.length} warning(s)?\n\n${detail}`);
+        return this.dialogs.confirm({
+            title: 'Generation warnings',
+            message: `Generate with ${warnings.length} warning(s)?`,
+            detail,
+            acceptLabel: 'Generate anyway',
+        });
     }
 
     #reportFailure (language, error) {

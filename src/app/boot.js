@@ -2,9 +2,9 @@ import { PRODUCT } from '../product.js';
 import { IronTermApplication } from './IronTermApplication.js';
 
 // Minimal error boundary around the class-based composition root.
-export function boot () {
+export async function boot () {
     try {
-        new IronTermApplication().start();
+        await new IronTermApplication().start();
     } catch (error) {
         console.error('[ironterm] boot failed:', error);
         const status = document.getElementById('status');

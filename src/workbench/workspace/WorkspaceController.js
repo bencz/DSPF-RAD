@@ -10,19 +10,18 @@ export class WorkspaceController {
         commands,
         host,
         flash,
-        promptRef = globalThis.prompt,
-        confirmRef = globalThis.confirm,
+        dialogs,
         logger = globalThis.console,
     }) {
         if (!session) throw new TypeError('WorkspaceController requires a session.');
         if (!commands) throw new TypeError('WorkspaceController requires a command registry.');
         if (!host) throw new TypeError('WorkspaceController requires a host bridge.');
+        if (!dialogs) throw new TypeError('WorkspaceController requires dialogs.');
         this.session = session;
         this.commands = commands;
         this.host = host;
         this.flash = flash;
-        this.prompt = promptRef;
-        this.confirm = confirmRef;
+        this.dialogs = dialogs;
         this.logger = logger;
     }
 
@@ -56,9 +55,16 @@ export class WorkspaceController {
         for (const unregister of this.#unregister.splice(0)) unregister();
     }
 
-    newWorkspace () {
-        if (!this.#confirmDiscard()) return false;
-        const name = this.prompt('Workspace name:', 'Untitled Workspace');
+    async newWorkspace () {
+        if (!await this.#confirmDiscard()) return false;
+        const name = await this.dialogs.prompt({
+            title: 'New workspace',
+            message: 'Create a workspace for local and IBM i projects.',
+            label: 'Workspace name',
+            value: 'Untitled Workspace',
+            acceptLabel: 'Create',
+            maxLength: 80,
+        });
         if (name == null) return false;
         const workspaceName = name.trim() || 'Untitled Workspace';
         this.session.replace(Workspace.createScratch({ workspaceName }), {
@@ -70,7 +76,7 @@ export class WorkspaceController {
     }
 
     async openWorkspace () {
-        if (!this.#confirmDiscard()) return false;
+        if (!await this.#confirmDiscard()) return false;
         try {
             const file = await this.host.openTextFile({ accept: '.itworkspace,.json' });
             if (!file) return false;
@@ -103,8 +109,12 @@ export class WorkspaceController {
         }
     }
 
-    #confirmDiscard () {
-        return !this.session.isDirty || this.confirm(
-            `Discard unsaved changes to workspace ${this.session.workspace.name}?`);
+    async #confirmDiscard () {
+        return !this.session.isDirty || this.dialogs.confirm({
+            title: 'Unsaved workspace',
+            message: `Discard unsaved changes to workspace ${this.session.workspace.name}?`,
+            acceptLabel: 'Discard',
+            danger: true,
+        });
     }
 }

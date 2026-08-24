@@ -39,8 +39,17 @@ security boundaries, and working agreement in [`AGENTS.md`](AGENTS.md).
   owns them; compose them through class-based views.
 - Add CSS to the narrowest owning style module and reuse shared tokens.
   `styles.css` remains an import manifest, not a selector dumping ground.
+- Use the injected workbench dialog service instead of browser-native
+  `prompt`, `confirm`, or `alert`. Put reusable controls under
+  `src/workbench/ui`; keep complex feature forms with their owning feature.
 - Add engine-level tests for pure behavior. Browser automation is intentionally
   outside the current project scope.
+- Add a test only when it protects essential behavior, a public contract, a
+  meaningful invariant, or a realistic failure mode. Never test that removed
+  files, functions, strings, imports, selectors, or dependencies remain absent;
+  verify deletion through review, search, build, and static checks. Avoid
+  implementation-detail, trivial, duplicated, cosmetic, and coverage-padding
+  tests.
 - A change is complete only after `npm run quality:policy`, `npm test`, and
   `npm run build` pass without warnings.
 

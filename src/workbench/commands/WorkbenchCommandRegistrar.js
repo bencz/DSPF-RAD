@@ -28,16 +28,17 @@ export class WorkbenchCommandRegistrar {
         product,
         documents,
         documentRef = globalThis.document,
-        alertRef = globalThis.alert,
+        dialogs,
     }) {
         if (!registry) throw new TypeError('WorkbenchCommandRegistrar requires a registry.');
         if (!product) throw new TypeError('WorkbenchCommandRegistrar requires product metadata.');
         if (!documents) throw new TypeError('WorkbenchCommandRegistrar requires documents.');
+        if (!dialogs) throw new TypeError('WorkbenchCommandRegistrar requires dialogs.');
         this.registry = registry;
         this.product = product;
         this.documents = documents;
         this.document = documentRef;
-        this.alert = alertRef;
+        this.dialogs = dialogs;
     }
 
     start () {
@@ -66,12 +67,15 @@ export class WorkbenchCommandRegistrar {
     }
 
     #showAbout () {
-        this.alert(
-            `${this.product.name} ${this.product.version}\n` +
-            `${this.product.description}\n\n` +
-            'Offline-first integrated development environment for IBM i.\n\n' +
-            'Author: Alexandre Bencz\n' +
-            'UI direction: Visual Studio 6 / Win98 workbench');
+        return this.dialogs.alert({
+            title: `About ${this.product.name}`,
+            message: `${this.product.name} ${this.product.version}`,
+            detail:
+                `${this.product.description}\n\n` +
+                'Offline-first integrated development environment for IBM i.\n\n' +
+                'Author: Alexandre Bencz\n' +
+                'UI direction: Visual Studio 6 / Win98 workbench',
+        });
     }
 }
 

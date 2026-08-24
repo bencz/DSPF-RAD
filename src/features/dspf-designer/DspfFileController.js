@@ -19,7 +19,7 @@ export class DspfFileController {
         flushSource,
         documentRef = globalThis.document,
         windowRef = globalThis.window,
-        confirmRef = globalThis.confirm,
+        dialogs,
         logger = globalThis.console,
     }) {
         if (!documentModel) throw new TypeError('DspfFileController requires a DSPF document.');
@@ -27,6 +27,7 @@ export class DspfFileController {
         if (!designer) throw new TypeError('DspfFileController requires a designer.');
         if (!host) throw new TypeError('DspfFileController requires a host.');
         if (!commands) throw new TypeError('DspfFileController requires commands.');
+        if (!dialogs) throw new TypeError('DspfFileController requires dialogs.');
         this.documentModel = documentModel;
         this.coordinator = coordinator;
         this.designer = designer;
@@ -37,7 +38,7 @@ export class DspfFileController {
         this.flushSource = flushSource;
         this.document = documentRef;
         this.window = windowRef;
-        this.confirm = confirmRef;
+        this.dialogs = dialogs;
         this.logger = logger;
     }
 
@@ -83,7 +84,7 @@ export class DspfFileController {
 
     async openSource () {
         this.flushSource?.();
-        if (!this.#confirmReplace('Open another DSPF source')) return false;
+        if (!await this.#confirmReplace('Open another DSPF source')) return false;
         try {
             const file = await this.host.openTextFile({ accept: '.dspf,.dds,.txt' });
             if (!file) return false;
@@ -121,7 +122,7 @@ export class DspfFileController {
 
     async openProject () {
         this.flushSource?.();
-        if (!this.#confirmReplace('Open another RAD design project')) return false;
+        if (!await this.#confirmReplace('Open another RAD design project')) return false;
         try {
             const file = await this.host.openTextFile({ accept: '.json,.dspfrad.json' });
             if (!file) return false;
@@ -179,9 +180,14 @@ export class DspfFileController {
         this.window.requestAnimationFrame(() => this.designer.forceResize());
     }
 
-    #confirmReplace (action) {
+    async #confirmReplace (action) {
         return !this.coordinator.isOpen || !this.documentModel.isDirty ||
-            this.confirm(`${action} and discard unsaved changes?`);
+            this.dialogs.confirm({
+                title: 'Unsaved display file',
+                message: `${action} and discard unsaved changes?`,
+                acceptLabel: 'Discard and open',
+                danger: true,
+            });
     }
 
     #reportFailure (operation, error) {

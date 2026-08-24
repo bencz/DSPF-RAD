@@ -16,11 +16,12 @@ export class DspfTemplateController {
         flash,
         flushSource,
         documentRef = globalThis.document,
-        confirmRef = globalThis.confirm,
+        dialogs,
     }) {
         if (!documentModel) throw new TypeError('DspfTemplateController requires a DSPF document.');
         if (!coordinator) throw new TypeError('DspfTemplateController requires a coordinator.');
         if (!commands) throw new TypeError('DspfTemplateController requires commands.');
+        if (!dialogs) throw new TypeError('DspfTemplateController requires dialogs.');
         this.documentModel = documentModel;
         this.coordinator = coordinator;
         this.designer = designer;
@@ -29,7 +30,7 @@ export class DspfTemplateController {
         this.flash = flash;
         this.flushSource = flushSource;
         this.document = documentRef;
-        this.confirm = confirmRef;
+        this.dialogs = dialogs;
     }
 
     start () {
@@ -61,10 +62,15 @@ export class DspfTemplateController {
         this.#unregisterCommand = null;
     }
 
-    openDialog () {
+    async openDialog () {
         this.flushSource?.();
         if (this.coordinator.isOpen && this.documentModel.isDirty &&
-            !this.confirm('Discard the current unsaved display-file design?')) return false;
+            !await this.dialogs.confirm({
+                title: 'Unsaved display file',
+                message: 'Discard the current unsaved display-file design?',
+                acceptLabel: 'Discard and create',
+                danger: true,
+            })) return false;
         this.elements.sourceName.value = 'DSPFILE';
         this.elements.recordName.value = 'MAIN';
         this.elements.model.value = this.documentModel.modelKey;

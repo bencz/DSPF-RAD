@@ -24,7 +24,10 @@ test('workspace controller opens and saves manifests through the host bridge', a
     const commands = new CommandRegistry();
     const controller = new WorkspaceController({
         session, commands, host, flash: () => {},
-        promptRef: () => 'Unused', confirmRef: () => true,
+        dialogs: {
+            prompt: async () => 'Unused',
+            confirm: async () => true,
+        },
     });
     controller.start();
 
@@ -54,8 +57,10 @@ test('workspace controller keeps dirty work when discard is rejected', async () 
             openTextFile: async () => { hostCalls += 1; return null; },
         },
         flash: () => {},
-        promptRef: () => 'Replacement',
-        confirmRef: () => false,
+        dialogs: {
+            prompt: async () => 'Replacement',
+            confirm: async () => false,
+        },
     });
     controller.start();
 
@@ -63,4 +68,27 @@ test('workspace controller keeps dirty work when discard is rejected', async () 
     await commands.execute(WorkbenchCommand.WORKSPACE_OPEN);
     assert.equal(session.workspace, workspace);
     assert.equal(hostCalls, 0);
+});
+
+test('workspace controller creates a workspace from the reusable dialog result', async () => {
+    const session = new WorkspaceSession({
+        workspace: new Workspace({ id: 'initial', name: 'Initial' }),
+    });
+    const commands = new CommandRegistry();
+    const controller = new WorkspaceController({
+        session,
+        commands,
+        host: { supports: () => true },
+        flash: () => {},
+        dialogs: {
+            prompt: async () => 'Development',
+            confirm: async () => true,
+        },
+    });
+    controller.start();
+
+    const result = await commands.execute(WorkbenchCommand.WORKSPACE_NEW);
+    assert.equal(result.value, true);
+    assert.equal(session.workspace.name, 'Development');
+    assert.equal(session.isDirty, true);
 });

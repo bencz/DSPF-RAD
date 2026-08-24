@@ -5,8 +5,7 @@ export class DspfToolbarController {
         doc, designer, elements, flash,
         documentRef = globalThis.document,
         windowRef = globalThis.window,
-        promptRef = globalThis.prompt,
-        confirmRef = globalThis.confirm,
+        dialogs,
     }) {
         this.doc = doc;
         this.designer = designer;
@@ -14,8 +13,8 @@ export class DspfToolbarController {
         this.flash = flash;
         this.document = documentRef;
         this.window = windowRef;
-        this.prompt = promptRef;
-        this.confirm = confirmRef;
+        if (!dialogs) throw new TypeError('DspfToolbarController requires dialogs.');
+        this.dialogs = dialogs;
     }
 
     start () {
@@ -95,13 +94,27 @@ export class DspfToolbarController {
         if (!changed) this.flash('Select at least 2 items (3 to distribute).', 'error');
     }
 
-    #addRecord () {
-        const name = this.prompt('New record format name:', `R${this.doc.records.length + 1}`);
+    async #addRecord () {
+        const name = await this.dialogs.prompt({
+            title: 'Add record format',
+            message: 'Create a record format in the active display file.',
+            label: 'Record format name',
+            value: `R${this.doc.records.length + 1}`,
+            maxLength: 10,
+            acceptLabel: 'Add',
+        });
         if (name != null) this.doc.addRecord(name);
     }
 
-    #addSubfile () {
-        const base = this.prompt('Subfile base name (creates <BASE> + <BASE>C):', 'SFL');
+    async #addSubfile () {
+        const base = await this.dialogs.prompt({
+            title: 'Add subfile pair',
+            message: 'Create linked SFL and SFLCTL record formats.',
+            label: 'Base name',
+            value: 'SFL',
+            maxLength: 9,
+            acceptLabel: 'Add pair',
+        });
         if (base == null) return;
         const { sflctl } = this.doc.addSubfile(base);
         const sflName = this.doc.records[this.doc.records.length - 2].name;
@@ -117,20 +130,33 @@ export class DspfToolbarController {
             : `Duplicated record as ${created[0].name}.`, 'ok', 4000);
     }
 
-    #renameRecord () {
+    async #renameRecord () {
         const currentName = this.doc.activeRecord.name;
-        const name = this.prompt('Rename record format:', currentName);
+        const name = await this.dialogs.prompt({
+            title: 'Rename record format',
+            message: `Rename ${currentName}.`,
+            label: 'Record format name',
+            value: currentName,
+            maxLength: 10,
+            acceptLabel: 'Rename',
+        });
         if (name != null && name !== currentName) {
             this.doc.renameRecord(this.doc.activeRecordIndex, name);
         }
     }
 
-    #deleteRecord () {
+    async #deleteRecord () {
         if (this.doc.records.length === 1) {
             this.flash('At least one record is required.', 'error');
             return;
         }
-        if (!this.confirm(`Delete record ${this.doc.activeRecord.name}?`)) return;
+        if (!await this.dialogs.confirm({
+            title: 'Delete record format',
+            message: `Delete record ${this.doc.activeRecord.name}?`,
+            detail: 'This operation remains available through document undo.',
+            acceptLabel: 'Delete',
+            danger: true,
+        })) return;
         this.doc.deleteRecord(this.doc.activeRecordIndex);
     }
 }

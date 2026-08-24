@@ -8,16 +8,20 @@ import { PRODUCT } from '../product.js';
 const STORAGE_KEY = 'dspf-rad:autosave:v1';
 const SAVE_DELAY_MS = 700;
 
-export function recoverAutosave (doc) {
+export async function recoverAutosave (doc, dialogs) {
     const saved = readSnapshot();
     if (!saved?.document?.records?.length) return false;
 
     const when = saved.savedAt
         ? new Date(saved.savedAt).toLocaleString()
         : 'an earlier session';
-    const recover = confirm(
-        `Recover unsaved ${PRODUCT.name} work from ${when}?\n\n` +
-        'Cancel discards the recovery snapshot and opens the IDE Start Page.');
+    const recover = await dialogs.confirm({
+        title: 'Recover unsaved work',
+        message: `Recover unsaved ${PRODUCT.name} work from ${when}?`,
+        detail: 'Cancel discards the recovery snapshot and opens the IDE Start Page.',
+        acceptLabel: 'Recover',
+        cancelLabel: 'Discard',
+    });
     if (!recover) {
         clearSnapshot();
         return false;

@@ -108,10 +108,14 @@
 }
 
 #statusbar #sbCursor,
-#statusbar #sbItems {
+#statusbar #sbItems,
+#statusbar #sbSourcePosition {
     font-family: var(--font-mono);
     font-size: var(--font-size-caption);
 }
+
+#sbLanguage { min-width: 140px; }
+#sbSourcePosition { min-width: 100px; text-align: right; }
 
 @media (max-width: 900px) {
     .menubar-info .hint {

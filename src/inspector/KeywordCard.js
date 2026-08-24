@@ -22,12 +22,19 @@ export function renderKeywordCard (target, kw, onChange) {
     return card;
 }
 
-export function renderAddKeywordButton (target, onChange) {
+export function renderAddKeywordButton (target, onChange, dialogs) {
     const btn = document.createElement('button');
     btn.className = 'insp-add-kw';
     btn.textContent = '+ Add keyword';
-    btn.addEventListener('click', () => {
-        const name = prompt('Keyword name (e.g. OVERLAY, REFFLD, SFLPAG):', '');
+    btn.addEventListener('click', async () => {
+        const name = await dialogs.prompt({
+            title: 'Add DDS keyword',
+            message: 'Add another keyword to this specification.',
+            label: 'Keyword name',
+            placeholder: 'OVERLAY, REFFLD, SFLPAG…',
+            maxLength: 10,
+            acceptLabel: 'Add',
+        });
         if (!name) return;
         addKeyword(target, { name: name.toUpperCase().trim(), args: [], indicators: [] });
         onChange?.();

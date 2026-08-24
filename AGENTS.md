@@ -150,6 +150,20 @@ Use the shared typography and spacing tokens. Pixel fonts are acceptable for
 deliberate terminal/brand accents, not for normal labels, help text, menus,
 forms, inspectors, or status information. Dense should remain readable.
 
+Reusable controls belong under `src/workbench/ui` and use class-based views and
+services. Inject `WorkbenchDialogService` for prompts, confirmations, and
+alerts; direct use of browser-native `prompt`, `confirm`, or `alert` is
+prohibited. Await dialog results before changing state. Keep complex
+feature-specific editors and forms inside their owning feature.
+
+Language intelligence belongs under `src/languages` and must remain independent
+from CodeMirror, DOM, and transport implementations. Model completion as
+lexical, syntactic, document-semantic, project-semantic, and connected IBM i
+layers. Providers return structured results through the shared completion
+engine; do not implement autocomplete as a global keyword array inside an
+editor. Offline providers remain authoritative without a connection, and
+remote enrichment enters only through injected platform ports.
+
 ## IBM i connectivity and credentials
 
 - Direct IBM i access is a desktop capability. The browser host must remain
@@ -189,6 +203,24 @@ Add focused Node tests for pure behavior and stable contracts, including:
 - versioned persistence models and migrations;
 - command registries, controllers, and services using small injected fakes;
 - platform contracts without launching a browser.
+
+Tests must protect an essential behavior, public contract, data invariant,
+security boundary, parser/generator semantic, or failure mode with realistic
+regression risk. Do not add tests merely because code changed.
+
+The following tests are prohibited:
+
+- source-shape or text-search tests that assert removed code, files, functions,
+  imports, strings, selectors, or dependencies remain absent;
+- tests of private implementation details, internal call order, incidental
+  object shape, or trivial getters/setters;
+- duplicate tests that restate a guarantee already covered at a lower layer;
+- snapshot, DOM, or markup tests whose only purpose is detecting cosmetic
+  changes;
+- tests created only to increase test count or coverage percentage.
+
+Deletion is verified by review, search, build, and the compiler/linter—not by a
+permanent regression test asserting that deleted text is still missing.
 
 For normal JavaScript changes, completion requires:
 
